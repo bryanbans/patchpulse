@@ -154,8 +154,25 @@ function App() {
     setOffset(0);
     setTab("Evidence");
   }
+  const hasFilters =
+    period !== "all" ||
+    aspect !== "all" ||
+    recommendation !== "all" ||
+    keyword !== "";
+  function clearFilters() {
+    setPeriod("all");
+    setAspect("all");
+    setRecommendation("all");
+    setKeyword("");
+    setOffset(0);
+    setExpanded("");
+  }
   const evidencePanel = (
-    <section className="panel evidence" aria-labelledby="evidence-title">
+    <section
+      className="panel evidence"
+      aria-labelledby="evidence-title"
+      aria-busy={busy}
+    >
       <div className="panel-heading">
         <div>
           <span className="eyebrow">TRACE EVERY OBSERVATION</span>
@@ -167,63 +184,81 @@ function App() {
             : "Private source versions"}
         </span>
       </div>
-      <div className="filters">
-        <label>
-          Window
-          <select
-            value={period}
-            onChange={(e) => {
-              setPeriod(e.target.value);
-              setOffset(0);
-            }}
-          >
-            <option value="all">Both windows</option>
-            <option value="before">Before update</option>
-            <option value="after">After update</option>
-          </select>
-        </label>
-        <label>
-          Aspect mention
-          <select
-            value={aspect}
-            onChange={(e) => {
-              setAspect(e.target.value);
-              setOffset(0);
-            }}
-          >
-            <option value="all">All aspects</option>
-            {data?.mentions.map((m) => (
-              <option key={m.aspect}>{m.aspect}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Recorded recommendation
-          <select
-            value={recommendation}
-            onChange={(e) => {
-              setRecommendation(e.target.value);
-              setOffset(0);
-            }}
-          >
-            <option value="all">All recommendations</option>
-            <option value="positive">Recommended</option>
-            <option value="negative">Not recommended</option>
-          </select>
-        </label>
-        <label>
-          Search text
-          <input
-            value={keyword}
-            maxLength={200}
-            placeholder="e.g. connection"
-            onChange={(e) => {
-              setKeyword(e.target.value);
-              setOffset(0);
-            }}
-          />
-        </label>
-      </div>
+      {tab !== "Case study" && (
+        <div className="filters">
+          <label>
+            Window
+            <select
+              value={period}
+              onChange={(e) => {
+                setPeriod(e.target.value);
+                setOffset(0);
+              }}
+            >
+              <option value="all">Both windows</option>
+              <option value="before">Before update</option>
+              <option value="after">After update</option>
+            </select>
+          </label>
+          <label>
+            Aspect mention
+            <select
+              value={aspect}
+              onChange={(e) => {
+                setAspect(e.target.value);
+                setOffset(0);
+              }}
+            >
+              <option value="all">All aspects</option>
+              {data?.mentions.map((m) => (
+                <option key={m.aspect}>{m.aspect}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Recorded recommendation
+            <select
+              value={recommendation}
+              onChange={(e) => {
+                setRecommendation(e.target.value);
+                setOffset(0);
+              }}
+            >
+              <option value="all">All recommendations</option>
+              <option value="positive">Recommended</option>
+              <option value="negative">Not recommended</option>
+            </select>
+          </label>
+          <label>
+            Search text
+            <input
+              value={keyword}
+              maxLength={200}
+              placeholder="e.g. connection"
+              onChange={(e) => {
+                setKeyword(e.target.value);
+                setOffset(0);
+              }}
+            />
+          </label>
+        </div>
+      )}
+      {hasFilters && (
+        <div className="filter-summary">
+          <span>
+            Filtered to{" "}
+            {period === "all" ? "both windows" : `the ${period} window`}
+            {aspect !== "all" ? ` · ${aspect}` : ""}
+            {recommendation !== "all"
+              ? ` · ${recommendation === "positive" ? "recommended" : "not recommended"}`
+              : ""}
+            {keyword ? ` · “${keyword}”` : ""}
+          </span>
+          <button className="text-button" onClick={clearFilters}>
+            Clear filters
+          </button>
+        </div>
+      )}
       <p className="muted" role="status">
         {busy
           ? "Loading evidence…"
@@ -234,7 +269,7 @@ function App() {
           No evidence matches these filters. Try another aspect or search term.
         </div>
       )}
-      {rows.map((r) => (
+      {rows.slice(0, tab === "Case study" ? 3 : rows.length).map((r) => (
         <article key={r.version_id} className="review">
           <div className="review-meta">
             <span className={r.voted_up ? "pill positive" : "pill negative"}>
@@ -298,31 +333,57 @@ function App() {
           )}
         </article>
       ))}
-      <div className="pagination">
-        <button
-          disabled={offset === 0 || busy}
-          onClick={() => setOffset(Math.max(0, offset - 12))}
-        >
-          ← Previous
-        </button>
-        <span>
-          {total === 0 ? "0" : offset + 1}–{Math.min(offset + 12, total)} of{" "}
-          {total}
-        </span>
-        <button
-          disabled={offset + 12 >= total || busy}
-          onClick={() => setOffset(offset + 12)}
-        >
-          Next →
-        </button>
-      </div>
+      {tab === "Case study" ? (
+        <div className="evidence-preview-footer">
+          <p>
+            Start with a few examples, then explore the complete collected
+            sample.
+          </p>
+          <button className="secondary" onClick={() => setTab("Evidence")}>
+            Browse all {total.toLocaleString()} reviews →
+          </button>
+        </div>
+      ) : (
+        <div className="pagination">
+          <button
+            disabled={offset === 0 || busy}
+            onClick={() => setOffset(Math.max(0, offset - 12))}
+          >
+            ← Previous
+          </button>
+          <span>
+            {total === 0 ? "0" : offset + 1}–{Math.min(offset + 12, total)} of{" "}
+            {total}
+          </span>
+          <button
+            disabled={offset + 12 >= total || busy}
+            onClick={() => setOffset(offset + 12)}
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </section>
   );
   return (
     <div className="shell">
+      <a className="skip-link" href="#main">
+        Skip to main content
+      </a>
       <aside>
         <a className="brand" href="#main" aria-label="PatchPulse home">
-          <span className="brand-mark">ϟ</span>PatchPulse
+          <span className="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 28 28" fill="none">
+              <path
+                d="M3 15h6l3-8 5 15 3-7h5"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          PatchPulse
           <span className="brand-dot">.</span>
         </a>
         <div className="sidebar-label">RELEASE INTELLIGENCE</div>
@@ -332,6 +393,7 @@ function App() {
               <button
                 key={item}
                 className={tab === item ? "active" : ""}
+                aria-current={tab === item ? "page" : undefined}
                 onClick={() => setTab(item)}
               >
                 <span aria-hidden="true">{["◫", "≡", "⌁", "◎"][i]}</span>
@@ -384,7 +446,7 @@ function App() {
                 <span className="eyebrow">PLAYER FEEDBACK, IN CONTEXT</span>
                 <h1>
                   {tab === "Case study"
-                    ? "A release is a starting point."
+                    ? "Every update has a player story."
                     : tab === "Evidence"
                       ? "Follow the evidence."
                       : tab === "Model lab"
@@ -424,6 +486,16 @@ function App() {
                 <h2>{data.game.name}</h2>
                 <p>
                   {data.game.title} <span>· {data.game.date}</span>
+                </p>
+                <p className="case-context">
+                  {(
+                    data.periods.before.count + data.periods.after.count
+                  ).toLocaleString()}{" "}
+                  eligible{" "}
+                  {data.mode === "synthetic"
+                    ? "synthetic examples"
+                    : "collected reviews"}{" "}
+                  · snapshot {data.snapshot_date}
                 </p>
               </div>
               <a href={data.game.source_url} target="_blank" rel="noreferrer">
@@ -508,31 +580,33 @@ function App() {
                       <span className="before-key" /> Before{" "}
                       <span className="after-key" /> After
                     </div>
-                    {data.mentions.map((m) => (
-                      <button
-                        className="aspect-row"
-                        key={m.aspect}
-                        onClick={() => selectAspect(m.aspect)}
-                        aria-label={`Inspect ${m.aspect} evidence`}
-                      >
-                        <span>{m.aspect}</span>
-                        <div className="aspect-tracks">
-                          <span
-                            style={{
-                              width: `${(100 * m.before) / Math.max(data.periods.before.count, 1)}%`,
-                            }}
-                          />
-                          <span
-                            style={{
-                              width: `${(100 * m.after) / Math.max(data.periods.after.count, 1)}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="aspect-count">
-                          {m.before} / {m.after} ↗
-                        </span>
-                      </button>
-                    ))}
+                    {data.mentions
+                      .filter((m) => m.before + m.after > 0)
+                      .map((m) => (
+                        <button
+                          className="aspect-row"
+                          key={m.aspect}
+                          onClick={() => selectAspect(m.aspect)}
+                          aria-label={`Inspect ${m.aspect} evidence`}
+                        >
+                          <span>{m.aspect}</span>
+                          <div className="aspect-tracks">
+                            <span
+                              style={{
+                                width: `${(100 * m.before) / Math.max(data.periods.before.count, 1)}%`,
+                              }}
+                            />
+                            <span
+                              style={{
+                                width: `${(100 * m.after) / Math.max(data.periods.after.count, 1)}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="aspect-count">
+                            {m.before} / {m.after} ↗
+                          </span>
+                        </button>
+                      ))}
                   </section>
                   <section className="panel field-notes">
                     <span className="eyebrow">READ THIS WITH THE CHARTS</span>

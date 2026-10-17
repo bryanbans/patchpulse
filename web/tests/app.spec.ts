@@ -6,7 +6,7 @@ test("case, evidence filters, safe text, model, and brief export", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "A release is a starting point." }),
+    page.getByRole("heading", { name: "Every update has a player story." }),
   ).toBeVisible();
   await expect(page.getByText("SYNTHETIC DEMO", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Open case study" }).click();
@@ -34,6 +34,12 @@ test("case, evidence filters, safe text, model, and brief export", async ({
     ),
   ).toBeVisible();
   const download = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Clear filters", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "48 matching reviews / 48",
+  );
   await page.getByRole("button", { name: "Export release brief" }).click();
   expect((await download).suggestedFilename()).toBe(
     "patchpulse-release-brief.txt",
@@ -59,7 +65,7 @@ test("capture desktop and mobile screens and keyboard focus", async ({
 }, testInfo) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "A release is a starting point." }),
+    page.getByRole("heading", { name: "Every update has a player story." }),
   ).toBeVisible();
   await page.screenshot({
     path: `../assets/${testInfo.project.name}-case.png`,
@@ -68,11 +74,30 @@ test("capture desktop and mobile screens and keyboard focus", async ({
   await page.screenshot({
     path: `../assets/${testInfo.project.name}-preview.png`,
   });
+  await expect(page.locator(".review")).toHaveCount(3);
+  for (const button of await page
+    .getByRole("navigation")
+    .getByRole("button")
+    .all()) {
+    const bounds = await button.boundingBox();
+    const viewport = page.viewportSize();
+    expect(
+      bounds &&
+        viewport &&
+        bounds.x >= 0 &&
+        bounds.x + bounds.width <= viewport.width,
+    ).toBeTruthy();
+  }
   for (const tab of ["Evidence", "Model lab", "Methodology"]) {
     await page
       .getByRole("navigation")
       .getByRole("button", { name: tab })
       .click();
+    await expect(
+      page
+        .getByRole("navigation")
+        .getByRole("button", { name: tab, exact: true }),
+    ).toHaveAttribute("aria-current", "page");
     await page.screenshot({
       path: `../assets/${testInfo.project.name}-${tab.toLowerCase().replace(" ", "-")}.png`,
       fullPage: true,
