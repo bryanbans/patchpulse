@@ -1,0 +1,10 @@
+.git
+.venv
+private
+web/node_modules
+web/dist
+web/test-results
+assets
+reports
+**/__pycache__
+.env

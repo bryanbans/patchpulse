@@ -1,0 +1,1 @@
+{"frozen_at":"2026-10-17","development":[548430,526870],"unseen_game_holdout":275850,"alternate":553850,"status":"Metadata-based selection frozen before recommendation-model fitting. Only DRG is collected beyond the feasibility spike. Do not inspect holdout labels or predictions for tuning."}

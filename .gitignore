@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+private/
+*.sqlite*
+*.joblib
+*.pt
+*.safetensors
+.env
+node_modules/
+web/dist/
+test-results/
+playwright-report/
+*.log
+

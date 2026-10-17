@@ -1,0 +1,156 @@
+{
+  "scope": "Local exploratory research. Aggregates only; source text and models excluded. Not final evaluation.",
+  "snapshot_date": "2026-10-17",
+  "dataset_version": "20261017T175231123035Z",
+  "game": {
+    "app_id": 548430,
+    "name": "Deep Rock Galactic",
+    "title": "Season 05: Drilling Deeper",
+    "version": "Season 05",
+    "date": "2024-06-13",
+    "date_precision": "day",
+    "timezone": "UTC",
+    "announcement_time_utc": "2024-06-13T11:02:07Z",
+    "source_url": "https://steamcommunity.com/games/DeepRockGalactic/announcements/detail/4174354336751077143",
+    "context_notes": "Announcement time is not a verified deployment instant; omit release date. Season preview and subsequent hotfixes may affect feedback. Sale overlap has not yet been fully audited."
+  },
+  "periods": {
+    "before": {
+      "count": 853,
+      "positive": 837,
+      "negative": 16,
+      "rate": 0.981242672919109,
+      "wilson_95": [
+        0.9697482779884105,
+        0.9884218201954312
+      ],
+      "interval_note": "Sampling variability only; excludes selection and model error.",
+      "start": 1717027200,
+      "end": 1718236800,
+      "coverage": {
+        "status": "complete",
+        "pages": 11,
+        "count": 931,
+        "source_total_matching": 931,
+        "observed_creation_range": [
+          1717030411,
+          1718236379
+        ],
+        "terminal_empty_page_verified": true
+      }
+    },
+    "after": {
+      "count": 2722,
+      "positive": 2643,
+      "negative": 79,
+      "rate": 0.9709772226304189,
+      "wilson_95": [
+        0.9639765832934816,
+        0.9766503408828903
+      ],
+      "interval_note": "Sampling variability only; excludes selection and model error.",
+      "start": 1718323200,
+      "end": 1719532800,
+      "coverage": {
+        "status": "exhausted_source_count_mismatch",
+        "pages": 31,
+        "count": 2952,
+        "source_total_matching": 2953,
+        "observed_creation_range": [
+          1718323331,
+          1719532064
+        ],
+        "terminal_empty_page_verified": true
+      }
+    }
+  },
+  "exclusions": {
+    "edited_after_cutoff": 291,
+    "empty_text": 17
+  },
+  "change_pp": -1.0265450288690192,
+  "evaluation": {
+    "mode": "real",
+    "status": "development validation only; final tests locked",
+    "task": "recommendation prediction",
+    "model_id": "tfidf-logreg-v1",
+    "features": "review text only; word unigram/bigram TF-IDF fitted on training",
+    "selection": "fixed initial configuration, one seed (42); no hyperparameter search yet",
+    "split_hash": "74d00361fcc2a33215dfad6b2bb99075774e1b1c3ab29e8e26a144b6e84afefc",
+    "counts": {
+      "train": 1896,
+      "validation": 406,
+      "locked_temporal_test": 407
+    },
+    "validation_class_support": {
+      "True": 394,
+      "False": 12
+    },
+    "macro_f1": 0.4925,
+    "majority_macro_f1": 0.4925,
+    "classification_report": {
+      "not_recommended": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "recommended": {
+        "precision": 0.9704433497536946,
+        "recall": 1.0,
+        "f1-score": 0.985,
+        "support": 394.0
+      },
+      "accuracy": 0.9704433497536946,
+      "macro avg": {
+        "precision": 0.4852216748768473,
+        "recall": 0.5,
+        "f1-score": 0.4925,
+        "support": 406.0
+      },
+      "weighted avg": {
+        "precision": 0.9417602950811717,
+        "recall": 0.9704433497536946,
+        "f1-score": 0.9558866995073891,
+        "support": 406.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        0,
+        12
+      ],
+      [
+        0,
+        394
+      ]
+    ],
+    "confusion_matrix_order": [
+      "not_recommended",
+      "recommended"
+    ],
+    "train_seconds": 0.10237090001464821,
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "calibrated": false,
+    "real_world_quality_claim": "exploratory validation only"
+  },
+  "duplicates_excluded": 866,
+  "author_overlap_train_validation": 0,
+  "split_boundaries_utc": [
+    "2024-06-20T05:32:56+00:00",
+    "2024-06-23T16:32:06+00:00"
+  ],
+  "locked_test_opened": false,
+  "model_artifact_sha256": "39755aac8bb0c66712b6902734222a3f6f653f64c7646c938c0c67ca3f8a5477",
+  "python_lock_sha256": "a78076406045a2e8af7426b42698f845f1793b1f62888060ce671d926beb705b",
+  "code_state": "Initial implementation before first commit; see Git history for source.",
+  "limitations": [
+    "Retrospective snapshot: original historical text is unavailable.",
+    "Association within collected reviews does not establish patch causation.",
+    "Keyword mentions are exploratory; aspect polarity awaits human annotation.",
+    "After-window source count exceeds returned distinct records by one.",
+    "Public distribution and model-training permission questions remain unresolved. This is not an open dataset.",
+    "One seed and baseline only; no final-test, transformer, or human aspect-quality claims."
+  ]
+}

@@ -1,0 +1,768 @@
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import "./style.css";
+
+type Period = {
+  count: number;
+  positive: number;
+  negative: number;
+  rate: number | null;
+  start: number;
+  end: number;
+  coverage: { status: string; cap?: number };
+};
+type Case = {
+  id: string;
+  mode: string;
+  snapshot_date: string;
+  game: { name: string; title: string; date: string; source_url: string };
+  periods: Record<string, Period>;
+  change_pp: number | null;
+  exclusions: Record<string, number>;
+  mentions: { aspect: string; before: number; after: number }[];
+  limitations: string[];
+};
+type Evidence = {
+  version_id: string;
+  text: string;
+  voted_up: boolean;
+  period: string;
+  created_at: number;
+  mentions: { aspect: string; passage: string; start: number; end: number }[];
+  source_url: string | null;
+};
+type Evaluation = {
+  status: string;
+  mode: string;
+  macro_f1?: number;
+  majority_macro_f1?: number;
+  counts?: Record<string, number>;
+  confusion_matrix?: number[][];
+  train_seconds?: number;
+  split_hash?: string;
+};
+async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  const r = await fetch(path, init);
+  if (!r.ok)
+    throw new Error(
+      `Request unavailable (${r.status}). ${r.status === 503 ? "Build the local dataset and model first." : "Please retry or adjust the input."}`,
+    );
+  return r.json();
+}
+const date = (t: number) => new Date(t * 1000).toISOString().slice(0, 10);
+const pct = (rate: number | null) =>
+  rate === null ? "Insufficient data" : `${(rate * 100).toFixed(1)}%`;
+
+function App() {
+  const [data, setData] = useState<Case | null>(null),
+    [error, setError] = useState(""),
+    [tab, setTab] = useState("Case study");
+  const [period, setPeriod] = useState("all"),
+    [aspect, setAspect] = useState("all"),
+    [recommendation, setRecommendation] = useState("all"),
+    [keyword, setKeyword] = useState("");
+  const [rows, setRows] = useState<Evidence[]>([]),
+    [total, setTotal] = useState(0),
+    [denominator, setDenominator] = useState(0),
+    [offset, setOffset] = useState(0),
+    [busy, setBusy] = useState(false),
+    [expanded, setExpanded] = useState("");
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null),
+    [text, setText] = useState(
+      "I love the exploration, but multiplayer disconnects still interrupt our runs.",
+    ),
+    [prediction, setPrediction] = useState<{
+      prediction: string | null;
+      score_recommended: number | null;
+      abstention_reason: string | null;
+    } | null>(null),
+    [predicting, setPredicting] = useState(false),
+    [predictError, setPredictError] = useState("");
+  useEffect(() => {
+    api<Case>("/api/case-studies/drg-season-05")
+      .then(setData)
+      .catch((e) => setError(e.message));
+    api<Evaluation>("/api/evaluation")
+      .then(setEvaluation)
+      .catch(() => {});
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    setBusy(true);
+    const q = new URLSearchParams({
+      period,
+      aspect,
+      recommendation,
+      keyword,
+      offset: String(offset),
+      limit: "12",
+    });
+    api<{ records: Evidence[]; total: number; denominator: number }>(
+      "/api/evidence?" + q,
+    )
+      .then((x) => {
+        if (!cancelled) {
+          setRows(x.records);
+          setTotal(x.total);
+          setDenominator(x.denominator);
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [period, aspect, recommendation, keyword, offset]);
+  async function exportBrief() {
+    try {
+      const b = await api<{ text: string }>("/api/briefs/drg-season-05");
+      const url = URL.createObjectURL(
+        new Blob([b.text], { type: "text/plain;charset=utf-8" }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "patchpulse-release-brief.txt";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  async function predict() {
+    setPredicting(true);
+    setPredictError("");
+    try {
+      setPrediction(
+        await api("/api/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        }),
+      );
+    } catch (e) {
+      setPredictError((e as Error).message);
+    } finally {
+      setPredicting(false);
+    }
+  }
+  function selectAspect(value: string) {
+    setAspect(value);
+    setOffset(0);
+    setTab("Evidence");
+  }
+  const evidencePanel = (
+    <section className="panel evidence" aria-labelledby="evidence-title">
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">TRACE EVERY OBSERVATION</span>
+          <h2 id="evidence-title">The words behind the numbers</h2>
+        </div>
+        <span className="small-tag">
+          {data?.mode === "synthetic"
+            ? "Original synthetic examples"
+            : "Private source versions"}
+        </span>
+      </div>
+      <div className="filters">
+        <label>
+          Window
+          <select
+            value={period}
+            onChange={(e) => {
+              setPeriod(e.target.value);
+              setOffset(0);
+            }}
+          >
+            <option value="all">Both windows</option>
+            <option value="before">Before update</option>
+            <option value="after">After update</option>
+          </select>
+        </label>
+        <label>
+          Aspect mention
+          <select
+            value={aspect}
+            onChange={(e) => {
+              setAspect(e.target.value);
+              setOffset(0);
+            }}
+          >
+            <option value="all">All aspects</option>
+            {data?.mentions.map((m) => (
+              <option key={m.aspect}>{m.aspect}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Recorded recommendation
+          <select
+            value={recommendation}
+            onChange={(e) => {
+              setRecommendation(e.target.value);
+              setOffset(0);
+            }}
+          >
+            <option value="all">All recommendations</option>
+            <option value="positive">Recommended</option>
+            <option value="negative">Not recommended</option>
+          </select>
+        </label>
+        <label>
+          Search text
+          <input
+            value={keyword}
+            maxLength={200}
+            placeholder="e.g. connection"
+            onChange={(e) => {
+              setKeyword(e.target.value);
+              setOffset(0);
+            }}
+          />
+        </label>
+      </div>
+      <p className="muted" role="status">
+        {busy
+          ? "Loading evidence…"
+          : `${total} matching reviews / ${denominator} eligible reviews in selected window. Aspect mentions may overlap.`}
+      </p>
+      {!busy && rows.length === 0 && (
+        <div className="empty">
+          No evidence matches these filters. Try another aspect or search term.
+        </div>
+      )}
+      {rows.map((r) => (
+        <article key={r.version_id} className="review">
+          <div className="review-meta">
+            <span className={r.voted_up ? "pill positive" : "pill negative"}>
+              {r.voted_up ? "↗ Recommended" : "↘ Not recommended"}
+            </span>
+            <span>
+              {r.period === "before" ? "Before" : "After"} ·{" "}
+              {date(r.created_at)} UTC
+            </span>
+          </div>
+          <p>{r.text}</p>
+          <div className="review-bottom">
+            <div className="tags">
+              {r.mentions.map((m) => (
+                <button key={m.aspect} onClick={() => selectAspect(m.aspect)}>
+                  {m.aspect}
+                </button>
+              ))}
+            </div>
+            <button
+              className="text-button"
+              aria-expanded={expanded === r.version_id}
+              onClick={() =>
+                setExpanded(expanded === r.version_id ? "" : r.version_id)
+              }
+            >
+              {" "}
+              {expanded === r.version_id
+                ? "Hide evidence −"
+                : "Inspect evidence +"}{" "}
+            </button>
+          </div>
+          {expanded === r.version_id && (
+            <div className="detail">
+              <p>
+                <strong>Version</strong> <code>{r.version_id}</code>
+              </p>
+              <p>
+                Recorded recommendation is source metadata. These keyword
+                matches identify mentions; their polarity has not been
+                evaluated.
+              </p>
+              {r.mentions.map((m) => (
+                <blockquote key={m.aspect}>
+                  <strong>{m.aspect}</strong> · raw-text offsets [{m.start},{" "}
+                  {m.end})<br />
+                  {m.passage}
+                </blockquote>
+              ))}
+              {r.source_url ? (
+                <a href={r.source_url} target="_blank" rel="noreferrer">
+                  Steam source listing ↗
+                </a>
+              ) : (
+                <p>
+                  Synthetic fixture. There is no Steam review behind this
+                  example.
+                </p>
+              )}
+            </div>
+          )}
+        </article>
+      ))}
+      <div className="pagination">
+        <button
+          disabled={offset === 0 || busy}
+          onClick={() => setOffset(Math.max(0, offset - 12))}
+        >
+          ← Previous
+        </button>
+        <span>
+          {total === 0 ? "0" : offset + 1}–{Math.min(offset + 12, total)} of{" "}
+          {total}
+        </span>
+        <button
+          disabled={offset + 12 >= total || busy}
+          onClick={() => setOffset(offset + 12)}
+        >
+          Next →
+        </button>
+      </div>
+    </section>
+  );
+  return (
+    <div className="shell">
+      <aside>
+        <a className="brand" href="#main" aria-label="PatchPulse home">
+          <span className="brand-mark">ϟ</span>PatchPulse
+          <span className="brand-dot">.</span>
+        </a>
+        <div className="sidebar-label">RELEASE INTELLIGENCE</div>
+        <nav aria-label="Main navigation">
+          {["Case study", "Evidence", "Model lab", "Methodology"].map(
+            (item, i) => (
+              <button
+                key={item}
+                className={tab === item ? "active" : ""}
+                onClick={() => setTab(item)}
+              >
+                <span aria-hidden="true">{["◫", "≡", "⌁", "◎"][i]}</span>
+                {item}
+              </button>
+            ),
+          )}
+        </nav>
+        <div className="sidebar-note">
+          <span className="status-dot" /> Local research build
+          <p>Evidence before conclusions.</p>
+          <small>
+            Independent portfolio project.
+            <br />
+            Not affiliated with Valve or game developers.
+          </small>
+        </div>
+      </aside>
+      <main id="main">
+        <header>
+          <div className="breadcrumbs">
+            WORKSPACE <span>/</span> {tab.toUpperCase()}
+          </div>
+          <span className="build-tag">v0.1 · one-game slice</span>
+        </header>
+        {error && (
+          <div className="error" role="alert">
+            {error}
+            <button onClick={() => window.location.reload()}>Retry</button>
+          </div>
+        )}
+        {!data && !error && <p role="status">Loading the case study…</p>}
+        {data && (
+          <>
+            <div className="mode-banner">
+              <span className="status-dot" />
+              <strong>
+                {data.mode === "synthetic"
+                  ? "SYNTHETIC DEMO"
+                  : "PRIVATE REAL-DATA STUDY"}
+              </strong>
+              <span>
+                {data.mode === "synthetic"
+                  ? "Invented reviews and labels demonstrate the workflow. No real game findings."
+                  : "Retrospective source snapshot. Source text and model artifacts stay private."}
+              </span>
+            </div>
+            <div className="hero">
+              <div>
+                <span className="eyebrow">PLAYER FEEDBACK, IN CONTEXT</span>
+                <h1>
+                  {tab === "Case study"
+                    ? "A release is a starting point."
+                    : tab === "Evidence"
+                      ? "Follow the evidence."
+                      : tab === "Model lab"
+                        ? "Test the text, not your assumptions."
+                        : "Make the method inspectable."}
+                </h1>
+                <p>
+                  {tab === "Case study"
+                    ? "Investigate what players discuss around an update, with every observation tied to the collected sample."
+                    : tab === "Evidence"
+                      ? "Inspect versioned text, recorded recommendations, and exact keyword passages."
+                      : tab === "Model lab"
+                        ? "Recommendation prediction is a separate text-only experiment. It does not replace a known recommendation."
+                        : "Reproducible collection, honest limits, and development results you can trace."}
+                </p>
+              </div>
+              <button
+                className="primary"
+                onClick={
+                  tab === "Case study"
+                    ? () => {
+                        setTab("Evidence");
+                      }
+                    : exportBrief
+                }
+              >
+                {tab === "Case study"
+                  ? "Open case study ↗"
+                  : "Export release brief ↓"}
+              </button>
+            </div>
+            <div className="case-bar">
+              <div className="game-glyph" aria-hidden="true">
+                DRG
+              </div>
+              <div>
+                <h2>{data.game.name}</h2>
+                <p>
+                  {data.game.title} <span>· {data.game.date}</span>
+                </p>
+              </div>
+              <a href={data.game.source_url} target="_blank" rel="noreferrer">
+                Official update ↗
+              </a>
+            </div>
+            {tab === "Case study" && (
+              <>
+                <div className="section-label">
+                  <h2>Recorded recommendations</h2>
+                  <span>
+                    Observed labels ·{" "}
+                    {data.mode === "synthetic"
+                      ? "synthetic fixture"
+                      : "eligible collected sample"}
+                  </span>
+                </div>
+                <div className="stats-grid">
+                  {["before", "after"].map((p) => (
+                    <section className="stat-card" key={p}>
+                      <span className="eyebrow">
+                        {p === "before"
+                          ? "01 / BEFORE UPDATE"
+                          : "02 / AFTER UPDATE"}
+                      </span>
+                      <strong>{pct(data.periods[p].rate)}</strong>
+                      <p>
+                        {data.periods[p].positive} recommended /{" "}
+                        {data.periods[p].count} eligible reviews
+                      </p>
+                      <div
+                        className="rate-track"
+                        role="img"
+                        aria-label={`${p}: ${pct(data.periods[p].rate)} recommended`}
+                      >
+                        <span
+                          style={{
+                            width: `${(data.periods[p].rate || 0) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <small>
+                        {date(data.periods[p].start)} →{" "}
+                        {date(data.periods[p].end)} exclusive · UTC
+                      </small>
+                      <span className="coverage">
+                        {data.periods[p].coverage.status.replaceAll("_", " ")}
+                      </span>
+                    </section>
+                  ))}
+                  <section className="stat-card change">
+                    <span className="eyebrow">03 / OBSERVED DIFFERENCE</span>
+                    <strong>
+                      {data.change_pp === null
+                        ? "—"
+                        : `${data.change_pp >= 0 ? "+" : ""}${data.change_pp.toFixed(1)}`}
+                      <em> pp</em>
+                    </strong>
+                    <p>Percentage points, after minus before</p>
+                    <div className="change-note">
+                      A change in the collected reviews.
+                      <br />
+                      No claim of patch causation.
+                    </div>
+                    <small>Snapshot · {data.snapshot_date}</small>
+                  </section>
+                </div>
+                <div className="analysis-grid">
+                  <section className="panel">
+                    <div className="panel-heading">
+                      <div>
+                        <span className="eyebrow">EXPLORATORY SIGNALS</span>
+                        <h2>What gets mentioned?</h2>
+                      </div>
+                      <span className="small-tag">Keyword baseline</span>
+                    </div>
+                    <p className="muted">
+                      Counts of reviews mentioning each aspect. These are not
+                      complaint counts. Polarity awaits human review.
+                    </p>
+                    <div className="legend">
+                      <span className="before-key" /> Before{" "}
+                      <span className="after-key" /> After
+                    </div>
+                    {data.mentions.map((m) => (
+                      <button
+                        className="aspect-row"
+                        key={m.aspect}
+                        onClick={() => selectAspect(m.aspect)}
+                        aria-label={`Inspect ${m.aspect} evidence`}
+                      >
+                        <span>{m.aspect}</span>
+                        <div className="aspect-tracks">
+                          <span
+                            style={{
+                              width: `${(100 * m.before) / Math.max(data.periods.before.count, 1)}%`,
+                            }}
+                          />
+                          <span
+                            style={{
+                              width: `${(100 * m.after) / Math.max(data.periods.after.count, 1)}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="aspect-count">
+                          {m.before} / {m.after} ↗
+                        </span>
+                      </button>
+                    ))}
+                  </section>
+                  <section className="panel field-notes">
+                    <span className="eyebrow">READ THIS WITH THE CHARTS</span>
+                    <h2>Context is part of the result.</h2>
+                    <div className="note">
+                      <span>01</span>
+                      <div>
+                        <h3>A retrospective snapshot</h3>
+                        <p>
+                          Current text is eligible only when created in its
+                          window and last edited before the cutoff.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="note">
+                      <span>02</span>
+                      <div>
+                        <h3>Coverage stays visible</h3>
+                        <p>
+                          {Object.values(data.periods).some(
+                            (p) => p.coverage.status === "capped_incomplete",
+                          )
+                            ? "At least one collection cap was reached. Windows are incomplete and may overrepresent later dates."
+                            : data.mode === "real"
+                              ? "Pagination exhausted both windows. A one-record mismatch with the after-window source total remains unresolved."
+                              : "Fixture coverage describes the demo only; it does not represent the player population."}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="note">
+                      <span>03</span>
+                      <div>
+                        <h3>Mentions are not sentiment</h3>
+                        <p>
+                          A recommending review can criticize multiplayer. An
+                          aspect keyword alone does not tell us its polarity.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="excluded">
+                      <strong>
+                        {Object.values(data.exclusions).reduce(
+                          (a, b) => a + b,
+                          0,
+                        )}
+                      </strong>
+                      <span>reviews excluded by eligibility rules</span>
+                    </div>
+                    <button className="text-button" onClick={exportBrief}>
+                      Export evidence-linked brief ↓
+                    </button>
+                  </section>
+                </div>
+                {evidencePanel}
+              </>
+            )}
+            {tab === "Evidence" && evidencePanel}
+            {tab === "Model lab" && (
+              <section className="panel lab">
+                <span className="eyebrow">
+                  TEXT-ONLY RECOMMENDATION PREDICTION
+                </span>
+                <h2>A small, transparent baseline.</h2>
+                <p>
+                  Word unigram/bigram TF-IDF + logistic regression.{" "}
+                  {data.mode === "synthetic"
+                    ? "Trained on synthetic examples; scores do not establish real-world quality."
+                    : "Local exploratory model; validation is not a final test."}{" "}
+                  User input stays local and is not stored.
+                </p>
+                <label htmlFor="example">Review text</label>
+                <textarea
+                  id="example"
+                  value={text}
+                  maxLength={8000}
+                  onChange={(e) => {
+                    setText(e.target.value);
+                    setPrediction(null);
+                  }}
+                  rows={5}
+                />
+                <div className="lab-actions">
+                  <span>{text.length} / 8,000 characters</span>
+                  <button
+                    className="primary"
+                    disabled={!text.trim() || predicting}
+                    onClick={predict}
+                  >
+                    {predicting ? "Predicting…" : "Predict recommendation ↗"}
+                  </button>
+                </div>
+                {predictError && <p role="alert">{predictError}</p>}
+                {prediction && (
+                  <div className="prediction" role="status">
+                    <span className="eyebrow">
+                      {prediction.abstention_reason
+                        ? "ABSTAINED"
+                        : "MODEL OUTPUT"}
+                    </span>
+                    <h3>
+                      {prediction.prediction ?? prediction.abstention_reason}
+                    </h3>
+                    {prediction.score_recommended !== null && (
+                      <p>
+                        Recommended-class score:{" "}
+                        {prediction.score_recommended.toFixed(3)} ·
+                        uncalibrated. This is not an aspect sentiment score.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </section>
+            )}
+            {tab === "Methodology" && (
+              <>
+                <section className="panel methodology">
+                  <span className="eyebrow">DEVELOPMENT EVALUATION</span>
+                  <h2>Show the work. Keep the limits.</h2>
+                  <p>
+                    {evaluation?.status ?? "Evaluation not available"}.{" "}
+                    {data.mode === "synthetic"
+                      ? "All displayed metrics measure synthetic workflow behavior only."
+                      : ""}
+                  </p>
+                  {evaluation?.macro_f1 !== undefined && (
+                    <>
+                      <div className="evaluation-grid">
+                        <div>
+                          <strong>{evaluation.macro_f1.toFixed(3)}</strong>
+                          <span>Validation macro F1</span>
+                        </div>
+                        <div>
+                          <strong>
+                            {evaluation.majority_macro_f1?.toFixed(3)}
+                          </strong>
+                          <span>Majority baseline macro F1</span>
+                        </div>
+                        <div>
+                          <strong>{evaluation.counts?.validation}</strong>
+                          <span>Validation records</span>
+                        </div>
+                      </div>
+                      <h3>Validation confusion matrix</h3>
+                      <p>
+                        Rows: actual; columns: predicted. Order: not
+                        recommended, recommended.
+                      </p>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Actual / predicted</th>
+                            <th>Not recommended</th>
+                            <th>Recommended</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {evaluation.confusion_matrix?.map((r, i) => (
+                            <tr key={i}>
+                              <th>
+                                {i === 0 ? "Not recommended" : "Recommended"}
+                              </th>
+                              {r.map((v, j) => (
+                                <td key={j}>{v}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
+                  )}
+                  <h3>Evaluation status</h3>
+                  <p>
+                    Chronological train/validation/temporal-test partitions are
+                    frozen before fitting. Exact and near duplicates are removed
+                    before splitting. Final temporal tests remain unopened. The
+                    unseen-game test, transformer comparison, uncertainty
+                    analysis, and human aspect evaluation are pending.
+                  </p>
+                  <h3>Collection and provenance</h3>
+                  <p>
+                    Equal 14-day UTC windows omit the release date because
+                    deployment time is not verified. Source requests use Recent
+                    ordering, both recommendation classes, all purchase types,
+                    and Steam's off-topic filter. Each period receives its own
+                    cap. Immutable text versions and private HMAC author groups
+                    support provenance audits.
+                  </p>
+                  <h3>Known limitations</h3>
+                  {data.limitations.map((x) => (
+                    <p key={x}>{x}</p>
+                  ))}
+                  <p>
+                    Wilson intervals describe sampling variability under
+                    binomial assumptions; they cannot establish
+                    representativeness. Public release excludes source review
+                    text, identifiers, and trained artifacts until the
+                    applicable permissions are established.
+                  </p>
+                  <p>
+                    <a
+                      href="https://partner.steamgames.com/doc/webapi/IUserReviewsService"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Official review API
+                    </a>{" "}
+                    ·{" "}
+                    <a
+                      href="https://steamcommunity.com/dev/apiterms"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Source terms
+                    </a>
+                  </p>
+                </section>
+              </>
+            )}
+            <footer>
+              <span>PATCHPULSE · EVIDENCE BEFORE CONCLUSIONS</span>
+              <span>Independent portfolio research · {data.mode} mode</span>
+            </footer>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

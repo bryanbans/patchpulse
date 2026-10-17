@@ -1,0 +1,66 @@
+[
+  {
+    "app_id": 548430,
+    "name": "Deep Rock Galactic",
+    "date": "2024-06-13",
+    "announcement": {
+      "gid": "6890025005348584366",
+      "title": "Season 05: Drilling Deeper is OUT NOW!",
+      "date": 1718276527,
+      "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/6890025005348584366",
+      "feedname": "steam_community_announcements",
+      "is_external_url": true
+    },
+    "source_matching_after_count": 2953,
+    "query_note": "Date-based 14 days after release date, English, all purchase types, off-topic filter on. Source matching counts precede edit eligibility. Metadata audit only; holdout examples not used for tuning.",
+    "official_source_url": "https://steamcommunity.com/games/DeepRockGalactic/announcements/detail/4174354336751077143"
+  },
+  {
+    "app_id": 275850,
+    "name": "No Man\u2019s Sky",
+    "date": "2024-07-17",
+    "announcement": {
+      "gid": "5969041959961170666",
+      "title": "Introducing Worlds Part I - the 5.0 update",
+      "date": 1721222559,
+      "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5969041959961170666",
+      "feedname": "steam_community_announcements",
+      "is_external_url": true
+    },
+    "source_matching_after_count": 4956,
+    "query_note": "Date-based 14 days after release date, English, all purchase types, off-topic filter on. Source matching counts precede edit eligibility. Metadata audit only; holdout examples not used for tuning.",
+    "official_source_url": "https://steamcommunity.com/games/275850/announcements/detail/6401387156599058162"
+  },
+  {
+    "app_id": 526870,
+    "name": "Satisfactory",
+    "date": "2024-09-10",
+    "announcement": {
+      "gid": "6242640076615256249",
+      "title": "Satisfactory 1.0 out now!",
+      "date": 1725981128,
+      "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/6242640076615256249",
+      "feedname": "steam_community_announcements",
+      "is_external_url": true
+    },
+    "source_matching_after_count": 7366,
+    "query_note": "Date-based 14 days after release date, English, all purchase types, off-topic filter on. Source matching counts precede edit eligibility. Metadata audit only; holdout examples not used for tuning.",
+    "official_source_url": "https://steamcommunity.com/games/526870/announcements/detail/4567301015235883040"
+  },
+  {
+    "app_id": 553850,
+    "name": "HELLDIVERS 2",
+    "date": "2024-09-17",
+    "announcement": {
+      "gid": "6250522009530732352",
+      "title": "Patch 1.001.100",
+      "date": 1726563637,
+      "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/6250522009530732352",
+      "feedname": "steam_community_announcements",
+      "is_external_url": true
+    },
+    "source_matching_after_count": 3229,
+    "query_note": "Date-based 14 days after release date, English, all purchase types, off-topic filter on. Source matching counts precede edit eligibility. Metadata audit only; holdout examples not used for tuning.",
+    "official_source_url": "https://steamcommunity.com/games/553850/announcements/detail/7147864422081646860"
+  }
+]
