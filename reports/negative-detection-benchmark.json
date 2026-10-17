@@ -1,0 +1,20 @@
+{
+  "hardware": "Ryzen 7 7800X3D; 16 logical processors; 63.1 GiB RAM; Windows 11; CPU inference",
+  "python": "3.12.10",
+  "repetitions": 100,
+  "warmups": 10,
+  "protocol": "Sequential localhost HTTP; no browser or WAN; model timing excludes HTTP. Other processes were running.",
+  "batch_size": 1,
+  "model": "char-balanced-v2",
+  "input_distribution": "Three original synthetic sentences repeated; not a representative workload.",
+  "negative_threshold": 0.5,
+  "model_artifact_sha256": "15ddc2e0047722d3de27b0c28bef985b02c9e9bcd673169ce9fd4ff5cf855415",
+  "model_forward_ms": {
+    "median": 0.31025000498630106,
+    "p95": 0.3391999925952405
+  },
+  "cached_case_http_ms": {
+    "median": 1.0658000101102516,
+    "p95": 1.424999994924292
+  }
+}

@@ -1532,3 +1532,111 @@ footer {
     scroll-behavior: auto !important;
   }
 }
+.table-scroll {
+  overflow-x: auto;
+  margin: 24px 0;
+  border: 1px solid #293944;
+  border-radius: 12px;
+}
+.table-scroll table {
+  min-width: 700px;
+  margin: 0;
+}
+.selected-model {
+  background: rgba(97, 235, 193, 0.07);
+}
+.selected-model th {
+  color: #8ff0cb;
+}
+.research-panel {
+  margin-bottom: 24px;
+}
+.annotation-workspace {
+  max-width: 1100px;
+  margin: auto;
+  padding: 40px 32px;
+}
+.annotation-back {
+  color: #9fdecf;
+  text-decoration: none;
+}
+.annotation-workspace .hero {
+  padding-bottom: 28px;
+}
+.annotation-workspace .panel {
+  margin-top: 24px;
+}
+.annotation-guide {
+  margin: 24px 0;
+  color: #aebec8;
+  line-height: 1.7;
+}
+.annotation-guide summary {
+  cursor: pointer;
+  color: #dfe9ed;
+}
+.annotation-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin: 20px 0;
+}
+.annotation-fields label {
+  display: grid;
+  gap: 8px;
+}
+.annotation-fields button {
+  min-height: 44px;
+}
+.selected-passage {
+  overflow-wrap: anywhere;
+  color: #a8dfd0;
+}
+.annotation-spans {
+  padding: 0;
+  list-style: none;
+}
+.annotation-spans li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #293944;
+  padding: 18px 0;
+}
+.annotation-spans p {
+  overflow-wrap: anywhere;
+}
+.annotation-link {
+  display: inline-block;
+  text-decoration: none;
+  margin: 8px 0 24px;
+}
+@media (max-width: 650px) {
+  .annotation-workspace {
+    padding: 24px 16px;
+  }
+  .annotation-fields {
+    grid-template-columns: 1fr;
+  }
+  .annotation-workspace h1 {
+    font-size: 42px;
+  }
+  .annotation-spans li {
+    flex-wrap: wrap;
+  }
+}
+.annotation-fields button,
+.annotation-spans button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--cyan);
+  background: var(--raised);
+  padding: 10px 16px;
+  font-size: 13px;
+  align-self: center;
+}
+.annotation-spans button {
+  min-height: 44px;
+  flex-shrink: 0;
+}

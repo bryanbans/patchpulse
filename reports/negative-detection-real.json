@@ -1,0 +1,484 @@
+{
+  "experiment_id": "negative-detection-v2",
+  "run_id": "20261017T182755897610Z",
+  "mode": "real",
+  "status": "development validation only; final tests remain locked",
+  "task": "recommendation prediction",
+  "created_at": "2026-10-17T18:28:00.685107+00:00",
+  "split_hash": "74d00361fcc2a33215dfad6b2bb99075774e1b1c3ab29e8e26a144b6e84afefc",
+  "frozen_manifest_sha256": "0b4d111ef5e50363eab18f3b249b0d7bf9adbd34602823e5502f7c0305cad7dd",
+  "experiment_config_sha256": "3afb0fb2454c223db7b76de6799a7ab4c4f040f01c54e3837308691ec669cb33",
+  "python_lock_sha256": "a78076406045a2e8af7426b42698f845f1793b1f62888060ce671d926beb705b",
+  "code_commit": "aecf9675d9f321914774d4a3e1de5500e1d558f3",
+  "code_state": "working tree experiment implementation; see next source commit",
+  "counts": {
+    "train": 1896,
+    "validation": 406,
+    "locked_temporal_test": 407
+  },
+  "training_class_support": {
+    "recommended": 1832,
+    "not_recommended": 64
+  },
+  "validation_class_support": {
+    "recommended": 394,
+    "not_recommended": 12
+  },
+  "threshold_method": "Training-only out-of-fold negative-class scores; maximize macro F1, then negative F1, then proximity to 0.5",
+  "inner_cv": "StratifiedGroupKFold on training records only; groups are private HMAC authors, falling back to review ID",
+  "inner_folds": 3,
+  "seed": 42,
+  "seed_note": "Fixed deterministic lbfgs configuration; seed is recorded, not evidence of multi-seed robustness.",
+  "selection_rule": "Choose the candidate with highest validation macro F1, breaking ties by negative F1, then negative precision, then fewer features. No test selection.",
+  "candidate_count": 6,
+  "candidates": [
+    {
+      "id": "word-default-v1",
+      "configuration": {
+        "id": "word-default-v1",
+        "features": "word",
+        "C": 1.0,
+        "class_weight": null,
+        "tune_threshold": false
+      },
+      "negative_threshold": 0.5,
+      "threshold_training_oof": null,
+      "feature_count": 30000,
+      "fit_and_cv_seconds": 0.09012480001547374,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.41391409115623795,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "word-threshold-v2",
+      "configuration": {
+        "id": "word-threshold-v2",
+        "features": "word",
+        "C": 1.0,
+        "class_weight": null,
+        "tune_threshold": true
+      },
+      "negative_threshold": 0.05,
+      "threshold_training_oof": {
+        "macro_f1": 0.6540777230432403,
+        "negative_f1": 0.3333333333333333
+      },
+      "feature_count": 30000,
+      "fit_and_cv_seconds": 0.3652584000083152,
+      "macro_f1": 0.6789092404542723,
+      "accuracy": 0.9384236453201971,
+      "negative_precision": 0.27586206896551724,
+      "negative_recall": 0.6666666666666666,
+      "negative_f1": 0.3902439024390244,
+      "negative_average_precision": 0.41391409115623795,
+      "confusion_matrix": [
+        [
+          8,
+          4
+        ],
+        [
+          21,
+          373
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.27586206896551724,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.3902439024390244,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9893899204244032,
+          "recall": 0.9467005076142132,
+          "f1-score": 0.9675745784695201,
+          "support": 394.0
+        },
+        "accuracy": 0.9384236453201971,
+        "macro avg": {
+          "precision": 0.6326259946949602,
+          "recall": 0.8066835871404399,
+          "f1-score": 0.6789092404542723,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9683004272778352,
+          "recall": 0.9384236453201971,
+          "f1-score": 0.9505106176016237,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "word-balanced-v2",
+      "configuration": {
+        "id": "word-balanced-v2",
+        "features": "word",
+        "C": 1.0,
+        "class_weight": "balanced",
+        "tune_threshold": true
+      },
+      "negative_threshold": 0.4,
+      "threshold_training_oof": {
+        "macro_f1": 0.6680959123573247,
+        "negative_f1": 0.35772357723577236
+      },
+      "feature_count": 30000,
+      "fit_and_cv_seconds": 0.35590229998342693,
+      "macro_f1": 0.6746794871794872,
+      "accuracy": 0.9507389162561576,
+      "negative_precision": 0.3,
+      "negative_recall": 0.5,
+      "negative_f1": 0.375,
+      "negative_average_precision": 0.3524019212955678,
+      "confusion_matrix": [
+        [
+          6,
+          6
+        ],
+        [
+          14,
+          380
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.3,
+          "recall": 0.5,
+          "f1-score": 0.375,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9844559585492227,
+          "recall": 0.9644670050761421,
+          "f1-score": 0.9743589743589743,
+          "support": 394.0
+        },
+        "accuracy": 0.9507389162561576,
+        "macro avg": {
+          "precision": 0.6422279792746114,
+          "recall": 0.7322335025380711,
+          "f1-score": 0.6746794871794872,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9642257331733837,
+          "recall": 0.9507389162561576,
+          "f1-score": 0.9566439307818618,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "word-balanced-c4-v2",
+      "configuration": {
+        "id": "word-balanced-c4-v2",
+        "features": "word",
+        "C": 4.0,
+        "class_weight": "balanced",
+        "tune_threshold": true
+      },
+      "negative_threshold": 0.3,
+      "threshold_training_oof": {
+        "macro_f1": 0.6627937081120509,
+        "negative_f1": 0.34710743801652894
+      },
+      "feature_count": 30000,
+      "fit_and_cv_seconds": 0.3676786000141874,
+      "macro_f1": 0.6884910485933504,
+      "accuracy": 0.9556650246305419,
+      "negative_precision": 0.3333333333333333,
+      "negative_recall": 0.5,
+      "negative_f1": 0.4,
+      "negative_average_precision": 0.3455683887288896,
+      "confusion_matrix": [
+        [
+          6,
+          6
+        ],
+        [
+          12,
+          382
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.3333333333333333,
+          "recall": 0.5,
+          "f1-score": 0.4,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9845360824742269,
+          "recall": 0.9695431472081218,
+          "f1-score": 0.9769820971867008,
+          "support": 394.0
+        },
+        "accuracy": 0.9556650246305419,
+        "macro avg": {
+          "precision": 0.6589347079037801,
+          "recall": 0.734771573604061,
+          "f1-score": 0.6884910485933504,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9652887105784369,
+          "recall": 0.9556650246305419,
+          "f1-score": 0.9599284391417737,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "char-balanced-v2",
+      "configuration": {
+        "id": "char-balanced-v2",
+        "features": "char",
+        "C": 4.0,
+        "class_weight": "balanced",
+        "tune_threshold": true
+      },
+      "negative_threshold": 0.5,
+      "threshold_training_oof": {
+        "macro_f1": 0.6977522716403635,
+        "negative_f1": 0.4117647058823529
+      },
+      "feature_count": 21368,
+      "fit_and_cv_seconds": 0.932154799986165,
+      "macro_f1": 0.7574832415212053,
+      "accuracy": 0.9778325123152709,
+      "negative_precision": 0.7142857142857143,
+      "negative_recall": 0.4166666666666667,
+      "negative_f1": 0.5263157894736842,
+      "negative_average_precision": 0.46560709874415634,
+      "confusion_matrix": [
+        [
+          5,
+          7
+        ],
+        [
+          2,
+          392
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.7142857142857143,
+          "recall": 0.4166666666666667,
+          "f1-score": 0.5263157894736842,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9824561403508771,
+          "recall": 0.9949238578680203,
+          "f1-score": 0.9886506935687264,
+          "support": 394.0
+        },
+        "accuracy": 0.9778325123152709,
+        "macro avg": {
+          "precision": 0.8483709273182958,
+          "recall": 0.7057952622673435,
+          "f1-score": 0.7574832415212053,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9745299208612663,
+          "recall": 0.9778325123152709,
+          "f1-score": 0.97498562251173,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "hybrid-balanced-v2",
+      "configuration": {
+        "id": "hybrid-balanced-v2",
+        "features": "hybrid",
+        "C": 4.0,
+        "class_weight": "balanced",
+        "tune_threshold": true
+      },
+      "negative_threshold": 0.25,
+      "threshold_training_oof": {
+        "macro_f1": 0.6984172308918815,
+        "negative_f1": 0.4195804195804196
+      },
+      "feature_count": 51368,
+      "fit_and_cv_seconds": 1.2562714999949094,
+      "macro_f1": 0.7231031543052003,
+      "accuracy": 0.9605911330049262,
+      "negative_precision": 0.3888888888888889,
+      "negative_recall": 0.5833333333333334,
+      "negative_f1": 0.4666666666666667,
+      "negative_average_precision": 0.4567460574039522,
+      "confusion_matrix": [
+        [
+          7,
+          5
+        ],
+        [
+          11,
+          383
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.3888888888888889,
+          "recall": 0.5833333333333334,
+          "f1-score": 0.4666666666666667,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9871134020618557,
+          "recall": 0.9720812182741116,
+          "f1-score": 0.979539641943734,
+          "support": 394.0
+        },
+        "accuracy": 0.9605911330049262,
+        "macro avg": {
+          "precision": 0.6880011454753723,
+          "recall": 0.7777072758037225,
+          "f1-score": 0.7231031543052003,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9694318893572361,
+          "recall": 0.9605911330049262,
+          "f1-score": 0.9643808347926877,
+          "support": 406.0
+        }
+      }
+    }
+  ],
+  "selected_id": "char-balanced-v2",
+  "selected": {
+    "id": "char-balanced-v2",
+    "configuration": {
+      "id": "char-balanced-v2",
+      "features": "char",
+      "C": 4.0,
+      "class_weight": "balanced",
+      "tune_threshold": true
+    },
+    "negative_threshold": 0.5,
+    "threshold_training_oof": {
+      "macro_f1": 0.6977522716403635,
+      "negative_f1": 0.4117647058823529
+    },
+    "feature_count": 21368,
+    "fit_and_cv_seconds": 0.932154799986165,
+    "macro_f1": 0.7574832415212053,
+    "accuracy": 0.9778325123152709,
+    "negative_precision": 0.7142857142857143,
+    "negative_recall": 0.4166666666666667,
+    "negative_f1": 0.5263157894736842,
+    "negative_average_precision": 0.46560709874415634,
+    "confusion_matrix": [
+      [
+        5,
+        7
+      ],
+      [
+        2,
+        392
+      ]
+    ],
+    "classification_report": {
+      "not_recommended": {
+        "precision": 0.7142857142857143,
+        "recall": 0.4166666666666667,
+        "f1-score": 0.5263157894736842,
+        "support": 12.0
+      },
+      "recommended": {
+        "precision": 0.9824561403508771,
+        "recall": 0.9949238578680203,
+        "f1-score": 0.9886506935687264,
+        "support": 394.0
+      },
+      "accuracy": 0.9778325123152709,
+      "macro avg": {
+        "precision": 0.8483709273182958,
+        "recall": 0.7057952622673435,
+        "f1-score": 0.7574832415212053,
+        "support": 406.0
+      },
+      "weighted avg": {
+        "precision": 0.9745299208612663,
+        "recall": 0.9778325123152709,
+        "f1-score": 0.97498562251173,
+        "support": 406.0
+      }
+    }
+  },
+  "model_artifact_sha256": "15ddc2e0047722d3de27b0c28bef985b02c9e9bcd673169ce9fd4ff5cf855415",
+  "calibrated": false,
+  "uncertainty": {
+    "method": "Label-stratified paired bootstrap of validation review versions; percentile interval",
+    "repetitions": 1000,
+    "seed": 42,
+    "macro_f1_interval_95": [
+      0.6094709581945986,
+      0.8777918246944796
+    ],
+    "macro_f1_difference_from_v1_interval_95": [
+      0.11697095819459863,
+      0.3852918246944796
+    ],
+    "limitations": "Exploratory: same validation set selected the model. Does not account for selection optimism, source bias, or other-game generalization."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "sklearn": "1.9.1",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "threads": 4,
+    "hardware": "AMD Ryzen 7 7800X3D; CPU training; approximately 63.1 GiB RAM"
+  },
+  "final_tests_opened": false,
+  "limitations": [
+    "Only 12 negative validation examples in the primary real-data study; minority estimates are fragile.",
+    "Inner folds shuffle within the training period; outer validation remains chronological.",
+    "The validation split selects among six predeclared candidates; scores are not final test performance.",
+    "No claims about aspect polarity, unseen games, or causal patch effects."
+  ]
+}

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
+import { ResearchPanel } from "./ResearchPanel";
+import { AnnotationApp } from "./AnnotationApp";
 
 type Period = {
   count: number;
@@ -34,6 +36,7 @@ type Evidence = {
 type Evaluation = {
   status: string;
   mode: string;
+  model_description?: string;
   macro_f1?: number;
   majority_macro_f1?: number;
   counts?: Record<string, number>;
@@ -70,11 +73,18 @@ function App() {
     [offset, setOffset] = useState(0),
     [busy, setBusy] = useState(false),
     [expanded, setExpanded] = useState("");
+  const [models, setModels] = useState<
+    { id: string; description: string; negative_threshold: number }[]
+  >([]);
+  const [modelId, setModelId] = useState("selected");
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null),
     [text, setText] = useState(
       "I love the exploration, but multiplayer disconnects still interrupt our runs.",
     ),
     [prediction, setPrediction] = useState<{
+      model_id: string;
+      negative_threshold: number;
+      score_not_recommended: number | null;
       prediction: string | null;
       score_recommended: number | null;
       abstention_reason: string | null;
@@ -109,6 +119,9 @@ function App() {
     api<Case>("/api/case-studies/drg-season-05")
       .then(setData)
       .catch((e) => setError(e.message));
+    api<typeof models>("/api/models")
+      .then(setModels)
+      .catch(() => {});
     api<Evaluation>("/api/evaluation")
       .then(setEvaluation)
       .catch(() => {});
@@ -167,7 +180,7 @@ function App() {
         await api("/api/predict", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, model_id: modelId }),
         }),
       );
     } catch (e) {
@@ -804,13 +817,37 @@ function App() {
                 <span className="eyebrow">
                   TEXT-ONLY RECOMMENDATION PREDICTION
                 </span>
-                <h2>A small, transparent baseline.</h2>
+                <h2>Explore the detection tradeoff.</h2>
                 <p>
-                  Word unigram/bigram TF-IDF + logistic regression.{" "}
+                  {models.find((m) => m.id === modelId)?.description ??
+                    evaluation?.model_description ??
+                    "TF-IDF + logistic regression"}
+                  .{" "}
                   {data.mode === "synthetic"
                     ? "Trained on synthetic examples; scores do not establish real-world quality."
                     : "Local exploratory model; validation is not a final test."}{" "}
                   User input stays local and is not stored.
+                </p>
+                <label htmlFor="model-choice">Detector</label>
+                <select
+                  id="model-choice"
+                  value={modelId}
+                  onChange={(e) => {
+                    setModelId(e.target.value);
+                    setPrediction(null);
+                  }}
+                >
+                  {models.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.description} · negative threshold{" "}
+                      {m.negative_threshold}
+                    </option>
+                  ))}
+                </select>
+                <p className="muted">
+                  A lower negative-score threshold can catch more negative
+                  reviews and produce more false alarms. Scores are
+                  uncalibrated.
                 </p>
                 <label htmlFor="example">Review text</label>
                 <textarea
@@ -849,6 +886,12 @@ function App() {
                         Recommended-class score:{" "}
                         {prediction.score_recommended.toFixed(3)} ·
                         uncalibrated. This is not an aspect sentiment score.
+                        <br />
+                        Not-recommended score:{" "}
+                        {prediction.score_not_recommended?.toFixed(3)} ·
+                        decision threshold: {prediction.negative_threshold}.
+                        <br />
+                        Model: {prediction.model_id}
                       </p>
                     )}
                   </div>
@@ -857,13 +900,14 @@ function App() {
             )}
             {tab === "Methodology" && (
               <>
+                <ResearchPanel />
                 <section className="panel methodology">
                   <span className="eyebrow">DEVELOPMENT EVALUATION</span>
                   <h2>Show the work. Keep the limits.</h2>
                   <p>
                     {evaluation?.status ?? "Evaluation not available"}.{" "}
                     {data.mode === "synthetic"
-                      ? "All displayed metrics measure synthetic workflow behavior only."
+                      ? "Metrics in this panel measure synthetic workflow behavior only."
                       : ""}
                   </p>
                   {evaluation?.macro_f1 !== undefined && (
@@ -917,9 +961,24 @@ function App() {
                     Chronological train/validation/temporal-test partitions are
                     frozen before fitting. Exact and near duplicates are removed
                     before splitting. Final temporal tests remain unopened. The
-                    unseen-game test, transformer comparison, uncertainty
-                    analysis, and human aspect evaluation are pending.
+                    unseen-game test, transformer comparison, and human aspect
+                    evaluation are pending. Real-data development uncertainty
+                    appears in the comparison above.
                   </p>
+                  <h3>Help build the ground truth</h3>
+                  <p>
+                    Review training examples without seeing source
+                    recommendations or model suggestions. Manually mark aspect
+                    passages and polarity, then export reviewed labels for
+                    validation.
+                  </p>
+                  <a className="secondary annotation-link" href="/annotate">
+                    Open{" "}
+                    {data.mode === "synthetic"
+                      ? "synthetic practice"
+                      : "private training"}{" "}
+                    annotation workspace →
+                  </a>
                   <h3>Collection and provenance</h3>
                   <p>
                     Equal 14-day UTC windows omit the release date because
@@ -972,6 +1031,6 @@ function App() {
 }
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    {window.location.pathname === "/annotate" ? <AnnotationApp /> : <App />}
   </React.StrictMode>,
 );

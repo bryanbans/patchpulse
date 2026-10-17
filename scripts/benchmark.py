@@ -17,7 +17,7 @@ results = {
     "warmups": 10,
     "protocol": "Sequential localhost HTTP; no browser or WAN; model timing excludes HTTP. Other processes were running.",
     "batch_size": 1,
-    "model": "tfidf-logreg-v1",
+    "model": "selected private model",
     "input_distribution": "Three original synthetic sentences repeated; not a representative workload.",
 }
 samples = [
@@ -25,7 +25,11 @@ samples = [
     "Great missions and wonderful co-op content.",
     "I love the game but multiplayer disconnects ruin our sessions.",
 ]
-model = joblib.load(root / "private/real/baseline.joblib")
+active = json.loads((root / "private/real/active-model.json").read_text())
+results["model"] = active["model_id"]
+results["negative_threshold"] = active["negative_threshold"]
+results["model_artifact_sha256"] = active["sha256"]
+model = joblib.load(root / "private/real" / active["artifact"])
 timings = []
 for i in range(110):
     started = time.perf_counter()
@@ -45,5 +49,5 @@ with httpx.Client(base_url="http://127.0.0.1:8001", timeout=30) as client:
     r = client.post("/api/predict", json={"text": samples[0]})
     r.raise_for_status()
     assert r.json()["mode"] == "real"
-(root / "reports/local-benchmark.json").write_text(json.dumps(results, indent=2))
+(root / "reports/negative-detection-benchmark.json").write_text(json.dumps(results, indent=2))
 print(json.dumps(results, indent=2))

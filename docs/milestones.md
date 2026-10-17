@@ -23,6 +23,14 @@
 - [x] Human annotation export/import prepared; no invented human labels.
 - [x] Local CPU/model and cached API benchmark with protocol limits.
 
+## Negative-detection increment
+
+- [x] Six fixed word/character/hybrid candidates, balanced weights, training-only grouped out-of-fold threshold selection.
+- [x] Frozen original split, unopened final tests, aggregate comparison and exploratory bootstrap.
+- [x] Selected private character detector served with integrity checks and visible thresholds.
+- [x] Browser training-only annotation workspace with blinded labels and Unicode-safe exports.
+- [ ] Actual human annotation and error review; no labels fabricated.
+
 ## Remaining v1 work
 
 - [ ] M2: rights/retention decisions, second development game, frozen multi-game plan, dataset card expansion, real human annotation.

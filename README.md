@@ -36,6 +36,14 @@ Within those eligible collected records, recommendations were 837/853 before and
 
 The first text-only TF-IDF/logistic regression model achieved **0.4925 validation macro F1**, equal to the majority baseline. Its 97.0% validation accuracy hides **zero negative-class recall**: it predicted all 406 validation records as recommended. This is a useful failure to investigate, not a release-quality classifier. The final temporal test remains unopened; the unseen-game test and transformer comparison have not run. [Evaluation and limitations](docs/evaluation.md).
 
+## Negative-detection development update
+
+Six predeclared CPU candidates now share the original frozen split. Training-only grouped out-of-fold scores select thresholds; chronological validation selects the candidate. The selected **balanced character TF-IDF/logistic regression** improves validation macro F1 from **0.4925 to 0.7575**. It detects **5 of 12 negative reviews**, with **2 false alarms** (negative precision 71.4%, recall 41.7%). A more sensitive word model detects 8 of 12, with 21 false alarms.
+
+These are development results from only 12 negative validation examples. The selected model's exploratory 95% bootstrap macro F1 interval is **0.609–0.878** and does not account for model-selection optimism. Final tests remain locked. The public demo still uses synthetic model artifacts; the methodology view separately displays aggregate real-data results. [Comparison and protocol](docs/negative_detection.md) · [Aggregate report](reports/negative-detection-real.json).
+
+The model lab supports local detector comparisons and displays the actual negative-score threshold. The browser annotation workspace at `/annotate` hides source recommendations and predictions, exports only explicitly human-reviewed records, and converts evidence offsets to Python Unicode indices. Real exports stay private. [Annotation guide](docs/annotation_guide.md).
+
 ## How it works
 
 ```mermaid
@@ -71,7 +79,7 @@ uv run python -m patchpulse serve --mode real --port 8001
 
 Real mode is for local private inspection. Do not deploy it publicly. Current API data can change; a recollection is a new snapshot, not an exact recreation of old reviews. Resume an interrupted run with `collect --cap-per-period 3500 --resume-run RUN_ID` from its private manifest. Resume checks page hashes and reuses saved records. Every period has an independent cap, and capped windows remain explicitly incomplete.
 
-Available CLI commands are `collect`, `prepare`, `build-demo`, `train-baseline`, `annotate-export`, `annotate-import`, and `serve`. `prepare` builds cohorts without fitting. `build-demo` prepares and trains. Annotation commands use the selected `--mode`; import additionally requires `--file`. Full v1 evaluate/transformer/grouping commands remain future work.
+Available CLI commands are `compare-baselines`, `collect`, `prepare`, `build-demo`, `train-baseline`, `annotate-export`, `annotate-import`, and `serve`. `prepare` builds cohorts without fitting. `build-demo` prepares and trains. Annotation commands use the selected `--mode`; import additionally requires `--file`. Full v1 evaluate/transformer/grouping commands remain future work.
 
 ## Verification
 
@@ -94,6 +102,6 @@ Local exploratory benchmark: 100 warm localhost case-study requests had p95 1.37
 
 ## Next milestones
 
-Improve minority-class detection using training/validation only; expand the approved development dataset; complete human aspect annotation; compare a bounded transformer; then run locked final tests. Resolve source-content permissions before any real-text public demo. [Milestone checklist](docs/milestones.md), [annotation guide](docs/annotation_guide.md), [publication review](docs/publication.md).
+Complete human review of the training annotation pilot; expand the approved development dataset; complete human aspect annotation; compare a bounded transformer; then run locked final tests. Resolve source-content permissions before any real-text public demo. [Milestone checklist](docs/milestones.md), [annotation guide](docs/annotation_guide.md), [publication review](docs/publication.md).
 
 Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md).

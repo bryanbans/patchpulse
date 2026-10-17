@@ -63,7 +63,7 @@ class EvidenceResponse(BaseModel):
 class PredictRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str = Field(min_length=1, max_length=8000)
-    model_id: str = "tfidf-logreg-v1"
+    model_id: str = "selected"
 
 
 class PredictResponse(BaseModel):
@@ -73,6 +73,8 @@ class PredictResponse(BaseModel):
     mode: str
     prediction: str | None
     score_recommended: float | None
+    score_not_recommended: float | None = None
+    negative_threshold: float = 0.5
     calibrated: bool = False
     abstention_reason: str | None = None
     input_stored: bool = False
@@ -184,7 +186,75 @@ def evidence(
 @app.get("/api/evaluation")
 def evaluation():
     path = FOLDER / "evaluation.json"
-    return json.loads(path.read_text()) if path.exists() else {"status": "model unavailable", "mode": MODE}
+    baseline = (
+        json.loads(path.read_text()) if path.exists() else {"status": "model unavailable", "mode": MODE}
+    )
+    active = active_manifest()
+    if not active:
+        return {**baseline, "model_description": "Word unigram/bigram TF-IDF + logistic regression"}
+    report = json.loads(private_artifact(active["report"]).read_text(encoding="utf-8"))
+    return {
+        **baseline,
+        **report["selected"],
+        "model_id": report["selected_id"],
+        "model_description": model_info("selected")["description"],
+        "comparison": report,
+        "original_baseline": baseline,
+    }
+
+
+def private_artifact(relative):
+    path = (FOLDER / relative).resolve()
+    if not path.is_relative_to(FOLDER.resolve()):
+        raise HTTPException(503, "Model artifact configuration is invalid")
+    return path
+
+
+@lru_cache(maxsize=1)
+def active_manifest():
+    path = FOLDER / "active-model.json"
+    return json.loads(path.read_text()) if path.exists() else None
+
+
+def model_info(requested="selected"):
+    active = active_manifest()
+    if requested == "selected":
+        requested = active["model_id"] if active else "tfidf-logreg-v1"
+    if requested == "tfidf-logreg-v1":
+        return {
+            "id": requested,
+            "artifact": "baseline.joblib",
+            "negative_threshold": 0.5,
+            "description": "Original word TF-IDF baseline",
+            "configuration": {"features": "word"},
+        }
+    if active and requested in active.get("models", {}):
+        info = active["models"][requested]
+        names = {"word": "Word TF-IDF", "char": "Character TF-IDF", "hybrid": "Word + character TF-IDF"}
+        description = names[info["configuration"]["features"]]
+        if info["configuration"]["class_weight"]:
+            description += " · balanced training weights"
+        return {**info, "id": requested, "description": description}
+    raise HTTPException(422, "Unsupported model")
+
+
+@app.get("/api/models")
+def available_models():
+    active = active_manifest()
+    ids = ["selected", "tfidf-logreg-v1"]
+    if active:
+        ids += [name for name in active.get("models", {}) if name != active["model_id"]]
+    return [
+        {
+            "id": name,
+            "resolved_id": model_info(name)["id"],
+            "description": ("Selected: " if name == "selected" else "") + model_info(name)["description"],
+            "negative_threshold": model_info(name)["negative_threshold"],
+            "mode": MODE,
+        }
+        for name in ids
+        if private_artifact(model_info(name)["artifact"]).exists()
+    ]
 
 
 @app.get("/api/evidence/{version_id}")
@@ -195,24 +265,60 @@ def evidence_version(version_id: str):
     raise HTTPException(404, "Evidence version unavailable")
 
 
-@lru_cache(maxsize=1)
-def model():
-    path = FOLDER / "baseline.joblib"
+@app.get("/api/research-evaluation")
+def research_evaluation():
+    path = ROOT / "reports/negative-detection-real.json"
     if not path.exists():
-        raise HTTPException(503, "Baseline model unavailable")
+        raise HTTPException(404, "Real-data comparison report is unavailable")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@app.get("/api/annotation-pilot")
+def annotation_pilot():
+    import random
+
+    split_path = FOLDER / "split.json"
+    if not split_path.exists():
+        raise HTTPException(503, "Training split unavailable")
+    split = json.loads(split_path.read_text())
+    lookup = {r["version_id"]: r for r in case()["evidence"]}
+    from .experiments import frozen_development
+
+    training, _ = frozen_development(list(lookup.values()), split)
+    sampled = random.Random(42).sample(training, min(60, len(training)))
+    return {
+        "mode": MODE,
+        "split_hash": split["split_hash"],
+        "guide_version": "0.1",
+        "aspects": list(ASPECTS),
+        "polarities": ["positive", "negative", "mixed", "neutral"],
+        "records": [
+            {"version_id": r["version_id"], "text": r["text"], "annotations": [], "human_reviewed": False}
+            for r in sampled
+        ],
+    }
+
+
+@lru_cache(maxsize=10)
+def model(model_id="selected"):
+    info = model_info(model_id)
+    path = private_artifact(info["artifact"])
+    if not path.exists():
+        raise HTTPException(503, "Model unavailable")
+    if info.get("sha256") and hashlib.sha256(path.read_bytes()).hexdigest() != info["sha256"]:
+        raise HTTPException(503, "Model integrity check failed")
     # Only trusted artifacts created locally by our CLI; never load user-uploaded pickle/joblib.
     return joblib.load(path)
 
 
-@lru_cache(maxsize=1)
-def model_revision():
-    return hashlib.sha256((FOLDER / "baseline.joblib").read_bytes()).hexdigest()
+@lru_cache(maxsize=10)
+def model_revision(model_id="selected"):
+    return hashlib.sha256(private_artifact(model_info(model_id)["artifact"]).read_bytes()).hexdigest()
 
 
 @app.post("/api/predict", response_model=PredictResponse)
 def predict(payload: PredictRequest, request: Request):
-    if payload.model_id != "tfidf-logreg-v1":
-        raise HTTPException(422, "Unsupported model")
+    info = model_info(payload.model_id)
     key = request.client.host if request.client else "local"
     queue = requests_by_ip[key]
     now = time.monotonic()
@@ -221,26 +327,30 @@ def predict(payload: PredictRequest, request: Request):
     if len(queue) >= 30:
         raise HTTPException(429, "Prediction limit reached; retry in a minute", headers={"Retry-After": "60"})
     queue.append(now)
-    pipeline = model()
+    pipeline = model(payload.model_id)
     text = normalize(payload.text)
     base = {
         "task": "recommendation prediction",
-        "model_id": payload.model_id,
+        "model_id": info["id"],
         "mode": MODE,
-        "model_revision": model_revision(),
+        "model_revision": model_revision(payload.model_id),
+        "negative_threshold": info["negative_threshold"],
     }
-    if not text or pipeline["tfidf"].transform([text]).nnz == 0:
+    if not text or pipeline[:-1].transform([text]).nnz == 0:
         return {
             **base,
             "prediction": None,
             "score_recommended": None,
             "abstention_reason": "No supported vocabulary",
         }
-    score = float(pipeline.predict_proba([text])[0][list(pipeline.classes_).index(True)])
+    scores = pipeline.predict_proba([text])[0]
+    score = float(scores[list(pipeline.classes_).index(True)])
+    negative = float(scores[list(pipeline.classes_).index(False)])
     return {
         **base,
-        "prediction": "recommended" if score >= 0.5 else "not recommended",
+        "prediction": "not recommended" if negative >= info["negative_threshold"] else "recommended",
         "score_recommended": score,
+        "score_not_recommended": negative,
     }
 
 
@@ -281,5 +391,6 @@ if DIST.exists():
     app.mount("/assets", StaticFiles(directory=DIST / "assets"), name="assets")
 
     @app.get("/")
+    @app.get("/annotate")
     def index():
         return FileResponse(DIST / "index.html")

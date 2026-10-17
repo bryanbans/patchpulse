@@ -44,3 +44,54 @@ def test_brief_numbers_and_exact_evidence():
     assert "12/24" in brief["text"]
     assert set(brief["evidence_ids"]) == {r["version_id"] for r in case()["evidence"]}
     assert "does not establish patch causation" in brief["text"]
+
+
+def test_model_registry_and_selected_alias():
+    values = client.get("/api/models").json()
+    assert any(v["id"] == "selected" for v in values)
+    result = client.post("/api/predict", json={"text": "A wonderful game", "model_id": "selected"}).json()
+    selected = next(v for v in values if v["id"] == "selected")
+    assert result["model_id"] == selected["resolved_id"]
+    assert result["negative_threshold"] == selected["negative_threshold"]
+
+
+def test_api_applies_selected_negative_threshold(monkeypatch):
+    import numpy as np
+
+    from patchpulse import api
+
+    class Features:
+        def transform(self, text):
+            class Matrix:
+                nnz = 1
+
+            return Matrix()
+
+    class Controlled:
+        classes_ = np.array([False, True])
+
+        def __getitem__(self, item):
+            return Features()
+
+        def predict_proba(self, text):
+            return np.array([[0.3, 0.7]])
+
+    monkeypatch.setattr(api, "model_info", lambda name: {"id": "controlled", "negative_threshold": 0.2})
+    monkeypatch.setattr(api, "model", lambda name: Controlled())
+    monkeypatch.setattr(api, "model_revision", lambda name: "0" * 64)
+    result = client.post("/api/predict", json={"text": "Mixed feedback"}).json()
+    assert result["score_recommended"] == 0.7
+    assert result["prediction"] == "not recommended"
+
+
+def test_annotation_sample_is_training_only_and_blinded():
+    import json
+
+    from patchpulse.api import FOLDER
+
+    sample = client.get("/api/annotation-pilot").json()
+    split = json.loads((FOLDER / "split.json").read_text())
+    assert len(sample["records"]) == min(60, len(split["partitions"]["train"]))
+    assert {r["version_id"] for r in sample["records"]} <= set(split["partitions"]["train"])
+    assert all(set(r) == {"version_id", "text", "annotations", "human_reviewed"} for r in sample["records"])
+    assert all(r["human_reviewed"] is False and not r["annotations"] for r in sample["records"])

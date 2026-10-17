@@ -1,0 +1,20 @@
+{
+  "experiment_id": "negative-detection-v2",
+  "purpose": "Improve minority-class recommendation detection without opening final tests",
+  "predeclared": "2026-10-17; before running these comparisons",
+  "seed": 42,
+  "inner_folds": 3,
+  "inner_split": "StratifiedGroupKFold on training records only; groups are private HMAC authors, falling back to review ID",
+  "threshold_source": "Training-only out-of-fold negative-class scores; maximize macro F1, then negative F1, then proximity to 0.5",
+  "negative_threshold_grid": [0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+  "selection": "Choose the candidate with highest validation macro F1, breaking ties by negative F1, then negative precision, then fewer features. No test selection.",
+  "bootstrap_repetitions": 1000,
+  "candidates": [
+    {"id":"word-default-v1","features":"word","C":1.0,"class_weight":null,"tune_threshold":false},
+    {"id":"word-threshold-v2","features":"word","C":1.0,"class_weight":null,"tune_threshold":true},
+    {"id":"word-balanced-v2","features":"word","C":1.0,"class_weight":"balanced","tune_threshold":true},
+    {"id":"word-balanced-c4-v2","features":"word","C":4.0,"class_weight":"balanced","tune_threshold":true},
+    {"id":"char-balanced-v2","features":"char","C":4.0,"class_weight":"balanced","tune_threshold":true},
+    {"id":"hybrid-balanced-v2","features":"hybrid","C":4.0,"class_weight":"balanced","tune_threshold":true}
+  ]
+}

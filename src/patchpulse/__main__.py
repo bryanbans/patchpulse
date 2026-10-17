@@ -13,6 +13,7 @@ def main():
             "build-demo",
             "prepare",
             "train-baseline",
+            "compare-baselines",
             "annotate-export",
             "annotate-import",
             "serve",
@@ -48,6 +49,11 @@ def main():
     case = build_case(source["records"], config, source["coverage"], args.mode)
     folder = PRIVATE / args.mode
     folder.mkdir(exist_ok=True)
+    if args.command == "compare-baselines":
+        from .experiments import compare
+
+        compare(args.mode)
+        return
     if args.command in ["build-demo", "prepare"]:
         (folder / "case.json").write_text(json.dumps(case, indent=2), encoding="utf-8")
         print(
