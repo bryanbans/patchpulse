@@ -1,6 +1,6 @@
 # Local verification — October 17, 2026
 
-- 22 Python tests passed before final hardening; final count is recorded in the chat/check output.
+- 24 Python tests passed, including explicit HTTP-date retry handling and a duplicate-page progress bound.
 - Six Playwright cases passed across desktop Chromium and mobile Chromium emulating iPhone 13: navigation, filters/denominators, empty results, expansion, brief download, model inference, methodology, browser errors, keyboard focus, layout overflow, and inert embedded markup/instructions.
 - Desktop and mobile case/evidence/model/methodology screenshots were inspected. All public screenshots use synthetic mode. Private real-mode smoke also passed observed rates, negative-label filters, evidence expansion, model inference, and browser-error checks. The real screenshot stays private.
 - A clean Git archive successfully installed locked Python and Node dependencies, built the synthetic demo and frontend, and served the page/health/prediction through TestClient. It used no private data or Steam access.

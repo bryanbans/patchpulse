@@ -20,6 +20,22 @@ def test_429_retry_after_and_empty_page():
     assert waits == [2]
 
 
+def test_retry_after_http_date_is_respected():
+    statuses = [429, 200]
+
+    def handler(request):
+        return httpx.Response(
+            statuses.pop(0),
+            headers={"Retry-After": "Thu, 01 Jan 1970 00:00:00 GMT"},
+            json={"response": {"query_summary": {"num_reviews": 0}}},
+        )
+
+    waits = []
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        assert fetch(client, {}, sleep=waits.append)["reviews"] == []
+    assert waits == [0]
+
+
 def test_schema_change_fails_loudly():
     with httpx.Client(
         transport=httpx.MockTransport(lambda r: httpx.Response(200, json={"response": {"unexpected": []}}))
@@ -72,6 +88,28 @@ def test_repeated_cursor_is_error_not_completion(tmp_path, monkeypatch):
     assert manifest["status"] == "error"
     assert manifest["periods"]["before"]["status"] == "repeated_cursor_error"
     assert not (tmp_path / "current.json").exists()
+
+
+def test_unique_cursors_with_duplicate_pages_cannot_loop_forever(tmp_path, monkeypatch):
+    from patchpulse.core import windows
+
+    monkeypatch.setattr(collection, "PRIVATE", tmp_path)
+    config = {"app_id": 548430, "date": "2024-06-13"}
+    t = windows(config["date"])["before"][0]
+    row = {
+        "recommendationid": "synthetic-loop",
+        "review": "Duplicate page example",
+        "language": "english",
+        "voted_up": True,
+        "timestamp_created": t,
+        "timestamp_updated": t,
+    }
+    counter = iter(["one", "two"])
+    monkeypatch.setattr(
+        collection, "fetch", lambda *_: {"reviews": [row], "cursor": next(counter), "total_matching": 100}
+    )
+    with pytest.raises(ValueError, match="no new review IDs"):
+        collection.collect(config, cap=10, pace=0)
 
 
 def test_resume_reuses_verified_cache_and_marks_source_mismatch(tmp_path, monkeypatch):
