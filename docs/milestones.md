@@ -29,6 +29,7 @@
 - [ ] M3: class-imbalance experiments, character baseline, bounded transformer, human aspect evaluation, evidence relevance, uncertainty, 30-error review, locked final tests.
 - [ ] M4: evaluated complaint analysis/brief themes, graceful-state coverage expansion, public deployment review, container verification, final accessibility/performance audit.
 - [ ] M5: confirm GitHub destination/visibility; audit content/history; push; verify CI; prepare actual release and launch-ready case study/media.
+- [x] Initial M5 publication step: user confirmed public `bryanbans/patchpulse`; code/data-boundary audit completed; `main` pushed after the user authorized workflow access. Full release acceptance remains pending.
 - [ ] M6: finalize exact LinkedIn copy with verified links; obtain explicit posting approval.
 
 The current build is a reviewable local development slice, not v1.0.0. Targets in the original brief remain targets until measured.

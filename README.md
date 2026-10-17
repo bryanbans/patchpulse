@@ -1,5 +1,7 @@
 # PatchPulse
 
+[![Offline demo and application checks](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml)
+
 **Investigate player feedback around a game update—with the evidence and the limitations in view.**
 
 PatchPulse helps a developer inspect recorded recommendations, explore feedback mentions, and trace observations to immutable review versions. A recommending review can still criticize multiplayer. Those are separate facts.

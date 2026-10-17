@@ -1,6 +1,8 @@
 # Proposed GitHub publication contents
 
-Confirmed target: **[bryanbans/patchpulse](https://github.com/bryanbans/patchpulse)**, public. The user explicitly approved this destination, visibility, MIT original-code license, synthetic demo/screenshots, and aggregate research reports. The repository was created October 17, 2026. Initial Git push was rejected because the GitHub CLI OAuth grant lacked workflow scope; the connected integration also denied workflow creation. A user-approved GitHub authorization refresh is required to finish publishing the existing CI file. No workflow permission is assumed from repository creation.
+Confirmed target: **[bryanbans/patchpulse](https://github.com/bryanbans/patchpulse)**, public. The user explicitly approved this destination, visibility, MIT original-code license, synthetic demo/screenshots, and aggregate research reports. The repository was created October 17, 2026. Initial Git push was rejected because the GitHub CLI OAuth grant lacked workflow scope; the connected integration also denied workflow creation. A user-approved GitHub authorization refresh was required to publish the existing CI file. No workflow permission was assumed from repository creation.
+
+The user subsequently completed the GitHub device-authorization flow. Authentication refreshed successfully, and `main` was pushed to the public repository. Source and CI configuration are published; the first Actions result is checked separately. No v1 release tag or LinkedIn post has been created.
 
 Include: original source, MIT license, dependency locks, synthetic fixtures, code/configuration, tests/CI, source audit, aggregate real-data evaluation, methodology, synthetic-only screenshots, decision log, and milestone checklist. Exclude: the entire private directory, source review text, review/author identifiers, model artifacts, HMAC key, environments, caches, credentials, course screenshots, and attachments from the handoff.
 
