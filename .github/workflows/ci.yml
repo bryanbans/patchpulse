@@ -25,7 +25,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
         working-directory: web
       - run: |
-          uv run python -m patchpulse serve > /tmp/patchpulse.log 2>&1 &
+          .venv/bin/python -m patchpulse serve > /tmp/patchpulse.log 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true' EXIT
           for i in $(seq 1 30); do curl --fail http://127.0.0.1:8000/health && break || sleep 1; done
           npm test --prefix web
       - run: uv run python scripts/check_public_files.py
