@@ -1,5 +1,6 @@
 """Read-only curated analytics and bounded, local text inference."""
 
+import hashlib
 import json
 import os
 import time
@@ -203,6 +204,11 @@ def model():
     return joblib.load(path)
 
 
+@lru_cache(maxsize=1)
+def model_revision():
+    return hashlib.sha256((FOLDER / "baseline.joblib").read_bytes()).hexdigest()
+
+
 @app.post("/api/predict", response_model=PredictResponse)
 def predict(payload: PredictRequest, request: Request):
     if payload.model_id != "tfidf-logreg-v1":
@@ -221,7 +227,7 @@ def predict(payload: PredictRequest, request: Request):
         "task": "recommendation prediction",
         "model_id": payload.model_id,
         "mode": MODE,
-        "model_revision": evaluation().get("split_hash"),
+        "model_revision": model_revision(),
     }
     if not text or pipeline["tfidf"].transform([text]).nnz == 0:
         return {

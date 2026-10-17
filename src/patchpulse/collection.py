@@ -5,6 +5,7 @@ import random
 import subprocess
 import time
 from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 
 import httpx
 
@@ -24,7 +25,15 @@ def fetch(client, query, sleep=time.sleep):
             if attempt == 4:
                 response.raise_for_status()
             retry = response.headers.get("Retry-After", "")
-            sleep(float(retry) if retry.replace(".", "", 1).isdigit() else 2**attempt + random.random())
+            delay = 2**attempt + random.random()
+            if retry.replace(".", "", 1).isdigit():
+                delay = float(retry)
+            elif retry:
+                try:
+                    delay = max(0, (parsedate_to_datetime(retry) - datetime.now(UTC)).total_seconds())
+                except (ValueError, TypeError, OverflowError):
+                    pass
+            sleep(delay)
             continue
         response.raise_for_status()
         payload = response.json().get("response")
@@ -139,6 +148,7 @@ def collect(config, cap=500, pace=1.1, resume_run=None):
                     (run_dir / f"{cache_key}.json").write_text(cache_text, encoding="utf-8")
                     state.setdefault("page_checksums", {})[cache_key] = digest(cache_text)
                     state["pages"] += 1
+                    previous_count = len(records)
                     for r in parsed:
                         ingest(db, r)
                         records[r["review_id"]] = r
@@ -156,6 +166,11 @@ def collect(config, cap=500, pace=1.1, resume_run=None):
                         )
                         state["terminal_empty_page_verified"] = True
                         break
+                    if len(records) == previous_count:
+                        state["status"] = "no_progress_error"
+                        raise ValueError(
+                            "Pagination returned no new review IDs; collection remains incomplete"
+                        )
                     if len(records) >= cap:
                         state["status"] = "capped_incomplete"
                         break

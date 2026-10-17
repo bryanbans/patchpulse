@@ -8,6 +8,8 @@ PatchPulse helps a developer inspect recorded recommendations, explore feedback 
 
 **Status: working one-game local vertical slice, not a finished v1 release.** This is an independent personal portfolio project. The shareable demo uses clearly marked synthetic text. Private local research uses Deep Rock Galactic's Season 05 update; source reviews, author groups, and fitted models are excluded from Git.
 
+[GitHub repository](https://github.com/bryanbans/patchpulse) · [Milestones](docs/milestones.md) · [Model card](docs/model_card.md)
+
 ## Try it locally
 
 Install Python 3.12, [uv](https://docs.astral.sh/uv/), and Node.js 24. From this repository:
