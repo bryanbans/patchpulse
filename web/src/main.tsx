@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
 
@@ -54,6 +54,9 @@ const pct = (rate: number | null) =>
   rate === null ? "Insufficient data" : `${(rate * 100).toFixed(1)}%`;
 
 function App() {
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [focusSearch, setFocusSearch] = useState(false);
+  const [aspectView, setAspectView] = useState<"counts" | "share">("counts");
   const [data, setData] = useState<Case | null>(null),
     [error, setError] = useState(""),
     [tab, setTab] = useState("Case study");
@@ -78,6 +81,30 @@ function App() {
     } | null>(null),
     [predicting, setPredicting] = useState(false),
     [predictError, setPredictError] = useState("");
+  useEffect(() => {
+    if (tab === "Evidence" && focusSearch) {
+      searchRef.current?.focus();
+      setFocusSearch(false);
+    }
+  }, [tab, focusSearch]);
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      const target = event.target as HTMLElement;
+      if (
+        event.key === "/" &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !target.isContentEditable &&
+        !["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
+      ) {
+        event.preventDefault();
+        setTab("Evidence");
+        setFocusSearch(true);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   useEffect(() => {
     api<Case>("/api/case-studies/drg-season-05")
       .then(setData)
@@ -232,6 +259,7 @@ function App() {
           <label>
             Search text
             <input
+              ref={searchRef}
               value={keyword}
               maxLength={200}
               placeholder="e.g. connection"
@@ -396,8 +424,31 @@ function App() {
                 aria-current={tab === item ? "page" : undefined}
                 onClick={() => setTab(item)}
               >
-                <span aria-hidden="true">{["◫", "≡", "⌁", "◎"][i]}</span>
+                <svg
+                  className="nav-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d={
+                      [
+                        "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+                        "M21 21l-5-5 M18 10a8 8 0 1 1-16 0a8 8 0 0 1 16 0",
+                        "M9 3h6 M10 3v7L4 20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1l-6-10V3 M7 15h10",
+                        "M3 4h7a2 2 0 0 1 2 2v15a3 3 0 0 0-3-2H3z M21 4h-7a2 2 0 0 0-2 2v15a3 3 0 0 1 3-2h6z",
+                      ][i]
+                    }
+                  />
+                </svg>
                 {item}
+                <span className="nav-index" aria-hidden="true">
+                  0{i + 1}
+                </span>
               </button>
             ),
           )}
@@ -417,7 +468,20 @@ function App() {
           <div className="breadcrumbs">
             WORKSPACE <span>/</span> {tab.toUpperCase()}
           </div>
-          <span className="build-tag">v0.1 · one-game slice</span>
+          <div className="header-actions">
+            <button
+              className="quick-search"
+              onClick={() => {
+                setTab("Evidence");
+                setFocusSearch(true);
+              }}
+            >
+              Search evidence <kbd>/</kbd>
+            </button>
+            <span className="build-tag">
+              RESEARCH BUILD <span>01</span>
+            </span>
+          </div>
         </header>
         {error && (
           <div className="error" role="alert">
@@ -445,13 +509,19 @@ function App() {
               <div>
                 <span className="eyebrow">PLAYER FEEDBACK, IN CONTEXT</span>
                 <h1>
-                  {tab === "Case study"
-                    ? "Every update has a player story."
-                    : tab === "Evidence"
-                      ? "Follow the evidence."
-                      : tab === "Model lab"
-                        ? "Test the text, not your assumptions."
-                        : "Make the method inspectable."}
+                  {tab === "Case study" ? (
+                    <>
+                      Find the signal.
+                      <br />
+                      <span className="hero-accent">Follow the evidence.</span>
+                    </>
+                  ) : tab === "Evidence" ? (
+                    "Follow the evidence."
+                  ) : tab === "Model lab" ? (
+                    "Test the text, not your assumptions."
+                  ) : (
+                    "Make the method inspectable."
+                  )}
                 </h1>
                 <p>
                   {tab === "Case study"
@@ -563,6 +633,45 @@ function App() {
                     <small>Snapshot · {data.snapshot_date}</small>
                   </section>
                 </div>
+                <section className="window-map" aria-label="Comparison windows">
+                  <div className="window-map-title">
+                    <span className="eyebrow">THE COMPARISON FRAME</span>
+                    <span className="map-qualification">
+                      Equal windows · release day omitted · UTC
+                    </span>
+                  </div>
+                  <div className="window-map-track">
+                    <div className="window-segment before-segment">
+                      <span>BEFORE</span>
+                      <div className="calendar-cells" aria-hidden="true">
+                        {Array.from({ length: 14 }, (_, i) => (
+                          <i key={i} />
+                        ))}
+                      </div>
+                      <small>
+                        {date(data.periods.before.start)} —{" "}
+                        {date(data.periods.before.end)} exclusive
+                      </small>
+                    </div>
+                    <div className="release-marker">
+                      <span className="release-diamond" aria-hidden="true" />
+                      <strong>UPDATE</strong>
+                      <span>{data.game.date}</span>
+                    </div>
+                    <div className="window-segment after-segment">
+                      <span>AFTER</span>
+                      <div className="calendar-cells" aria-hidden="true">
+                        {Array.from({ length: 14 }, (_, i) => (
+                          <i key={i} />
+                        ))}
+                      </div>
+                      <small>
+                        {date(data.periods.after.start)} —{" "}
+                        {date(data.periods.after.end)} exclusive
+                      </small>
+                    </div>
+                  </div>
+                </section>
                 <div className="analysis-grid">
                   <section className="panel">
                     <div className="panel-heading">
@@ -570,7 +679,24 @@ function App() {
                         <span className="eyebrow">EXPLORATORY SIGNALS</span>
                         <h2>What gets mentioned?</h2>
                       </div>
-                      <span className="small-tag">Keyword baseline</span>
+                      <div
+                        className="segmented"
+                        role="group"
+                        aria-label="Aspect display"
+                      >
+                        <button
+                          aria-pressed={aspectView === "counts"}
+                          onClick={() => setAspectView("counts")}
+                        >
+                          Counts
+                        </button>
+                        <button
+                          aria-pressed={aspectView === "share"}
+                          onClick={() => setAspectView("share")}
+                        >
+                          Share
+                        </button>
+                      </div>
                     </div>
                     <p className="muted">
                       Counts of reviews mentioning each aspect. These are not
@@ -579,6 +705,12 @@ function App() {
                     <div className="legend">
                       <span className="before-key" /> Before{" "}
                       <span className="after-key" /> After
+                    </div>
+                    <div className="plot-axis">
+                      {aspectView === "counts"
+                        ? "Review mentions · common count scale"
+                        : "Share of eligible reviews · 0–100% scale"}
+                      <span>BEFORE / AFTER</span>
                     </div>
                     {data.mentions
                       .filter((m) => m.before + m.after > 0)
@@ -593,17 +725,20 @@ function App() {
                           <div className="aspect-tracks">
                             <span
                               style={{
-                                width: `${(100 * m.before) / Math.max(data.periods.before.count, 1)}%`,
+                                width: `${(100 * m.before) / (aspectView === "share" ? Math.max(data.periods.before.count, 1) : Math.max(...data.mentions.flatMap((v) => [v.before, v.after]), 1))}%`,
                               }}
                             />
                             <span
                               style={{
-                                width: `${(100 * m.after) / Math.max(data.periods.after.count, 1)}%`,
+                                width: `${(100 * m.after) / (aspectView === "share" ? Math.max(data.periods.after.count, 1) : Math.max(...data.mentions.flatMap((v) => [v.before, v.after]), 1))}%`,
                               }}
                             />
                           </div>
                           <span className="aspect-count">
-                            {m.before} / {m.after} ↗
+                            {aspectView === "counts"
+                              ? `${m.before} / ${m.after}`
+                              : `${((100 * m.before) / Math.max(data.periods.before.count, 1)).toFixed(1)}% / ${((100 * m.after) / Math.max(data.periods.after.count, 1)).toFixed(1)}%`}{" "}
+                            <span aria-hidden="true">↗</span>
                           </span>
                         </button>
                       ))}

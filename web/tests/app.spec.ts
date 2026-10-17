@@ -6,7 +6,7 @@ test("case, evidence filters, safe text, model, and brief export", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Every update has a player story." }),
+    page.getByRole("heading", { name: /Find the signal/ }),
   ).toBeVisible();
   await expect(page.getByText("SYNTHETIC DEMO", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Open case study" }).click();
@@ -65,14 +65,16 @@ test("capture desktop and mobile screens and keyboard focus", async ({
 }, testInfo) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Every update has a player story." }),
+    page.getByRole("heading", { name: /Find the signal/ }),
   ).toBeVisible();
   await page.screenshot({
     path: `../assets/${testInfo.project.name}-case.png`,
+    animations: "disabled",
     fullPage: true,
   });
   await page.screenshot({
     path: `../assets/${testInfo.project.name}-preview.png`,
+    animations: "disabled",
   });
   await expect(page.locator(".review")).toHaveCount(3);
   for (const button of await page
@@ -100,6 +102,7 @@ test("capture desktop and mobile screens and keyboard focus", async ({
     ).toHaveAttribute("aria-current", "page");
     await page.screenshot({
       path: `../assets/${testInfo.project.name}-${tab.toLowerCase().replace(" ", "-")}.png`,
+      animations: "disabled",
       fullPage: true,
     });
     expect(
@@ -144,4 +147,34 @@ test("review HTML and embedded instructions remain inert text", async ({
     ),
   ).toBeVisible();
   expect(await page.locator(".review img").count()).toBe(0);
+});
+
+test("aspect scales and keyboard search preserve analytical context", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByLabel("Comparison windows")).toBeVisible();
+  await page.getByRole("button", { name: "Share", exact: true }).click();
+  await expect(
+    page.getByText("Share of eligible reviews · 0–100% scale"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Inspect Gameplay evidence" }),
+  ).toContainText("33.3% / 20.8%");
+  await page.keyboard.press("/");
+  await expect(page.getByLabel("Search text")).toBeFocused();
+  await page.getByLabel("Search text").fill("multiplayer");
+  await expect(page.getByRole("status")).toContainText("matching reviews / 48");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Model lab", exact: true })
+    .click();
+  await page.getByLabel("Review text").fill("Example");
+  await page.getByLabel("Review text").press("/");
+  await expect(page.getByLabel("Review text")).toHaveValue("Example/");
+  await expect(
+    page
+      .getByRole("navigation")
+      .getByRole("button", { name: "Model lab", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
 });
