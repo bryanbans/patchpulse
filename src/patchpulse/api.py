@@ -273,6 +273,14 @@ def research_evaluation():
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+@app.get("/api/neural-evaluation")
+def neural_evaluation():
+    path = ROOT / "reports/transformer-real.json"
+    if not path.exists():
+        raise HTTPException(404, "Neural development study is not available")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 @app.get("/api/annotation-pilot")
 def annotation_pilot():
     import random

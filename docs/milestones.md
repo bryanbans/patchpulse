@@ -31,10 +31,19 @@
 - [x] Browser training-only annotation workspace with blinded labels and Unicode-safe exports.
 - [ ] Actual human annotation and error review; no labels fabricated.
 
+## NLP-focused increment — 2026-10-18
+
+- [x] Course-inspired evidence map, research question, case study and author review prompts.
+- [x] Pinned DistilBERT model/license/revision, optional locked neural runtime, local GPU experiment.
+- [x] Three-seed ordinary-versus-balanced loss ablation, fixed two-epoch budget and untouched final tests.
+- [x] Truncation/resource measurements and aggregate diagnostics; documented majority-class collapse instead of a fabricated improvement.
+- [x] Train-only annotation validation rejects held-out records, changed text, duplicate records/spans and invalid Unicode offsets.
+- [ ] Human aspect evaluation, neural follow-up and independent author review remain pending.
+
 ## Remaining v1 work
 
 - [ ] M2: rights/retention decisions, second development game, frozen multi-game plan, dataset card expansion, real human annotation.
-- [ ] M3: class-imbalance experiments, character baseline, bounded transformer, human aspect evaluation, evidence relevance, uncertainty, 30-error review, locked final tests.
+- [ ] M3: remaining neural follow-up, human aspect evaluation, evidence relevance, 30-error review, locked final tests. Classical imbalance/character studies, a bounded transformer and exploratory uncertainty are completed above.
 - [ ] M4: evaluated complaint analysis/brief themes, graceful-state coverage expansion, public deployment review, container verification, final accessibility/performance audit.
 - [ ] M5: confirm GitHub destination/visibility; audit content/history; push; verify CI; prepare actual release and launch-ready case study/media.
 - [x] Initial M5 publication step: user confirmed public `bryanbans/patchpulse`; code/data-boundary audit completed; `main` pushed after the user authorized workflow access. Full release acceptance remains pending.

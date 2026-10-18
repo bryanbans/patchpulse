@@ -1,0 +1,850 @@
+{
+  "experiment_id": "distilbert-recommendation-v1",
+  "run_id": "20261018T152243847615Z",
+  "mode": "real",
+  "created_at": "2026-10-18T15:24:07.631878+00:00",
+  "status": "development validation only",
+  "task": "recommendation prediction, not aspect sentiment",
+  "model_id": "distilbert/distilbert-base-uncased",
+  "revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+  "base_model_license": "apache-2.0",
+  "config": {
+    "experiment_id": "distilbert-recommendation-v1",
+    "declared_on": "2026-10-18; before viewing neural validation results",
+    "model_id": "distilbert/distilbert-base-uncased",
+    "revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+    "license": "apache-2.0",
+    "task": "recommendation prediction, not aspect sentiment",
+    "seeds": [
+      17,
+      42,
+      73
+    ],
+    "representative_seed": 42,
+    "epochs": 2,
+    "batch_size": 16,
+    "max_length": 256,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_fraction": 0.1,
+    "gradient_clip_norm": 1.0,
+    "negative_threshold": 0.5,
+    "precision": "float32",
+    "cpu_threads": 8,
+    "maximum_training_seconds": 1800,
+    "candidates": [
+      {
+        "id": "distilbert-unweighted-v1",
+        "class_weight": null
+      },
+      {
+        "id": "distilbert-balanced-v1",
+        "class_weight": "balanced"
+      }
+    ],
+    "selection": "Choose candidate and common epoch with highest mean validation macro F1 across all three fixed seeds, then mean negative F1; fixed representative seed 42, never choose the best seed. Fixed threshold 0.5. Ties retain declaration order.",
+    "limits": "Same outer validation used previously for six classical candidates; selected development scores are optimistic. Final temporal and unseen-game tests stay locked. No further search in this increment."
+  },
+  "split_hash": "74d00361fcc2a33215dfad6b2bb99075774e1b1c3ab29e8e26a144b6e84afefc",
+  "manifest_sha256": "0b4d111ef5e50363eab18f3b249b0d7bf9adbd34602823e5502f7c0305cad7dd",
+  "source_sha256": {
+    "src/patchpulse/neural.py": "b182bf61b32218d389b90331298782088fb064a108cb17894b479d3beb19fc86",
+    "src/patchpulse/experiments.py": "61a35cbc1cfc5c18ffe6b9f1f4eaaf814f3b191bae53344ec91c5e6cdab81725",
+    "src/patchpulse/core.py": "7b63a2527c5fdc81a7fd925fd36a6a59c1ce9074c4ba6be85a6b0c6c6806a76a",
+    "configs/transformer.json": "ece3491c2c068860c8982de2b7612f3feb34728c8e469fb35c66a0b28b6cc28b",
+    "uv.lock": "b4030cd34cbfb68f9e161c8374619f4d22b4948c4543edc23cd32298d31f801f"
+  },
+  "code_commit_at_start": "f96e6b942c330824902e9169c466e2242c937c68",
+  "code_state": "Source fingerprints identify this experiment implementation, including uncommitted changes.",
+  "counts": {
+    "train": 1896,
+    "validation": 406,
+    "locked_temporal_test": 407
+  },
+  "training_class_support": {
+    "not_recommended": 64,
+    "recommended": 1832
+  },
+  "validation_class_support": {
+    "not_recommended": 12,
+    "recommended": 394
+  },
+  "train_only_class_weights": [
+    14.8125,
+    0.517467248908297
+  ],
+  "preprocessing": "Versioned normalize then pretrained uncased WordPiece; no stopword removal; right truncation",
+  "token_lengths": {
+    "train": {
+      "records": 1896,
+      "truncated_records": 40,
+      "max_tokens_before_truncation": 1982,
+      "median_tokens_before_truncation": 14.0
+    },
+    "validation": {
+      "records": 406,
+      "truncated_records": 7,
+      "max_tokens_before_truncation": 760,
+      "median_tokens_before_truncation": 13.0
+    }
+  },
+  "parameter_count": 66955010,
+  "trainable_parameter_count": 66955010,
+  "results": [
+    {
+      "id": "distilbert-unweighted-v1",
+      "class_weight": null,
+      "seed": 17,
+      "epoch": 1,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.23941655317124938,
+      "epoch_train_and_validation_seconds": 6.341029300005175,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.44826130539038894,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-unweighted-v1",
+      "class_weight": null,
+      "seed": 17,
+      "epoch": 2,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.11702225390302984,
+      "epoch_train_and_validation_seconds": 6.161793699982809,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.5481968486184121,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-unweighted-v1",
+      "class_weight": null,
+      "seed": 42,
+      "epoch": 1,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.22495699331227234,
+      "epoch_train_and_validation_seconds": 6.32116789999418,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.256794596193805,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-unweighted-v1",
+      "class_weight": null,
+      "seed": 42,
+      "epoch": 2,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.12465483278727732,
+      "epoch_train_and_validation_seconds": 6.3025501999945845,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.4849287974287974,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-unweighted-v1",
+      "class_weight": null,
+      "seed": 73,
+      "epoch": 1,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.22775671671965958,
+      "epoch_train_and_validation_seconds": 6.1097298999957275,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.3961506432936169,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-unweighted-v1",
+      "class_weight": null,
+      "seed": 73,
+      "epoch": 2,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.11706029838697694,
+      "epoch_train_and_validation_seconds": 6.181302399985725,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.541706668445456,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "class_weight": "balanced",
+      "seed": 17,
+      "epoch": 1,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.7796498686782544,
+      "epoch_train_and_validation_seconds": 5.9620505000057165,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.4940367994570639,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "class_weight": "balanced",
+      "seed": 17,
+      "epoch": 2,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.6443480802896405,
+      "epoch_train_and_validation_seconds": 6.167393300012918,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.6603752853752854,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "class_weight": "balanced",
+      "seed": 42,
+      "epoch": 1,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.7083077055995475,
+      "epoch_train_and_validation_seconds": 6.262955399986822,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.37428920374437025,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "class_weight": "balanced",
+      "seed": 42,
+      "epoch": 2,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.7929681820543444,
+      "epoch_train_and_validation_seconds": 6.288210500002606,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.5184769173986794,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "class_weight": "balanced",
+      "seed": 73,
+      "epoch": 1,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.7910694097589214,
+      "epoch_train_and_validation_seconds": 6.183086300006835,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.544722107957402,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "class_weight": "balanced",
+      "seed": 73,
+      "epoch": 2,
+      "negative_threshold": 0.5,
+      "mean_training_batch_loss": 0.6812667859765359,
+      "epoch_train_and_validation_seconds": 6.159714000008535,
+      "macro_f1": 0.4925,
+      "accuracy": 0.9704433497536946,
+      "negative_precision": 0.0,
+      "negative_recall": 0.0,
+      "negative_f1": 0.0,
+      "negative_average_precision": 0.7246988402102414,
+      "confusion_matrix": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          394
+        ]
+      ],
+      "classification_report": {
+        "not_recommended": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 12.0
+        },
+        "recommended": {
+          "precision": 0.9704433497536946,
+          "recall": 1.0,
+          "f1-score": 0.985,
+          "support": 394.0
+        },
+        "accuracy": 0.9704433497536946,
+        "macro avg": {
+          "precision": 0.4852216748768473,
+          "recall": 0.5,
+          "f1-score": 0.4925,
+          "support": 406.0
+        },
+        "weighted avg": {
+          "precision": 0.9417602950811717,
+          "recall": 0.9704433497536946,
+          "f1-score": 0.9558866995073891,
+          "support": 406.0
+        }
+      }
+    }
+  ],
+  "across_seed_summary": [
+    {
+      "id": "distilbert-unweighted-v1",
+      "epoch": 1,
+      "mean_macro_f1": 0.4925,
+      "sd_macro_f1": 0.0,
+      "mean_negative_f1": 0.0
+    },
+    {
+      "id": "distilbert-unweighted-v1",
+      "epoch": 2,
+      "mean_macro_f1": 0.4925,
+      "sd_macro_f1": 0.0,
+      "mean_negative_f1": 0.0
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "epoch": 1,
+      "mean_macro_f1": 0.4925,
+      "sd_macro_f1": 0.0,
+      "mean_negative_f1": 0.0
+    },
+    {
+      "id": "distilbert-balanced-v1",
+      "epoch": 2,
+      "mean_macro_f1": 0.4925,
+      "sd_macro_f1": 0.0,
+      "mean_negative_f1": 0.0
+    }
+  ],
+  "selection": {
+    "id": "distilbert-unweighted-v1",
+    "epoch": 1,
+    "mean_macro_f1": 0.4925,
+    "sd_macro_f1": 0.0,
+    "mean_negative_f1": 0.0
+  },
+  "representative_seed": 42,
+  "selected": {
+    "id": "distilbert-unweighted-v1",
+    "class_weight": null,
+    "seed": 42,
+    "epoch": 1,
+    "negative_threshold": 0.5,
+    "mean_training_batch_loss": 0.22495699331227234,
+    "epoch_train_and_validation_seconds": 6.32116789999418,
+    "macro_f1": 0.4925,
+    "accuracy": 0.9704433497536946,
+    "negative_precision": 0.0,
+    "negative_recall": 0.0,
+    "negative_f1": 0.0,
+    "negative_average_precision": 0.256794596193805,
+    "confusion_matrix": [
+      [
+        0,
+        12
+      ],
+      [
+        0,
+        394
+      ]
+    ],
+    "classification_report": {
+      "not_recommended": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "recommended": {
+        "precision": 0.9704433497536946,
+        "recall": 1.0,
+        "f1-score": 0.985,
+        "support": 394.0
+      },
+      "accuracy": 0.9704433497536946,
+      "macro avg": {
+        "precision": 0.4852216748768473,
+        "recall": 0.5,
+        "f1-score": 0.4925,
+        "support": 406.0
+      },
+      "weighted avg": {
+        "precision": 0.9417602950811717,
+        "recall": 0.9704433497536946,
+        "f1-score": 0.9558866995073891,
+        "support": 406.0
+      }
+    }
+  },
+  "uncertainty": {
+    "method": "Label-stratified paired bootstrap of validation review versions; percentile interval",
+    "repetitions": 1000,
+    "seed": 42,
+    "macro_f1_interval_95": [
+      0.4925,
+      0.4925
+    ],
+    "macro_f1_difference_from_v1_interval_95": [
+      0.0,
+      0.0
+    ],
+    "limitations": "Exploratory: same validation set selected the model. Does not account for selection optimism, source bias, or other-game generalization."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "torch": "2.14.1+cu130",
+    "transformers": "5.20.1",
+    "device": "cuda",
+    "hardware": "NVIDIA GeForce RTX 5070 Ti",
+    "cpu_threads": 8,
+    "cuda_runtime": "13.0",
+    "precision": "float32",
+    "peak_gpu_allocated_bytes": 2918353920,
+    "determinism": "Seeded, deterministic algorithms warn-only; cross-platform bitwise reproducibility not claimed"
+  },
+  "training_and_evaluation_seconds": 83.91723250001087,
+  "final_tests_opened": false,
+  "calibrated": false,
+  "limitations": [
+    "Same outer validation used previously for six classical candidates; selected development scores are optimistic. Final temporal and unseen-game tests stay locked. No further search in this increment.",
+    "Only 12 negative outer-validation examples; minority estimates are fragile.",
+    "Pretrained language model introduces a pretraining-corpus exposure risk absent from the classical model; independence cannot be established.",
+    "Right truncation may discard complaints late in long reviews. No aspect sentiment or generation result is established."
+  ],
+  "checkpoint_files_sha256": {
+    "config.json": "d826592e6b35c11cde4a3f6cc9040cb851e95df7d17cb6a90cf20961a950a0aa",
+    "model.safetensors": "69caba9c509bb271587cfe762539b14a1c14dbfaa35f7bf17a71d270c789e9fc",
+    "tokenizer.json": "8b79639ec74b46604e730f505186eaafb1006d2fd00f2c4930d168bb7f894680",
+    "tokenizer_config.json": "71cd48543bec670f50e0c9c3556df16b1f58ea720ead6a1b4675f08870c60b17"
+  }
+}

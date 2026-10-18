@@ -39,6 +39,6 @@ Do not rebuild or retrain the original baseline to run this comparison. A new co
 
 [Aggregate report](../reports/negative-detection-real.json), [local CPU protocol](../reports/negative-detection-benchmark.json). The selected model's 100 warm forward calls had p95 0.339 ms on the documented CPU, using three repeated original synthetic sentences. This excludes HTTP and is not a production workload. Cached localhost case requests had p95 1.425 ms. No WAN/browser performance claim follows.
 
-Next: actual human annotation and error review, source-rights decisions before broader collection, a second development game under a frozen plan, and a bounded transformer comparison. Keep final temporal and unseen-game evaluation locked until selection is finished.
+Next: actual human annotation and error review, source-rights decisions before broader collection, a second development game under a frozen plan, and follow-up to the now-completed [bounded transformer comparison](nlp_study.md). Keep final temporal and unseen-game evaluation locked until selection is finished.
 
 Technical references: [scikit-learn logistic regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), [decision thresholds](https://scikit-learn.org/stable/modules/classification_threshold.html), [FeatureUnion](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.FeatureUnion.html).

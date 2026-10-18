@@ -1,0 +1,239 @@
+{
+  "experiment_id": "distilbert-recommendation-v1",
+  "run_id": "20261018T152243847615Z",
+  "split_hash": "74d00361fcc2a33215dfad6b2bb99075774e1b1c3ab29e8e26a144b6e84afefc",
+  "status": "post-run development diagnostics, no additional selection",
+  "checkpoints": [
+    {
+      "checkpoint": "distilbert-unweighted-v1:17:1",
+      "negative_average_precision": 0.44826130539038894,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.01819324493408203,
+          "median": 0.03773978352546692,
+          "maximum": 0.052766431123018265
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.013617158867418766,
+          "median": 0.019413591362535954,
+          "maximum": 0.04723131284117699
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-unweighted-v1:17:2",
+      "negative_average_precision": 0.5481968486184121,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.012352878227829933,
+          "median": 0.1164000928401947,
+          "maximum": 0.24890771508216858
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.007497937884181738,
+          "median": 0.01159071596339345,
+          "maximum": 0.1978582888841629
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-unweighted-v1:42:1",
+      "negative_average_precision": 0.256794596193805,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.018392473459243774,
+          "median": 0.04925691336393356,
+          "maximum": 0.07899989187717438
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.010401362553238869,
+          "median": 0.019177217036485672,
+          "maximum": 0.08021330088376999
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-unweighted-v1:42:2",
+      "negative_average_precision": 0.4849287974287974,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.01682855188846588,
+          "median": 0.07952067628502846,
+          "maximum": 0.16142410039901733
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.006776429712772369,
+          "median": 0.011641489807516336,
+          "maximum": 0.15880349278450012
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-unweighted-v1:73:1",
+      "negative_average_precision": 0.3961506432936169,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.011701928451657295,
+          "median": 0.025993427261710167,
+          "maximum": 0.05985211580991745
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.009261710569262505,
+          "median": 0.01185608608648181,
+          "maximum": 0.04661724716424942
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-unweighted-v1:73:2",
+      "negative_average_precision": 0.541706668445456,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.010687362402677536,
+          "median": 0.08263690024614334,
+          "maximum": 0.19098125398159027
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.005958187859505415,
+          "median": 0.009440191090106964,
+          "maximum": 0.12923020124435425
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-balanced-v1:17:1",
+      "negative_average_precision": 0.4940367994570639,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.021139683201909065,
+          "median": 0.0640489049255848,
+          "maximum": 0.1299157738685608
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.016478708013892174,
+          "median": 0.021382792852818966,
+          "maximum": 0.1434037685394287
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-balanced-v1:17:2",
+      "negative_average_precision": 0.6603752853752854,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.012923941016197205,
+          "median": 0.2025134563446045,
+          "maximum": 0.3303782641887665
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.007374330423772335,
+          "median": 0.010190699715167284,
+          "maximum": 0.3181888163089752
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-balanced-v1:42:1",
+      "negative_average_precision": 0.37428920374437025,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.019048253074288368,
+          "median": 0.07590842992067337,
+          "maximum": 0.2254999727010727
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.011239356361329556,
+          "median": 0.017466777935624123,
+          "maximum": 0.14722149074077606
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-balanced-v1:42:2",
+      "negative_average_precision": 0.5184769173986794,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.015469498932361603,
+          "median": 0.08696049079298973,
+          "maximum": 0.32267138361930847
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.006526987534016371,
+          "median": 0.010367547161877155,
+          "maximum": 0.22899900376796722
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-balanced-v1:73:1",
+      "negative_average_precision": 0.544722107957402,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.0201408714056015,
+          "median": 0.06760672479867935,
+          "maximum": 0.12563911080360413
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.012136085890233517,
+          "median": 0.016254402697086334,
+          "maximum": 0.14470969140529633
+        }
+      }
+    },
+    {
+      "checkpoint": "distilbert-balanced-v1:73:2",
+      "negative_average_precision": 0.7246988402102414,
+      "predicted_negative_at_fixed_threshold": 0,
+      "score_summary_by_recorded_class": {
+        "not_recommended": {
+          "count": 12,
+          "minimum": 0.014108738861978054,
+          "median": 0.2549862340092659,
+          "maximum": 0.37961357831954956
+        },
+        "recommended": {
+          "count": 394,
+          "minimum": 0.005442480091005564,
+          "median": 0.008197765797376633,
+          "maximum": 0.33971765637397766
+        }
+      }
+    }
+  ],
+  "threshold_search_performed": false,
+  "final_tests_opened": false,
+  "interpretation": "Ranking scores vary despite identical fixed-threshold predictions. This motivates a future training-only threshold study; no threshold is selected using these validation scores."
+}

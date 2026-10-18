@@ -95,3 +95,17 @@ def test_annotation_sample_is_training_only_and_blinded():
     assert {r["version_id"] for r in sample["records"]} <= set(split["partitions"]["train"])
     assert all(set(r) == {"version_id", "text", "annotations", "human_reviewed"} for r in sample["records"])
     assert all(r["human_reviewed"] is False and not r["annotations"] for r in sample["records"])
+
+
+def test_public_neural_report_contains_only_aggregate_evaluation():
+    from patchpulse.api import ROOT
+
+    if not (ROOT / "reports/transformer-real.json").exists():
+        return
+    response = client.get("/api/neural-evaluation")
+    assert response.status_code == 200
+    report = response.json()
+    assert report["task"] == "recommendation prediction, not aspect sentiment"
+    assert report["final_tests_opened"] is False
+    assert len(report["results"]) == 12
+    assert all("text" not in row and "version_id" not in row for row in report["results"])

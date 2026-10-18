@@ -144,3 +144,29 @@ test("detector choice is sent to API and thresholds stay visible", async ({
     ),
   ).toBeVisible();
 });
+
+test("neural study shows seed ablations and honest failure outcome", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Methodology", exact: true })
+    .click();
+  const study = page.getByRole("region", {
+    name: "Neural ablation comparison",
+  });
+  await expect(study).toContainText("distilbert-unweighted-v1");
+  await expect(study).toContainText("distilbert-balanced-v1");
+  await expect(
+    page.getByText("Measured outcome: retain the classical detector."),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Every neural checkpoint predicts the majority class/),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+});

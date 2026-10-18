@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
 import { ResearchPanel } from "./ResearchPanel";
+import { NeuralPanel } from "./NeuralPanel";
 import { AnnotationApp } from "./AnnotationApp";
 
 type Period = {
@@ -900,6 +901,7 @@ function App() {
             )}
             {tab === "Methodology" && (
               <>
+                <NeuralPanel />
                 <ResearchPanel />
                 <section className="panel methodology">
                   <span className="eyebrow">DEVELOPMENT EVALUATION</span>
@@ -961,9 +963,9 @@ function App() {
                     Chronological train/validation/temporal-test partitions are
                     frozen before fitting. Exact and near duplicates are removed
                     before splitting. Final temporal tests remain unopened. The
-                    unseen-game test, transformer comparison, and human aspect
-                    evaluation are pending. Real-data development uncertainty
-                    appears in the comparison above.
+                    unseen-game test and human aspect evaluation are pending.
+                    Real-data development uncertainty appears in the comparison
+                    above.
                   </p>
                   <h3>Help build the ground truth</h3>
                   <p>

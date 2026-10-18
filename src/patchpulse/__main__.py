@@ -14,6 +14,7 @@ def main():
             "prepare",
             "train-baseline",
             "compare-baselines",
+            "train-transformer",
             "annotate-export",
             "annotate-import",
             "serve",
@@ -42,6 +43,11 @@ def main():
             parser.error("--port must be between 1024 and 65535")
         uvicorn.run("patchpulse.api:app", host="127.0.0.1", port=args.port)
         return
+    if args.command == "train-transformer":
+        from .neural import run
+
+        run(args.mode)
+        return
     if args.mode == "real":
         source = json.loads((PRIVATE / "current.json").read_text(encoding="utf-8"))
     else:
@@ -68,10 +74,11 @@ def main():
     if args.command == "annotate-export":
         import random
 
-        from .modeling import split_records
+        from .experiments import frozen_development
 
-        partitions, _ = split_records(case["evidence"])
-        pilot = random.Random(42).sample(partitions["train"], min(60, len(partitions["train"])))
+        manifest = json.loads((folder / "split.json").read_text())
+        training, _ = frozen_development(case["evidence"], manifest)
+        pilot = random.Random(42).sample(training, min(60, len(training)))
         rows = [
             {"version_id": r["version_id"], "text": r["text"], "annotations": [], "human_reviewed": False}
             for r in pilot
@@ -83,28 +90,11 @@ def main():
         if not args.file:
             parser.error("--file is required")
         rows = json.loads(__import__("pathlib").Path(args.file).read_text(encoding="utf-8"))
-        known = {r["version_id"]: r["text"] for r in case["evidence"]}
-        from .core import ASPECTS
+        from .annotations import audit_annotations
 
-        for r in rows:
-            if (
-                r["version_id"] not in known
-                or r.get("human_reviewed") is not True
-                or not r.get("reviewer_id")
-            ):
-                raise ValueError("Unknown record, missing human review or reviewer ID")
-            for a in r["annotations"]:
-                if a["aspect"] not in ASPECTS or a["polarity"] not in [
-                    "positive",
-                    "negative",
-                    "mixed",
-                    "neutral",
-                ]:
-                    raise ValueError("Unknown annotation category")
-                if not 0 <= a["start"] < a["end"] <= len(known[r["version_id"]]):
-                    raise ValueError("Invalid evidence offsets")
-                if known[r["version_id"]][a["start"] : a["end"]] != a["passage"]:
-                    raise ValueError("Evidence is not an exact source substring")
+        manifest = json.loads((folder / "split.json").read_text())
+        audit = audit_annotations(rows, case["evidence"], manifest)
+        (folder / "annotation-audit.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
         (folder / "human-annotations.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
         print(f"Imported {len(rows)} reviewed records; provenance still requires human verification.")
 

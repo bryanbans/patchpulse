@@ -1,20 +1,20 @@
-# Development pause — October 17, 2026
+# Latest development checkpoint — October 18, 2026
 
-The user requested a pause after the negative-detection increment. This is a research preview, not v1.0.0. No LinkedIn post has been sent.
+PatchPulse is now framed around the NLP question: can we separate overall recommendations from specific complaints and preserve evidence? Read [the NLP study](nlp_study.md), [proficiency map](proficiency_map.md) and [author review guide](author_review.md). This is a personal portfolio research preview, not v1.0.0. No LinkedIn post has been sent.
 
-## Completed
+## Newly completed
 
-- Six-candidate development comparison, preserving original split and locked final tests.
-- Selected private character model: validation macro F1 0.7575 versus 0.4925; 5/12 negatives found, 2 false alarms. Only 12 validation negatives; no final quality claim.
-- Model lab selection, visible negative thresholds, real aggregate comparison, training-only human annotation workspace.
-- Private weights/source text remain excluded from public Git.
+- DistilBERT full-parameter fine-tuning, pinned model revision, three seeds, ordinary/balanced loss, two epochs, fixed .5 threshold. All twelve epoch evaluations predict recommended; macro F1 .4925, negative recall zero. Classical character detector remains active at .7575 validation macro F1.
+- Aggregate diagnostics, per-seed results, truncation/resource evidence, optional locked neural dependencies. Private weights/errors/scores stay ignored. Standard demo CI does not train/download a model.
+- Annotation import rejects held-out records, changed source text, duplicate records/spans and invalid offsets, preserving the frozen training boundary.
+- Updated methodology view, research case study, course-inspired competency mapping, author ownership prompts and an explicitly unfinished LinkedIn narrative draft.
 
-## Resume here
+## Resume priorities
 
-1. Open the private annotation workspace at http://127.0.0.1:8001/annotate. If the local server is stopped, use `uv run python -m patchpulse serve --mode real --port 8001`. Public synthetic practice is on port 8000. Review all 60 training examples, export before leaving (no browser persistence), and keep the real-data file private.
-2. Validate/import actual human labels with `uv run python -m patchpulse annotate-import --mode real --file PATH`. Do not substitute AI labels for human ground truth. Freeze/adjudicate taxonomy after the pilot; note single-annotator limits.
-3. Human-review selected detector errors in the active private experiment directory; these are still marked unreviewed. The selected model has 9 validation mistakes; the planned 30-error review requires expanding the reviewed error set, not inventing more errors.
-4. Resolve source reuse/retention gates before expanding to the second development game. Preserve the unseen-game holdout and final temporal test.
-5. Continue bounded transformer comparison, evaluated aspects/evidence, container/deployment/accessibility checks, release case study and explicit approval of exact LinkedIn copy.
+1. Human annotation pilot is still pending. Private workspace: http://127.0.0.1:8001/annotate; restart with `uv run python -m patchpulse serve --mode real --port 8001` if needed. Review the 60 training examples, export before leaving (no persistence), and keep the file private. Do not reload an in-progress annotation tab.
+2. Validate/import with `uv run python -m patchpulse annotate-import --mode real --file PATH`. Record independent versus AI-assisted annotations and taxonomy decisions. Freeze guide after the pilot; no claim of held-out aspect quality from training labels.
+3. Write the next neural hypothesis before running it: training-only grouped threshold selection and minibatch/loss-normalization ablations are motivated by the ranking-versus-decision failure. Do not tune on the twelve negative outer-validation records. Human error review remains pending.
+4. Resolve source-use/retention gates before broader collection; obtain sufficient independently reviewed aspect labels and a frozen supervised/evaluation plan. Keep third-game and temporal tests locked until final selection is complete.
+5. Continue evaluated aspect detection/polarity/evidence, locked tests, remaining container/deployment checks, author explanation/replication and final portfolio release. Revise the LinkedIn draft with actual completed results; obtain exact-post approval before publishing.
 
-Read `docs/negative_detection.md`, `docs/milestones.md`, and `docs/data_sources.md`. Do not rerun build-demo/train-baseline on the real snapshot just to run comparisons: preserve its frozen manifest. Restart the API after changing active model artifacts, since data/models are cached.
+Do not rerun real build-demo/train-baseline to run experiments: preserve the original split. Neural reproduction uses `uv sync --extra neural --frozen`, then `uv run --extra neural python -m patchpulse train-transformer --mode real`. This downloads the pinned base model on first use, runs locally and never opens final tests or replaces the active classical serving model. Backend model/data caches require restart after artifact changes.

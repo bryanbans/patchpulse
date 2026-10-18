@@ -35,7 +35,8 @@ export function ResearchPanel() {
       <p>
         Six fixed CPU baselines on the same frozen Deep Rock Galactic split.
         Thresholds use training-only grouped cross-validation. Selection uses
-        406 chronological validation records: 394 recommended, just 12 not
+        {report.counts.validation} chronological validation records:{" "}
+        {support.recommended} recommended, just {support.not_recommended} not
         recommended.
       </p>
       <div className="evaluation-grid">

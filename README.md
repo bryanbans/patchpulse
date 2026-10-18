@@ -2,15 +2,23 @@
 
 [![Offline demo and application checks](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml)
 
-**Investigate player feedback around a game update—with the evidence and the limitations in view.**
+**A thumbs-up review can still contain a complaint. Can NLP preserve that distinction?**
 
-PatchPulse helps a developer inspect recorded recommendations, explore feedback mentions, and trace observations to immutable review versions. A recommending review can still criticize multiplayer. Those are separate facts.
+PatchPulse explores how a developer could distinguish overall recommendations from specific player complaints around an update, with traceable evidence. This independent NLP portfolio project combines classical baselines, experimental transformer fine-tuning, and a human annotation workflow. Evaluated aspect sentiment is still in development.
 
 ![PatchPulse synthetic demonstration](assets/desktop-preview.png)
 
 **Status: working one-game local vertical slice, not a finished v1 release.** This is an independent personal portfolio project. The shareable demo uses clearly marked synthetic text. Private local research uses Deep Rock Galactic's Season 05 update; source reviews, author groups, and fitted models are excluded from Git.
 
 [GitHub repository](https://github.com/bryanbans/patchpulse) · [Milestones](docs/milestones.md) · [Model card](docs/model_card.md)
+
+## The NLP study is the centerpiece
+
+After studying NLP, the motivating question is whether models can preserve mixed feedback instead of flattening an entire review into positive or negative. [Read the case study and actual results](docs/nlp_study.md) · [Course-inspired proficiency evidence](docs/proficiency_map.md) · [Author review prompts](docs/author_review.md).
+
+A **66.96M-parameter DistilBERT model has now been fully fine-tuned** on the same frozen development split. Ordinary versus class-balanced loss, three seeds each, two epochs: all twelve checkpoint evaluations predicted only recommended at the fixed .5 threshold (macro F1 .4925). The existing character model remains stronger in validation (.7575, five of twelve negatives detected, two false alarms). This is a documented failure of the bounded neural setup, not a claim that transformers cannot solve the task. Final tests remain unopened. [Neural report](reports/transformer-real.json).
+
+Human-reviewed aspect/polarity evaluation, wider development coverage under resolved source-use conditions, and locked temporal/unseen-game tests remain release gates. The current deterministic brief is not neural language generation. No course materials or raw source text are distributed.
 
 ## Try it locally
 
@@ -34,7 +42,7 @@ An October 17, 2026 retrospective collection returned **3,883 distinct reviews**
 
 Within those eligible collected records, recommendations were 837/853 before and 2,643/2,722 after—a **−1.03 percentage-point** difference. This describes the sample and does not establish an update effect. [Machine-readable aggregate report](reports/milestone1-real-aggregates.json).
 
-The first text-only TF-IDF/logistic regression model achieved **0.4925 validation macro F1**, equal to the majority baseline. Its 97.0% validation accuracy hides **zero negative-class recall**: it predicted all 406 validation records as recommended. This is a useful failure to investigate, not a release-quality classifier. The final temporal test remains unopened; the unseen-game test and transformer comparison have not run. [Evaluation and limitations](docs/evaluation.md).
+The first text-only TF-IDF/logistic regression model achieved **0.4925 validation macro F1**, equal to the majority baseline. Its 97.0% validation accuracy hides **zero negative-class recall**: it predicted all 406 validation records as recommended. This is a useful failure to investigate, not a release-quality classifier. The final temporal test remains unopened; the unseen-game test has not run; the bounded transformer comparison below is now complete. [Evaluation and limitations](docs/evaluation.md).
 
 ## Negative-detection development update
 
@@ -53,7 +61,7 @@ flowchart LR
   C --> D[Conservative eligible cohorts]
   D --> E[Recorded-label aggregates]
   D --> F[Frozen duplicate-aware splits]
-  F --> G[Text-only baseline]
+  F --> G[Classical and neural NLP study]
   E --> H[Read-only FastAPI]
   G --> H
   I[Original synthetic fixtures] --> D
@@ -79,7 +87,7 @@ uv run python -m patchpulse serve --mode real --port 8001
 
 Real mode is for local private inspection. Do not deploy it publicly. Current API data can change; a recollection is a new snapshot, not an exact recreation of old reviews. Resume an interrupted run with `collect --cap-per-period 3500 --resume-run RUN_ID` from its private manifest. Resume checks page hashes and reuses saved records. Every period has an independent cap, and capped windows remain explicitly incomplete.
 
-Available CLI commands are `compare-baselines`, `collect`, `prepare`, `build-demo`, `train-baseline`, `annotate-export`, `annotate-import`, and `serve`. `prepare` builds cohorts without fitting. `build-demo` prepares and trains. Annotation commands use the selected `--mode`; import additionally requires `--file`. Full v1 evaluate/transformer/grouping commands remain future work.
+Available CLI commands are `compare-baselines`, `collect`, `prepare`, `build-demo`, `train-baseline`, `train-transformer`, `annotate-export`, `annotate-import`, and `serve`. `prepare` builds cohorts without fitting. `build-demo` prepares and trains. Annotation commands use the selected `--mode`; import additionally requires `--file`. Neural training requires `uv sync --extra neural --frozen` and `uv run --extra neural python -m patchpulse train-transformer --mode real`; it preserves the existing real split. Full release evaluate/grouping commands remain future work.
 
 ## Verification
 
@@ -102,6 +110,6 @@ Local exploratory benchmark: 100 warm localhost case-study requests had p95 1.37
 
 ## Next milestones
 
-Complete human review of the training annotation pilot; expand the approved development dataset; complete human aspect annotation; compare a bounded transformer; then run locked final tests. Resolve source-content permissions before any real-text public demo. [Milestone checklist](docs/milestones.md), [annotation guide](docs/annotation_guide.md), [publication review](docs/publication.md).
+Complete human review of the training annotation pilot; expand the approved development dataset; complete human aspect annotation; complete the neural failure follow-up; then run locked final tests. Resolve source-content permissions before any real-text public demo. [Milestone checklist](docs/milestones.md), [annotation guide](docs/annotation_guide.md), [publication review](docs/publication.md).
 
 Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md).
