@@ -2,27 +2,66 @@
 
 [![Offline demo and application checks](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml)
 
-**A thumbs-up review can still contain a complaint. Can NLP preserve that distinction?**
+**Understand player feedback before and after a game update.**
 
-PatchPulse explores how a developer could distinguish overall recommendations from specific player complaints around an update, with traceable evidence. This independent NLP portfolio project combines classical baselines, experimental transformer fine-tuning, and a human annotation workflow. Evaluated aspect sentiment is still in development.
+PatchPulse helps game developers compare player recommendations, explore the topics players discuss, and inspect the reviews behind the numbers. It brings those pieces together so a developer can investigate release feedback without relying on an overall rating alone.
 
-![PatchPulse synthetic demonstration](assets/desktop-preview.png)
+![PatchPulse dashboard with clearly labeled synthetic reviews](assets/desktop-preview.png)
 
-**Status: working one-game local vertical slice, not a finished v1 release.** This is an independent personal portfolio project. The shareable demo uses clearly marked synthetic text. Private local research uses Deep Rock Galactic's Season 05 update; source reviews, author groups, and fitted models are excluded from Git.
+## What questions does PatchPulse help answer?
 
-[GitHub repository](https://github.com/bryanbans/patchpulse) · [Milestones](docs/milestones.md) · [Model card](docs/model_card.md)
+| Question | What you can do today |
+|---|---|
+| **Did recommendations change after an update?** | Compare recommendation rates and review counts in equal windows before and after the release date. |
+| **What are players talking about?** | Explore keyword mentions of performance, crashes, multiplayer, gameplay, and other topics. |
+| **What did players actually say?** | Filter reviews and inspect the exact passages behind topic matches. |
+| **How much evidence supports an observation?** | See sample sizes, collection coverage, exclusions, and source-version details. |
+| **What can I share with a teammate?** | Export a brief containing the observed recommendation statistics, evidence references, and limitations. |
 
-## The NLP study is the centerpiece
+These comparisons describe the collected reviews. They do not prove that an update caused a change.
 
-After studying NLP, the motivating question is whether models can preserve mixed feedback instead of flattening an entire review into positive or negative. [Read the case study and actual results](docs/nlp_study.md) · [Course-inspired proficiency evidence](docs/proficiency_map.md) · [Author review prompts](docs/author_review.md).
+## The challenge: a thumbs-up does not tell the whole story
 
-A **66.96M-parameter DistilBERT model has now been fully fine-tuned** on the same frozen development split. Ordinary versus class-balanced loss, three seeds each, two epochs: all twelve checkpoint evaluations predicted only recommended at the fixed .5 threshold (macro F1 .4925). The existing character model remains stronger in validation (.7575, five of twelve negatives detected, two false alarms). This is a documented failure of the bounded neural setup, not a claim that transformers cannot solve the task. Final tests remain unopened. [Neural report](reports/transformer-real.json).
+Consider this invented review:
 
-Human-reviewed aspect/polarity evaluation, wider development coverage under resolved source-use conditions, and locked temporal/unseen-game tests remain release gates. The current deterministic brief is not neural language generation. No course materials or raw source text are distributed.
+> “I'd recommend the game, but our co-op sessions keep disconnecting.”
 
-## Try it locally
+The overall recommendation is positive. The multiplayer feedback is negative. Treating the entire review as either positive or negative loses information a developer could use.
 
-Install Python 3.12, [uv](https://docs.astral.sh/uv/), and Node.js 24. From this repository:
+PatchPulse is being built to preserve that distinction: **what players recommend, what they discuss, and what they praise or criticize are different questions.**
+
+Today, the application shows recorded recommendations and keyword-based topic mentions. Automatically distinguishing complaints from praise within each topic is the next major feature, and it requires human-reviewed evaluation. A keyword match alone is not presented as a complaint.
+
+## Current project status
+
+**Working local prototype with a reproducible NLP study.**
+
+- The public demo uses 48 clearly labeled, original synthetic reviews. It runs without Steam access, a GPU, or paid AI services after dependency installation.
+- A separate private study examines Deep Rock Galactic's Season 05 update. Public reports contain aggregate results; source review text, identifiers, and trained models stay out of this repository.
+- Recommendation prediction is a separate model experiment. It never replaces a review's known recommendation in the before-and-after statistics.
+- Human-evaluated topic sentiment, final temporal evaluation, and evaluation on an unseen game remain unfinished.
+
+## The NLP study
+
+This independent portfolio project grew out of studying natural language processing in a computer science master's program focused on AI/ML. The research explores how to represent mixed feedback, learn from imbalanced labels, and evaluate whether a more complex model actually helps.
+
+The first experiment exposed a common evaluation trap: **97% accuracy hid a model that detected none of the negative reviews.** Character-based features improved the result. A subsequent DistilBERT fine-tuning experiment did not beat that classical model at its tested decision threshold.
+
+| Model | Validation macro F1¹ | Negative reviews detected | Recommended reviews incorrectly flagged |
+|---|---:|---:|---:|
+| Initial word-based classifier | 0.493 | 0 of 12 | 0 |
+| Selected character-based classifier | **0.757** | **5 of 12** | **2** |
+| DistilBERT, both tested loss variants | 0.493 | 0 of 12 | 0 |
+
+¹ Macro F1 gives each recommendation class equal weight. These are development results on 406 reviews, including only 12 negative examples—not final performance estimates. Classical thresholds were tuned using training-only predictions; the neural threshold stayed at 0.5. DistilBERT was fully fine-tuned across three seeds, two loss variants, and two epochs per run. Every neural checkpoint made the same class decisions at that threshold.
+
+The character classifier remains the active private detector. The study records the neural failure, uncertainty, truncation, and resource use rather than assuming a transformer must be better. Final tests remain unopened.
+
+[Read the NLP case study](docs/nlp_study.md) · [Classical comparison](docs/negative_detection.md) · [Model cards](docs/model_card.md) · [Results and data limitations](docs/evaluation.md)
+
+## Try the demo
+
+Install Python 3.12, [uv](https://docs.astral.sh/uv/), and Node.js 24, then run:
 
 ```shell
 uv sync --frozen --python 3.12
@@ -32,84 +71,41 @@ npm run build --prefix web
 uv run python -m patchpulse serve
 ```
 
-Open http://127.0.0.1:8000. The demo runs without Steam access, paid inference, GPU, or pretrained weights. Initial dependency installation needs internet. Its 48 original synthetic examples demonstrate behavior; their metrics are not evidence of real-world model quality. Input in the model lab stays local and is not stored.
+Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Model lab**, and inspect the results in **Methodology**. Text entered in the model lab stays local and is not stored.
 
-For frontend development: run the API as above, then `npm run dev --prefix web`. Vite proxies API calls to port 8000. Restart the API after rebuilding data or models; curated snapshots are cached in-process.
+The synthetic demo demonstrates the workflow; its predictions and review statistics are not real game findings. The methodology page separately labels aggregate results from the private real-data study.
 
-## What the real-data spike found
+## Data and design
 
-An October 17, 2026 retrospective collection returned **3,883 distinct reviews** in the two date windows. Conservative eligibility retained **3,575**: 853 before and 2,722 after. We excluded 291 reviews edited beyond their period cutoff and 17 empty texts. Pagination exhausted both windows; the after count was **one below** Steam's advertised 2,953 matching reviews. This discrepancy remains visible, rather than being described as proven complete population coverage.
+The private study retained **3,575 eligible reviews** across two 14-day windows around the update. Recommendation rates were 837/853 before and 2,643/2,722 after: a **1.03 percentage-point decrease within the collected sample**. Reviews edited beyond their window cutoff and empty texts were excluded. Collection also found a one-review discrepancy between the source's advertised count and returned records; that limitation remains visible.
 
-Within those eligible collected records, recommendations were 837/853 before and 2,643/2,722 after—a **−1.03 percentage-point** difference. This describes the sample and does not establish an update effect. [Machine-readable aggregate report](reports/milestone1-real-aggregates.json).
-
-The first text-only TF-IDF/logistic regression model achieved **0.4925 validation macro F1**, equal to the majority baseline. Its 97.0% validation accuracy hides **zero negative-class recall**: it predicted all 406 validation records as recommended. This is a useful failure to investigate, not a release-quality classifier. The final temporal test remains unopened; the unseen-game test has not run; the bounded transformer comparison below is now complete. [Evaluation and limitations](docs/evaluation.md).
-
-## Negative-detection development update
-
-Six predeclared CPU candidates now share the original frozen split. Training-only grouped out-of-fold scores select thresholds; chronological validation selects the candidate. The selected **balanced character TF-IDF/logistic regression** improves validation macro F1 from **0.4925 to 0.7575**. It detects **5 of 12 negative reviews**, with **2 false alarms** (negative precision 71.4%, recall 41.7%). A more sensitive word model detects 8 of 12, with 21 false alarms.
-
-These are development results from only 12 negative validation examples. The selected model's exploratory 95% bootstrap macro F1 interval is **0.609–0.878** and does not account for model-selection optimism. Final tests remain locked. The public demo still uses synthetic model artifacts; the methodology view separately displays aggregate real-data results. [Comparison and protocol](docs/negative_detection.md) · [Aggregate report](reports/negative-detection-real.json).
-
-The model lab supports local detector comparisons and displays the actual negative-score threshold. The browser annotation workspace at `/annotate` hides source recommendations and predictions, exports only explicitly human-reviewed records, and converts evidence offsets to Python Unicode indices. Real exports stay private. [Annotation guide](docs/annotation_guide.md).
-
-## How it works
+PatchPulse preserves immutable review versions, records collection gaps, and removes exact/near duplicates before splitting modeling data. Training, validation, and final-test membership are frozen so model selection cannot silently change the comparison.
 
 ```mermaid
 flowchart LR
-  A[Official Steam API] --> B[Private minimized cache]
-  B --> C[Immutable SQLite versions]
-  C --> D[Conservative eligible cohorts]
-  D --> E[Recorded-label aggregates]
-  D --> F[Frozen duplicate-aware splits]
-  F --> G[Classical and neural NLP study]
-  E --> H[Read-only FastAPI]
-  G --> H
-  I[Original synthetic fixtures] --> D
-  H --> J[React evidence dashboard]
+  A[Official Steam review API] --> B[Private versioned reviews]
+  B --> C[Eligible before/after samples]
+  C --> D[Recorded statistics and evidence]
+  C --> E[Frozen model-development splits]
+  E --> F[Classical and transformer experiments]
+  D --> G[FastAPI and React dashboard]
+  F --> H[Aggregate evaluation reports]
+  H --> G
+  I[Original synthetic reviews] --> J[Offline demo and tests]
 ```
 
-- **Observed recommendations:** direct arithmetic on recorded labels, with counts and UTC windows.
-- **Text prediction:** separate CPU baseline, bounded input, uncalibrated scores, unknown-vocabulary abstention.
-- **Aspect mentions:** transparent keyword matches with exact offsets. They are not complaints or evaluated polarity predictions.
-- **Brief:** deterministic sample statistics, coverage, caveats, and supporting version IDs.
+Built with Python, FastAPI, SQLite, scikit-learn, React, and TypeScript. Optional neural experiments use PyTorch and Hugging Face Transformers. Dependencies and model revisions are pinned.
 
-Python/FastAPI, SQLite, scikit-learn, React/TypeScript/Vite. Exact dependencies are locked. No paid AI APIs. [Architecture and decisions](docs/decisions.md).
+## Explore the project
 
-## Reproduce the private study
+- [Setup, development, private-study reproduction, and checks](docs/reproduction.md)
+- [NLP case study and failure analysis](docs/nlp_study.md)
+- [Data source and reuse audit](docs/data_sources.md)
+- [Human annotation guide](docs/annotation_guide.md)
+- [Architecture decisions](docs/decisions.md)
+- [Verification record](docs/verification.md)
+- [Milestones and remaining release work](docs/milestones.md)
 
-Review the [source-use audit](docs/data_sources.md) before collecting or using real data. The code does not establish a license for data reuse. These commands keep raw source text, pseudonymous groups, and model files in ignored `private/`:
+The next steps are human-reviewed topic sentiment, a bounded follow-up to the neural experiment, and untouched final evaluations. Source-use questions must be resolved before broader collection or a public real-text demo. Docker configuration is included, but its build has not been verified.
 
-```shell
-uv run python -m patchpulse collect --cap-per-period 3500
-uv run python -m patchpulse build-demo --mode real
-uv run python -m patchpulse serve --mode real --port 8001
-```
-
-Real mode is for local private inspection. Do not deploy it publicly. Current API data can change; a recollection is a new snapshot, not an exact recreation of old reviews. Resume an interrupted run with `collect --cap-per-period 3500 --resume-run RUN_ID` from its private manifest. Resume checks page hashes and reuses saved records. Every period has an independent cap, and capped windows remain explicitly incomplete.
-
-Available CLI commands are `compare-baselines`, `collect`, `prepare`, `build-demo`, `train-baseline`, `train-transformer`, `annotate-export`, `annotate-import`, and `serve`. `prepare` builds cohorts without fitting. `build-demo` prepares and trains. Annotation commands use the selected `--mode`; import additionally requires `--file`. Neural training requires `uv sync --extra neural --frozen` and `uv run --extra neural python -m patchpulse train-transformer --mode real`; it preserves the existing real split. Full release evaluate/grouping commands remain future work.
-
-## Verification
-
-```shell
-uv run ruff check src tests scripts
-uv run ruff format --check src tests scripts
-uv run pytest -q
-npm run build --prefix web
-npx --prefix web playwright install chromium
-# Keep the synthetic API running on port 8000 in another terminal:
-npm test --prefix web
-uv run python -m pip_audit --local
-npm audit --prefix web --audit-level=high
-uv run python scripts/check_public_files.py
-```
-
-Tests exercise immutable versions, date boundaries, edit exclusions, duplicate leakage, API filters, bounded inference, retries, terminal-page parsing, injection escaping, export, desktop/mobile behavior, and keyboard focus. CI is offline with respect to Steam; dependency setup needs network. Local GitHub Actions execution is not claimed. Docker configuration is supplied, but its build has not been tested because the local Docker daemon was stopped.
-
-Local exploratory benchmark: 100 warm localhost case-study requests had p95 1.37 ms; CPU model forward calls had p95 0.294 ms on a Ryzen 7 7800X3D. The latter used three repeated original sentences, excluded HTTP, and is not a representative production workload. These are neither browser-load nor deployed latency claims. [Protocol and results](reports/local-benchmark.json).
-
-## Next milestones
-
-Complete human review of the training annotation pilot; expand the approved development dataset; complete human aspect annotation; complete the neural failure follow-up; then run locked final tests. Resolve source-content permissions before any real-text public demo. [Milestone checklist](docs/milestones.md), [annotation guide](docs/annotation_guide.md), [publication review](docs/publication.md).
-
-Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md).
+Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md). This is a personal portfolio project, not a course submission or an endorsement by Valve, game developers, or a university.
