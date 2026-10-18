@@ -42,6 +42,7 @@ Today, the application shows recorded recommendations, keyword-based topic menti
 - The public demo uses 48 clearly labeled, original synthetic reviews. It runs without Steam access, a GPU, or paid AI services after dependency installation.
 - A separate private study examines Deep Rock Galactic's Season 05 update. Public reports contain aggregate results; source review text, identifiers, and trained models stay out of this repository.
 - Recommendation prediction is a separate model experiment. It never replaces a review's known recommendation in the before-and-after statistics.
+- Complaint/praise rules now handle repair negation and preserve uncertainty for questions, wishes, and ambiguous topics. A [reproducible development suite](docs/aspect_sentiment.md#version-2-development-checks-and-measured-changes) records improvements and remaining failures; these authored checks do not establish real-world accuracy.
 - Human-evaluated topic sentiment, final temporal evaluation, and evaluation on an unseen game remain unfinished.
 
 ## The NLP study

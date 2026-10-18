@@ -46,6 +46,7 @@
 - [x] Grouped supervised passage-polarity training pipeline, artifact integrity checks and strict real-data label/guide/support gate.
 - [x] 48 explicitly authored synthetic examples, fixed 36/12 demonstration split and honest workflow-only evaluation; no synthetic human-review claims.
 - [x] Interactive feedback workspace and Evidence-to-lab handoff; annotation export/resume.
+- [x] Version 2 repair-negation rules and conservative question/conditional/attribution guards, including learned-classifier overrides; reproducible authored challenge suite and visible baseline comparison.
 - [ ] Independent real aspect/polarity/evidence evaluation remains pending; no real complaint-change aggregation yet.
 
 ## Remaining v1 work

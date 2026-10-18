@@ -79,3 +79,6 @@ The initial CPU baseline and selected character detector have separate reports. 
 - [Selected character detector protocol and results](../reports/negative-detection-benchmark.json)
 
 The neural study reports experiment elapsed time and peak allocated CUDA tensor memory. Those are different measurements from inference latency; see the [NLP study](nlp_study.md).
+
+
+Complaint/praise development checks: `uv run python -m patchpulse evaluate-aspects` regenerates `reports/aspect-challenge.json` against the fixed authored suite. Run after detector changes; `/api/feedback-evaluation` rejects stale detector/suite fingerprints. Optional comparison loads only the trusted local synthetic passage artifact after verifying its mode, path and hash. These are synthetic development diagnostics, not final or human-reviewed accuracy.

@@ -8,7 +8,8 @@
     "synthetic_overall_recommendation": true,
     "analysis": {
       "task": "aspect detection and passage polarity",
-      "method": "aspect-rules-v1",
+      "method": "aspect-rules-v2",
+      "rules_version": "aspect-rules-v2",
       "validation_status": "provisional; real-world aspect quality has not been established",
       "input_stored": false,
       "aspects": [
@@ -61,6 +62,7 @@
         "Keyword aspect detection can miss implicit topics and Other issue.",
         "No recognized cue means uncertain, not neutral or absent.",
         "Rules do not resolve sarcasm, implied meaning, or every negation scope.",
+        "Questions, explicit conditionals/wishes, and ambiguous multi-topic attribution abstain even with a learned classifier.",
         "Passages are exact source spans, not proof that attribution is correct.",
         "Overall recommendations are not inputs and are never assigned to every aspect."
       ]
@@ -187,7 +189,7 @@
   "source_sha256": {
     "data/fixtures/aspect-polarity.json": "4067ad3ec116a74edeff60a2ce15a4e3ebbb82519f118a0a609968fb65cb8e08",
     "configs/aspects.json": "e3bdb247fa279bd424162e90437b9d7b79947d8d025f54021a59e454307f566d",
-    "src/patchpulse/aspects.py": "70859751ca3d8daea0454d44ff652da4ad1c25ec04cdb5c32a87e826c2d540f6",
+    "src/patchpulse/aspects.py": "a1dcf3690af4bd416a9e0929a2ae28299ab4550483c51937dbb51bca6e6fe91f",
     "src/patchpulse/aspect_model.py": "e09b4eda29859dd2289e6c8cfb66a4d4791ce915422949bd0484b097b0119ef4"
   },
   "real_world_quality_established": false,

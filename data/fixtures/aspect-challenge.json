@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "suite_id": "aspect-challenge-v1",
+  "provenance": "Original AI-authored synthetic development cases; no independent human review",
+  "human_reviewed": false,
+  "purpose": "Public development challenge suite used to guide changes, not an untouched test or a real-player accuracy estimate",
+  "records": [
+    {
+      "id": "challenge-001",
+      "phenomenon": "contrast",
+      "text": "Great missions, but co-op keeps disconnecting.",
+      "expected": {
+        "Gameplay": "positive",
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-002",
+      "phenomenon": "contrast",
+      "text": "The combat is fun but the weapons are terrible.",
+      "expected": {
+        "Gameplay": "mixed"
+      }
+    },
+    {
+      "id": "challenge-003",
+      "phenomenon": "contrast",
+      "text": "The gameplay is fun and multiplayer is broken.",
+      "expected": {
+        "Gameplay": "positive",
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-004",
+      "phenomenon": "contrast",
+      "text": "The performance is terrible and the menus are great.",
+      "expected": {
+        "Performance": "negative",
+        "Interface": "positive"
+      }
+    },
+    {
+      "id": "challenge-005",
+      "phenomenon": "contrast",
+      "text": "The menus are good; the servers are awful.",
+      "expected": {
+        "Interface": "positive",
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-006",
+      "phenomenon": "negation",
+      "text": "No crashes this week.",
+      "expected": {
+        "Stability": "positive"
+      }
+    },
+    {
+      "id": "challenge-007",
+      "phenomenon": "negation",
+      "text": "The performance is not great.",
+      "expected": {
+        "Performance": "negative"
+      }
+    },
+    {
+      "id": "challenge-008",
+      "phenomenon": "negation",
+      "text": "The server does not work.",
+      "expected": {
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-009",
+      "phenomenon": "negation",
+      "text": "The server no longer disconnects.",
+      "expected": {
+        "Multiplayer": "positive"
+      }
+    },
+    {
+      "id": "challenge-010",
+      "phenomenon": "negation",
+      "text": "The menus aren't responsive.",
+      "expected": {
+        "Interface": "negative"
+      }
+    },
+    {
+      "id": "challenge-011",
+      "phenomenon": "negation",
+      "text": "The combat is not only fun but excellent.",
+      "expected": {
+        "Gameplay": "positive"
+      }
+    },
+    {
+      "id": "challenge-012",
+      "phenomenon": "negation",
+      "text": "The performance is not bad.",
+      "expected": {
+        "Performance": "positive"
+      }
+    },
+    {
+      "id": "challenge-013",
+      "phenomenon": "negation",
+      "text": "The servers are not unreliable.",
+      "expected": {
+        "Multiplayer": "positive"
+      }
+    },
+    {
+      "id": "challenge-014",
+      "phenomenon": "resolution",
+      "text": "The update fixed crashes.",
+      "expected": {
+        "Stability": "positive"
+      }
+    },
+    {
+      "id": "challenge-015",
+      "phenomenon": "resolution",
+      "text": "The crashes are fixed.",
+      "expected": {
+        "Stability": "positive"
+      }
+    },
+    {
+      "id": "challenge-016",
+      "phenomenon": "resolution",
+      "text": "The crashes are not fixed.",
+      "expected": {
+        "Stability": "negative"
+      }
+    },
+    {
+      "id": "challenge-017",
+      "phenomenon": "resolution",
+      "text": "The crashes aren't fixed.",
+      "expected": {
+        "Stability": "negative"
+      }
+    },
+    {
+      "id": "challenge-018",
+      "phenomenon": "resolution",
+      "text": "The crashes were never resolved.",
+      "expected": {
+        "Stability": "negative"
+      }
+    },
+    {
+      "id": "challenge-019",
+      "phenomenon": "resolution",
+      "text": "The crashes remain unresolved.",
+      "expected": {
+        "Stability": "negative"
+      }
+    },
+    {
+      "id": "challenge-020",
+      "phenomenon": "resolution",
+      "text": "The crashes were fixed yesterday.",
+      "expected": {
+        "Stability": "positive"
+      }
+    },
+    {
+      "id": "challenge-021",
+      "phenomenon": "resolution",
+      "text": "The crashes were not fixed yesterday.",
+      "expected": {
+        "Stability": "negative"
+      }
+    },
+    {
+      "id": "challenge-022",
+      "phenomenon": "nonassertion",
+      "text": "Does the game crash?",
+      "expected": {
+        "Stability": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-023",
+      "phenomenon": "nonassertion",
+      "text": "Are the servers stable?",
+      "expected": {
+        "Stability": "uncertain",
+        "Multiplayer": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-024",
+      "phenomenon": "nonassertion",
+      "text": "If the servers were reliable, I would play again.",
+      "expected": {
+        "Multiplayer": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-025",
+      "phenomenon": "nonassertion",
+      "text": "I wish the servers were reliable.",
+      "expected": {
+        "Multiplayer": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-026",
+      "phenomenon": "nonassertion",
+      "text": "I hope the crashes are fixed tomorrow.",
+      "expected": {
+        "Stability": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-027",
+      "phenomenon": "nonassertion",
+      "text": "I wish the menus were responsive.",
+      "expected": {
+        "Interface": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-028",
+      "phenomenon": "attribution",
+      "text": "Great combat with terrible servers.",
+      "expected": {
+        "Gameplay": "uncertain",
+        "Multiplayer": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-029",
+      "phenomenon": "attribution",
+      "text": "The menus and servers are terrible.",
+      "expected": {
+        "Interface": "negative",
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-030",
+      "phenomenon": "attribution",
+      "text": "The combat and servers are great but the menus are broken.",
+      "expected": {
+        "Gameplay": "positive",
+        "Multiplayer": "positive",
+        "Interface": "negative"
+      }
+    },
+    {
+      "id": "challenge-031",
+      "phenomenon": "mentions",
+      "text": "The server browser lists regions.",
+      "expected": {
+        "Multiplayer": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-032",
+      "phenomenon": "mentions",
+      "text": "The crash report is in a folder.",
+      "expected": {
+        "Stability": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-033",
+      "phenomenon": "mentions",
+      "text": "The crash logs are in a folder.",
+      "expected": {
+        "Stability": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-034",
+      "phenomenon": "mentions",
+      "text": "I copied the crash reports.",
+      "expected": {
+        "Stability": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-035",
+      "phenomenon": "mentions",
+      "text": "The menus contain a settings tab.",
+      "expected": {
+        "Interface": "uncertain"
+      }
+    },
+    {
+      "id": "challenge-036",
+      "phenomenon": "coverage",
+      "text": "The subtitles are excellent.",
+      "expected": {
+        "Accessibility": "positive"
+      }
+    },
+    {
+      "id": "challenge-037",
+      "phenomenon": "coverage",
+      "text": "The price is overpriced.",
+      "expected": {
+        "Value": "negative"
+      }
+    },
+    {
+      "id": "challenge-038",
+      "phenomenon": "coverage",
+      "text": "The progression is repetitive.",
+      "expected": {
+        "Progression": "negative"
+      }
+    },
+    {
+      "id": "challenge-039",
+      "phenomenon": "coverage",
+      "text": "The frame rate is smooth.",
+      "expected": {
+        "Performance": "positive"
+      }
+    },
+    {
+      "id": "challenge-040",
+      "phenomenon": "coverage",
+      "text": "The inventory is unresponsive.",
+      "expected": {
+        "Interface": "negative"
+      }
+    },
+    {
+      "id": "challenge-041",
+      "phenomenon": "absent",
+      "text": "I recommend the game.",
+      "expected": {}
+    },
+    {
+      "id": "challenge-042",
+      "phenomenon": "absent",
+      "text": "I do not recommend the game.",
+      "expected": {}
+    },
+    {
+      "id": "challenge-043",
+      "phenomenon": "absent",
+      "text": "My friends bought this yesterday.",
+      "expected": {}
+    },
+    {
+      "id": "challenge-044",
+      "phenomenon": "unicode",
+      "text": "🚀 Great missions; the servers are broken.",
+      "expected": {
+        "Gameplay": "positive",
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-045",
+      "phenomenon": "unicode",
+      "text": "I don’t enjoy the combat.",
+      "expected": {
+        "Gameplay": "negative"
+      }
+    },
+    {
+      "id": "challenge-046",
+      "phenomenon": "known-limit",
+      "text": "Wonderful servers: another disconnect. Just what I wanted.",
+      "expected": {
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-047",
+      "phenomenon": "known-limit",
+      "text": "My friends get kicked out every five minutes.",
+      "expected": {
+        "Multiplayer": "negative"
+      }
+    },
+    {
+      "id": "challenge-048",
+      "phenomenon": "known-limit",
+      "text": "The server browser lists four regions.",
+      "expected": {
+        "Multiplayer": "neutral"
+      }
+    }
+  ]
+}

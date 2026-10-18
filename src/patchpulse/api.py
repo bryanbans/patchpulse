@@ -407,6 +407,22 @@ def feedback_status():
     }
 
 
+@app.get("/api/feedback-evaluation")
+def feedback_evaluation():
+    from .aspect_evaluation import fingerprint
+
+    path = ROOT / "reports/aspect-challenge.json"
+    if not path.exists():
+        raise HTTPException(404, "Synthetic development checks have not been generated")
+    report = json.loads(path.read_text(encoding="utf-8"))
+    source_hash = fingerprint(ROOT / "src/patchpulse/aspects.py")
+    if report.get("detector_sha256") != source_hash:
+        raise HTTPException(503, "Detector changed; regenerate the development checks")
+    if report.get("suite_sha256") != fingerprint(ROOT / "data/fixtures/aspect-challenge.json"):
+        raise HTTPException(503, "Development cases changed; regenerate the development checks")
+    return report
+
+
 @app.post("/api/analyze-feedback")
 def analyze_feedback_request(payload: FeedbackRequest, request: Request):
     from .aspects import analyze_feedback

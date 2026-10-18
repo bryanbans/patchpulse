@@ -16,6 +16,7 @@ def main():
             "compare-baselines",
             "train-transformer",
             "train-aspects",
+            "evaluate-aspects",
             "annotate-export",
             "annotate-import",
             "serve",
@@ -29,6 +30,16 @@ def main():
     args = parser.parse_args()
     config = json.loads((ROOT / "configs/case.json").read_text(encoding="utf-8"))
     PRIVATE.mkdir(exist_ok=True)
+    if args.command == "evaluate-aspects":
+        if args.mode != "synthetic":
+            parser.error(
+                "Only the authored synthetic challenge suite is available; no human evaluation is claimed"
+            )
+        from .aspect_evaluation import run
+
+        report = run()
+        print(json.dumps({"method": report["method"], "development_checks": report["rules"]}, indent=2))
+        return
     if args.command == "collect":
         from .collection import collect
 

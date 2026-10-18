@@ -16,6 +16,16 @@ type Analysis = {
   aspects: { aspect: string; polarity: string; evidence: Evidence[] }[];
   limitations: string[];
 };
+type DevelopmentChecks = {
+  method: string;
+  rules: {
+    reviews: number;
+    exact_review_matches: number;
+    recommendation_invariance: { passed: number; total: number };
+  };
+  baseline?: { rules: { exact_review_matches: number } };
+  synthetic_supervised?: { results: { exact_review_matches: number } };
+};
 const EXAMPLES = [
   {
     name: "Praise + complaint",
@@ -46,6 +56,8 @@ function explainReason(reason: string) {
     return "This part of the review mentions several topics and contains conflicting wording. The rules cannot reliably tell which opinion belongs to which topic.";
   if (reason.includes("question"))
     return "This passage asks a question rather than clearly praising or criticizing the topic.";
+  if (reason.includes("Conditional or wish"))
+    return "This sentence describes a condition, hope, or wish. The detector leaves it for review rather than treating the wording as a confirmed current outcome.";
   if (reason.includes("without a recognized"))
     return "The topic was recognized, but no clear praise or criticism word was found.";
   if (reason.includes("Praise and criticism"))
@@ -69,6 +81,7 @@ export function AspectLab({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const [syntheticModel, setSyntheticModel] = useState(true);
+  const [checks, setChecks] = useState<DevelopmentChecks | null>(null);
   const revision = useRef(0);
   useEffect(() => {
     fetch("/api/feedback-status")
@@ -79,6 +92,10 @@ export function AspectLab({
           setSyntheticModel(r.mode === "synthetic");
         }
       })
+      .catch(() => {});
+    fetch("/api/feedback-evaluation")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setChecks)
       .catch(() => {});
   }, []);
   useEffect(() => {
@@ -199,10 +216,52 @@ export function AspectLab({
           {error}
         </p>
       )}
+      <details className="feedback-checks">
+        <summary>How is this detector checked?</summary>
+        {checks ? (
+          <p>
+            The current rules match the expected topic labels in{" "}
+            {checks.rules.exact_review_matches} of {checks.rules.reviews}{" "}
+            invented development scenarios
+            {checks.baseline
+              ? ` (previous rules: ${checks.baseline.rules.exact_review_matches})`
+              : ""}
+            . These scenarios cover negation, mixed feedback, questions, repair
+            wording, and ambiguous topics. They were used to improve the rules,
+            so this is a regression check—not an estimate of accuracy on new
+            reviews.
+          </p>
+        ) : (
+          <p>
+            Development check results are unavailable for this detector version.
+            No real-world accuracy claim is made.
+          </p>
+        )}
+        <p>
+          Changing an overall recommendation should not change which topics are
+          praised or criticized.
+          {checks
+            ? ` This holds for both tested recommendation prefixes in all ${checks.rules.recommendation_invariance.total} development scenarios.`
+            : ""}{" "}
+          Implicit topics can still be missed, and a topic without evaluative
+          wording remains “Needs review.” Human-reviewed real player feedback is
+          still required for a release-quality evaluation.
+        </p>
+        {checks?.synthetic_supervised && (
+          <p>
+            The small classifier trained on invented passages matches{" "}
+            {checks.synthetic_supervised.results.exact_review_matches} of these{" "}
+            {checks.rules.reviews} scenarios. It remains an experimental
+            alternative; the transparent rules are the default. These scenarios
+            may share wording with its training examples and are not a held-out
+            test.
+          </p>
+        )}
+      </details>
       {result && (
         <div className="feedback-results" aria-live="polite">
           <p className="muted">
-            {result.method === "aspect-rules-v1"
+            {result.method.startsWith("aspect-rules-")
               ? "Rule-based suggestions: topic words and nearby wording guide the labels."
               : result.mode === "synthetic"
                 ? "Learned from invented example passages. This does not establish accuracy on real reviews."
@@ -238,7 +297,9 @@ export function AspectLab({
                       </p>
                       {e.cues.length > 0 && (
                         <p>
-                          Words used by the rules:{" "}
+                          {e.score !== undefined
+                            ? "Rule cues for comparison (not a model explanation): "
+                            : "Words used by the rules: "}
                           {e.cues
                             .map(
                               (c) =>

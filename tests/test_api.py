@@ -119,7 +119,7 @@ def test_feedback_api_separates_praise_and_complaint_without_recommendation_inpu
         "Gameplay": "positive",
         "Multiplayer": "negative",
     }
-    assert result["method"] == "aspect-rules-v1"
+    assert result["method"] == "aspect-rules-v2"
     assert result["input_stored"] is False
     assert "provisional" in result["validation_status"]
     assert (
@@ -157,7 +157,7 @@ def test_supervised_feedback_is_separate_from_overall_recommendation():
     )
     assert response.status_code == 200
     result = response.json()
-    assert result["method"] == "supervised-passage-v1"
+    assert result["method"] == "supervised-passage-v2"
     assert "synthetic" in result["label_source"]
     assert "recommendation" not in result
     assert len(result["model_revision"]) == 64

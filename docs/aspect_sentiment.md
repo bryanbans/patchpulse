@@ -20,6 +20,7 @@ The rule baseline returns Gameplay / positive with the exact passage `Great miss
 - Positive and negative statements about the same aspect combine into mixed feedback. Clauses with multiple aspects and conflicting cues stay uncertain rather than assigning all sentiment to every aspect.
 - Questions and mentions without recognized evaluative cues can remain uncertain. Uncertain, neutral and absent are separate states. Exact evidence is traceable, but exact offsets alone do not establish semantic correctness.
 - The Reviews view can send a selected review to the feedback workspace. Existing before/after topic counts remain mention counts, not complaint counts.
+- Questions, explicit conditional/wish sentences, and ambiguous multi-topic attribution remain uncertain even when the supervised classifier is selected. These are conservative safeguards, not complete interpretation of hypothetical language.
 - The same API can use a supervised passage-polarity classifier. Its aspect assignment still uses rules, so it is not an end-to-end learned aspect model.
 
 Rules can miss implicit topics, Other issue, sarcasm, idioms and longer negation dependencies. They are a baseline, not a production sentiment engine. Automatic complaint-change statistics remain withheld in real mode pending human evaluation.
@@ -57,3 +58,40 @@ The remaining evaluation must separately measure aspect detection, polarity on k
 - Annotation exports can now be reloaded using **Resume from a reviewed export**. Matching source versions, exact Unicode spans, categories and explicit review flags are validated in the browser. Processing stays local; importing does not upload the labels to the server. Export before leaving; there is no automatic browser persistence.
 
 The original recommendation study, model selection and final-test manifest remain intact. No raw real review text or fitted weights are added to GitHub.
+
+
+## Version 2: development checks and measured changes
+
+The new [48-case challenge suite](../data/fixtures/aspect-challenge.json) is original AI-authored synthetic material with **no independent human review**. It is separate from the 48-passage training fixture, but can share examples and wording. These public cases were used to guide the changes: they are development/regression checks, not an untouched benchmark or a real-player accuracy estimate.
+
+| Check on the same authored scenarios | Rules v1 | Rules v2 |
+|---|---:|---:|
+| Reviews with exactly the expected topic/polarity map | 39 / 48 | 46 / 48 |
+| Repair/resolution scenarios | 7 / 8 | 8 / 8 |
+| Questions, wishes and conditionals | 2 / 6 | 6 / 6 |
+| Topic mentions without asserted sentiment | 3 / 5 | 5 / 5 |
+| Unchanged topic decisions under both recommendation prefixes | 48 / 48 | 48 / 48 |
+
+Version 2 scopes negation to a nearby repair verb, including contractions: `crashes aren't fixed` is a complaint, while `crashes were fixed without a restart` is praise. Plural `crash logs` and `crash reports` no longer act as failure cues. Explicit questions and conditional/wish wording abstain; the learned classifier cannot override these safeguards or ambiguous multi-topic scope. Evidence retains exact Unicode offsets.
+
+The two remaining mismatches are preserved in the report: an implicit multiplayer complaint (`My friends get kicked out every five minutes`) is missed, and a descriptive server-browser statement remains uncertain instead of neutral. A correct sarcastic example in this small suite does **not** establish sarcasm understanding.
+
+The existing synthetic-trained classifier matches only **23 / 48** complete topic/polarity maps on the same scenarios. This comparison may overlap its training language and includes the new rule safeguards. It is not a generalization estimate or a fair test of the intrinsic potential of learned models. Transparent rules remain the default. The prior .211 gold-passage validation macro F1 is a different task and dataset; do not compare those numbers directly.
+
+[Expanded validation view in the app](../assets/desktop-aspect-validation.png).
+
+Reproduce the current diagnostics after local setup:
+
+```shell
+uv run python -m patchpulse evaluate-aspects
+```
+
+This writes [the current report](../reports/aspect-challenge.json), including separate topic detection, end-to-end praise/complaint precision and recall, phenomenon slices, exact substring checks, and every remaining mismatch. Mixed feedback counts toward both praise and complaint; an uncertain prediction misses an expected asserted label. Wrong topics produce both false positives and misses. Exact substring checks verify offsets, not semantic relevance. The report includes canonical source/suite fingerprints and retains [the pre-change baseline](../reports/aspect-challenge-v1-baseline.json) from commit `45cb08b`. The app refuses to display results for a changed detector or suite until diagnostics are regenerated.
+
+## What is still needed for a release-quality evaluation
+
+1. Complete the blind training-only annotation pilot, record actual reviewer provenance, review uncertain cases, and freeze the topic/sentiment guide. AI-authored labels remain synthetic.
+2. Reserve separately human-reviewed development evaluation examples before further model selection. Keep review/author groups and duplicate passages out of the fitting partition; keep recommendation labels hidden during annotation. Preserve the existing final-test lock.
+3. Compare rules, a passage classifier, and any aspect-conditioned model under the same protocol. Report topic detection, per-topic praise/complaint precision and recall, mixed/neutral performance, abstention coverage, class support and uncertainty. Measure whether evidence supports the interpretation separately from offsets. Disclose single-reviewer limitations or measure independent agreement where available.
+4. Review false praise, missed complaints, hypothetical language, sarcasm and implicit topics. A wish can imply dissatisfaction to a human; the current uncertainty policy deliberately avoids asserting that interpretation automatically.
+5. Select on development evidence, then evaluate the untouched temporal and unseen-game partitions once. Do not present these authored challenge scores or the training pilot as final accuracy. Real before/after complaint counts and a validated launch claim remain gated by this evidence.

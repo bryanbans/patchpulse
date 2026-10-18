@@ -111,3 +111,53 @@ test("feedback workspace has a direct URL", async ({ page }) => {
     }),
   ).toBeVisible();
 });
+
+test("repair negation and learned abstentions remain visible with development provenance", async ({
+  page,
+}, info) => {
+  await page.goto("/feedback");
+  await page
+    .getByText("How is this detector checked?", { exact: true })
+    .click();
+  await expect(page.locator(".feedback-checks")).toContainText("46 of 48");
+  await expect(page.locator(".feedback-checks")).toContainText(
+    "not an estimate of accuracy on new reviews",
+  );
+  await page.getByLabel("Review to analyze").fill("The crashes aren't fixed.");
+  await page
+    .getByRole("button", { name: "Analyze praise and complaints" })
+    .click();
+  await expect(page.locator(".feedback-card")).toContainText(
+    "Complaint · suggested",
+  );
+  await expect(page.locator(".feedback-card")).not.toContainText(
+    "Mixed feedback",
+  );
+  await page.getByLabel("Analysis method").selectOption("supervised");
+  await page
+    .getByLabel("Review to analyze")
+    .fill("I hope the servers are reliable tomorrow.");
+  await page
+    .getByRole("button", { name: "Analyze praise and complaints" })
+    .click();
+  await expect(page.locator(".feedback-card")).toContainText(
+    "Needs review · suggested",
+  );
+  await page.locator(".feedback-card").getByText("Why this label?").click();
+  await expect(page.locator(".feedback-card")).toContainText(
+    "condition, hope, or wish",
+  );
+  await expect(page.locator(".feedback-card")).not.toContainText(
+    "Model score:",
+  );
+  await page
+    .locator(".feedback-lab")
+    .screenshot({
+      path: `../assets/${info.project.name}-aspect-validation.png`,
+    });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+});

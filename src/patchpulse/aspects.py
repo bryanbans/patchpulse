@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from .core import ASPECTS
 
-VERSION = "aspect-rules-v1"
+VERSION = "aspect-rules-v2"
 ASPECT_PATTERNS = {
     **ASPECTS,
     "Stability": ASPECTS["Stability"] + r"|\b(unstable|stable|startup)\b",
@@ -28,6 +28,20 @@ NEGATIVE = re.compile(
 TOKENS = re.compile(r"[^\W_]+(?:['’][^\W_]+)?", re.UNICODE)
 NEGATORS = {"not", "no", "never", "without", "neither", "hardly"}
 BOUNDARY = re.compile(r"[.!?;,\r\n]+\s*|\b(?:but|however|yet|although|whereas|except|while)\b[\s,:]*", re.I)
+NONASSERTION = re.compile(r"\b(?:if|unless|wish|wishes|wished|hope|hopes|hopefully)\b", re.I)
+RESOLUTION = {"fixed", "resolved", "eliminated", "removed"}
+
+
+def is_negator(token):
+    token = token.casefold().replace("’", "'")
+    return token in NEGATORS or token.endswith("n't") or token == "cannot"
+
+
+def negated_before(text, position):
+    previous = [m.group().casefold() for m in TOKENS.finditer(text[:position])][-3:]
+    if "not" in previous and "only" in previous[previous.index("not") + 1 :]:
+        previous = [v for v in previous if v != "not"]
+    return bool(sum(is_negator(v) for v in previous) % 2)
 
 
 def aspect_mentions(text):
@@ -38,24 +52,22 @@ def cues(text, offset=0):
     found = []
     for pattern, original in [(POSITIVE, "positive"), (NEGATIVE, "negative")]:
         for match in pattern.finditer(text):
-            if original == "negative" and re.match(r"\s+(?:log|report)\b", text[match.end() :], re.I):
+            if original == "negative" and re.match(r"\s+(?:logs?|reports?)\b", text[match.end() :], re.I):
                 continue
-            previous = [
-                m.group().casefold().replace("’", "'") for m in TOKENS.finditer(text[: match.start()])
-            ][-3:]
-            # "not only fun" is not a negation of "fun".
-            if "not" in previous and "only" in previous[previous.index("not") + 1 :]:
-                previous = [v for v in previous if v != "not"]
-            negated = sum(v in NEGATORS or v.endswith("n't") or v == "cannot" for v in previous) % 2
-            following = [m.group().casefold() for m in TOKENS.finditer(text[match.end() :])][:3]
-            resolution_words = {"fixed", "resolved", "eliminated", "removed"}
-            resolved = (
-                any(v in resolution_words for v in previous)
-                or any(v in resolution_words for v in following)
-                and not any(v in NEGATORS for v in following)
-            )
-            if original == "negative" and resolved:
-                negated = not negated
+            negated = negated_before(text, match.start())
+            if original == "negative":
+                # A nearby repair verb scopes over the failure cue. Check negation at
+                # that verb, including contractions; do not invert the failure twice.
+                previous = list(TOKENS.finditer(text[: match.start()]))[-3:]
+                following = list(TOKENS.finditer(text[match.end() :]))[:3]
+                repairs = [(m.start(), m.group()) for m in previous if m.group().casefold() in RESOLUTION] + [
+                    (match.end() + m.start(), m.group())
+                    for m in following
+                    if m.group().casefold() in RESOLUTION
+                ]
+                if repairs:
+                    repair_position, _ = min(repairs, key=lambda item: abs(item[0] - match.start()))
+                    negated = not negated_before(text, repair_position)
             polarity = {"positive": "negative", "negative": "positive"}[original] if negated else original
             found.append(
                 {
@@ -118,13 +130,21 @@ def analyze_feedback(text, polarity_model=None):
         aspects = aspect_mentions(passage)
         matches = cues(passage, start)
         polarities = {m["polarity"] for m in matches}
-        if end < len(text) and text[end] == "?":
+        sentence_start = max((m.end() for m in re.finditer(r"[.!?\r\n]", text[:start])), default=0)
+        nonassertion = NONASSERTION.search(text[sentence_start:end])
+        guarded = False
+        if re.match(r"\s*[.!?]*\?", text[end:]):
             polarity, reason = "uncertain", "A question is not an assertion of praise or criticism"
+            guarded = True
+        elif nonassertion:
+            polarity, reason = "uncertain", "Conditional or wish wording does not establish a current outcome"
+            guarded = True
         elif len(aspects) > 1 and len(polarities) > 1:
             polarity, reason = (
                 "uncertain",
                 "Multiple aspects and conflicting cues in one clause; attribution is ambiguous",
             )
+            guarded = True
         elif polarities == {"positive", "negative"}:
             polarity, reason = "mixed", "Praise and criticism cues for the same aspect"
         elif polarities:
@@ -135,7 +155,7 @@ def analyze_feedback(text, polarity_model=None):
         else:
             polarity, reason = "uncertain", "Aspect mentioned without a recognized evaluative cue"
         supervised = None
-        if polarity_model is not None and aspects:
+        if polarity_model is not None and aspects and not guarded:
             if polarity_model[:-1].transform([passage]).nnz:
                 scores = polarity_model.predict_proba([passage])[0]
                 index = int(scores.argmax())
@@ -161,7 +181,8 @@ def analyze_feedback(text, polarity_model=None):
             grouped[aspect].append(evidence)
     return {
         "task": "aspect detection and passage polarity",
-        "method": "supervised-passage-v1" if polarity_model is not None else VERSION,
+        "method": "supervised-passage-v2" if polarity_model is not None else VERSION,
+        "rules_version": VERSION,
         "validation_status": "provisional; real-world aspect quality has not been established",
         "input_stored": False,
         "aspects": [
@@ -176,6 +197,7 @@ def analyze_feedback(text, polarity_model=None):
             "Keyword aspect detection can miss implicit topics and Other issue.",
             "No recognized cue means uncertain, not neutral or absent.",
             "Rules do not resolve sarcasm, implied meaning, or every negation scope.",
+            "Questions, explicit conditionals/wishes, and ambiguous multi-topic attribution abstain even with a learned classifier.",
             "Passages are exact source spans, not proof that attribution is correct.",
             "Overall recommendations are not inputs and are never assigned to every aspect.",
         ],

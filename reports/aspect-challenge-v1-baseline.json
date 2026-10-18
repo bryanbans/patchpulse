@@ -1,0 +1,178 @@
+{
+  "suite_id": "aspect-challenge-v1",
+  "suite_sha256": "787bf03215ee58ac4132cdc9650a7a1b6351067f52a8fdad6100170183b024f3",
+  "method": "aspect-rules-v1",
+  "detector_sha256": "123191d5ba654bbc50e97c54d8071e9bcfff1285c7042a80fafb1e9fdf7b695b",
+  "provenance": "Original AI-authored synthetic development cases; no independent human review",
+  "status": "Public development challenge suite used to guide changes, not an untouched test or a real-player accuracy estimate",
+  "human_reviewed": false,
+  "real_world_quality_established": false,
+  "final_tests_opened": false,
+  "rules": {
+    "reviews": 48,
+    "exact_review_matches": 39,
+    "aspect_detection": {
+      "tp": 54,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.9818181818181818,
+      "f1": 0.9908256880733946
+    },
+    "end_to_end_praise": {
+      "tp": 18,
+      "fp": 5,
+      "fn": 0,
+      "precision": 0.782608695652174,
+      "recall": 1.0,
+      "f1": 0.8780487804878049
+    },
+    "end_to_end_complaint": {
+      "tp": 22,
+      "fp": 2,
+      "fn": 1,
+      "precision": 0.9166666666666666,
+      "recall": 0.9565217391304348,
+      "f1": 0.9361702127659575
+    },
+    "recommendation_invariance": {
+      "passed": 48,
+      "total": 48
+    },
+    "exact_evidence_substrings": {
+      "passed": 55,
+      "total": 55
+    },
+    "phenomenon_slices": {
+      "contrast": {
+        "correct": 5,
+        "total": 5
+      },
+      "negation": {
+        "correct": 8,
+        "total": 8
+      },
+      "resolution": {
+        "correct": 7,
+        "total": 8
+      },
+      "nonassertion": {
+        "correct": 2,
+        "total": 6
+      },
+      "attribution": {
+        "correct": 3,
+        "total": 3
+      },
+      "mentions": {
+        "correct": 3,
+        "total": 5
+      },
+      "coverage": {
+        "correct": 5,
+        "total": 5
+      },
+      "absent": {
+        "correct": 3,
+        "total": 3
+      },
+      "unicode": {
+        "correct": 2,
+        "total": 2
+      },
+      "known-limit": {
+        "correct": 1,
+        "total": 3
+      }
+    },
+    "failures": [
+      {
+        "id": "challenge-017",
+        "expected": {
+          "Stability": "negative"
+        },
+        "predicted": {
+          "Stability": "mixed"
+        }
+      },
+      {
+        "id": "challenge-024",
+        "expected": {
+          "Multiplayer": "uncertain"
+        },
+        "predicted": {
+          "Multiplayer": "positive"
+        }
+      },
+      {
+        "id": "challenge-025",
+        "expected": {
+          "Multiplayer": "uncertain"
+        },
+        "predicted": {
+          "Multiplayer": "positive"
+        }
+      },
+      {
+        "id": "challenge-026",
+        "expected": {
+          "Stability": "uncertain"
+        },
+        "predicted": {
+          "Stability": "positive"
+        }
+      },
+      {
+        "id": "challenge-027",
+        "expected": {
+          "Interface": "uncertain"
+        },
+        "predicted": {
+          "Interface": "positive"
+        }
+      },
+      {
+        "id": "challenge-033",
+        "expected": {
+          "Stability": "uncertain"
+        },
+        "predicted": {
+          "Stability": "negative"
+        }
+      },
+      {
+        "id": "challenge-034",
+        "expected": {
+          "Stability": "uncertain"
+        },
+        "predicted": {
+          "Stability": "negative"
+        }
+      },
+      {
+        "id": "challenge-047",
+        "expected": {
+          "Multiplayer": "negative"
+        },
+        "predicted": {}
+      },
+      {
+        "id": "challenge-048",
+        "expected": {
+          "Multiplayer": "neutral"
+        },
+        "predicted": {
+          "Multiplayer": "uncertain"
+        }
+      }
+    ]
+  },
+  "limitations": [
+    "Public authored development cases were used to guide rule changes; scores are optimistic and not generalization estimates.",
+    "Exact substring validity checks offsets, not whether the evidence supports the interpretation.",
+    "Recommendation invariance covers only the two stated prefix templates, not every paraphrase.",
+    "Real human-reviewed aspect, sentiment and evidence relevance evaluation remains required."
+  ],
+  "source_revision": "45cb08bbb9f2cc5ad75706f1a4928acea68eea3b",
+  "fingerprint_policy": "UTF-8 bytes with CRLF normalized to LF"
+}

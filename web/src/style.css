@@ -1723,6 +1723,21 @@ footer {
 .feedback-lab label {
   margin-top: 16px;
 }
+.feedback-checks {
+  margin-top: 20px;
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--line);
+}
+.feedback-checks summary {
+  color: var(--cyan);
+  cursor: pointer;
+  font-size: 13px;
+}
+.feedback-checks p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
 .skip-link {
   opacity: 0;
   pointer-events: none;
