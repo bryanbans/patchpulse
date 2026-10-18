@@ -22,15 +22,15 @@ const EXAMPLES = [
     text: "I recommend the game. Great missions, but our co-op sessions keep disconnecting.",
   },
   {
-    name: "Negation",
+    name: "No crashes",
     text: "No crashes this week. The performance is not great, though.",
   },
   {
-    name: "Same topic, mixed feedback",
+    name: "Mixed feedback",
     text: "The combat is fun but the weapons feel terrible.",
   },
   {
-    name: "No clear sentiment",
+    name: "Topic mention only",
     text: "The server browser lists regional lobbies.",
   },
 ];
@@ -41,6 +41,22 @@ const labels: Record<string, string> = {
   neutral: "Descriptive",
   uncertain: "Needs review",
 };
+function explainReason(reason: string) {
+  if (reason.includes("Multiple aspects"))
+    return "This part of the review mentions several topics and contains conflicting wording. The rules cannot reliably tell which opinion belongs to which topic.";
+  if (reason.includes("question"))
+    return "This passage asks a question rather than clearly praising or criticizing the topic.";
+  if (reason.includes("without a recognized"))
+    return "The topic was recognized, but no clear praise or criticism word was found.";
+  if (reason.includes("Praise and criticism"))
+    return "Both positive and negative wording refer to this topic.";
+  if (reason.includes("Supervised passage"))
+    return "The classifier estimated this passage's sentiment using patterns learned from labeled examples. Topic detection still uses keyword rules.";
+  if (reason.includes("No supported"))
+    return "The classifier did not recognize useful vocabulary in this passage.";
+  return "The topic and the words below appeared in the same clause—a part of a sentence. The rules check up to three preceding words for negation, such as ‘not’, and nearby wording for resolved problems, such as ‘fixed crashes’.";
+}
+
 export function AspectLab({
   input,
 }: {
@@ -89,7 +105,7 @@ export function AspectLab({
         throw Error(
           response.status === 429
             ? "Too many analyses. Wait a minute and retry."
-            : `Analysis unavailable (${response.status}). Try the rule baseline or restart the local model server.`,
+            : `Analysis unavailable (${response.status}). Choose Topic and wording rules, or restart the local server and try again.`,
         );
       const data = await response.json();
       if (request === revision.current) setResult(data);
@@ -104,24 +120,22 @@ export function AspectLab({
       className="panel lab feedback-lab"
       aria-labelledby="feedback-title"
     >
-      <span className="eyebrow">ASPECT SENTIMENT · WORKING PROTOTYPE</span>
-      <h2 id="feedback-title">One review. Different kinds of feedback.</h2>
+      <span className="eyebrow">PRAISE AND COMPLAINTS · PREVIEW</span>
+      <h2 id="feedback-title">What does this review praise or criticize?</h2>
       <p>
-        Find praise and complaints about specific parts of a game. The overall
-        recommendation is never used as an aspect label.
+        Paste a game review to explore feedback about topics such as gameplay,
+        performance, or multiplayer. A player can recommend a game and still
+        criticize one of its features.
       </p>
       <div className="feedback-note">
-        <strong>Provisional analysis</strong>
+        <strong>Treat these as suggestions</strong>
         <span>
-          Rule results and synthetic-trained predictions have not established
-          real-world quality. Check the passages; sarcasm, implicit topics and
-          ambiguous scope can be missed.
+          This preview has not been validated on human-reviewed real player
+          feedback. Check each suggestion against the quoted text. Sarcasm and
+          topics that are only implied can be missed.
         </span>
       </div>
-      <div
-        className="example-picks"
-        aria-label="Original illustrative examples"
-      >
+      <div className="example-picks" aria-label="Invented example reviews">
         {EXAMPLES.map((e) => (
           <button
             className="secondary"
@@ -138,7 +152,7 @@ export function AspectLab({
           </button>
         ))}
       </div>
-      <label htmlFor="feedback-method">Aspect analysis method</label>
+      <label htmlFor="feedback-method">Analysis method</label>
       <select
         id="feedback-method"
         value={method}
@@ -148,17 +162,17 @@ export function AspectLab({
           setResult(null);
         }}
       >
-        <option value="rules">Transparent clause and negation rules</option>
+        <option value="rules">Topic and wording rules (default)</option>
         {methods.includes("supervised") && (
           <option value="supervised">
-            Supervised passage classifier ·{" "}
+            Learned text classifier ·{" "}
             {syntheticModel
-              ? "synthetic training"
-              : "human-labeled development"}
+              ? "invented training examples"
+              : "reviewed training examples"}
           </option>
         )}
       </select>
-      <label htmlFor="feedback-text">Feedback to analyze</label>
+      <label htmlFor="feedback-text">Review to analyze</label>
       <textarea
         id="feedback-text"
         rows={4}
@@ -188,12 +202,16 @@ export function AspectLab({
       {result && (
         <div className="feedback-results" aria-live="polite">
           <p className="muted">
-            {result.method} · {result.label_source}
+            {result.method === "aspect-rules-v1"
+              ? "Rule-based suggestions: topic words and nearby wording guide the labels."
+              : result.mode === "synthetic"
+                ? "Learned from invented example passages. This does not establish accuracy on real reviews."
+                : "Learned from reviewed training passages. Final accuracy has not been established."}
           </p>
           {result.aspects.length === 0 ? (
             <div className="empty">
-              No supported aspect was detected. This does not mean the review
-              contains no complaint.
+              No topic was recognized. The review may still contain a complaint;
+              the current topic rules may have missed it.
             </div>
           ) : (
             result.aspects.map((a) => (
@@ -203,33 +221,36 @@ export function AspectLab({
                   <span
                     className={`pill ${a.polarity === "positive" ? "positive" : a.polarity === "negative" ? "negative" : ""}`}
                   >
-                    {labels[a.polarity]} · provisional
+                    {labels[a.polarity]} · suggested
                   </span>
                 </div>
                 {a.evidence.map((e, i) => (
                   <div className="feedback-evidence" key={i}>
                     <blockquote>{e.passage}</blockquote>
-                    <p>
-                      {labels[e.polarity]} · raw-text Unicode offsets [{e.start}
-                      , {e.end})
-                    </p>
+                    <p>{labels[e.polarity]}</p>
                     <details>
                       <summary>Why this label?</summary>
-                      <p>{e.reason}</p>
+                      <p>{explainReason(e.reason)}</p>
+                      <p>
+                        Evidence position in the original text: [{e.start},{" "}
+                        {e.end}). These are zero-based Unicode character
+                        offsets; the end position is excluded.
+                      </p>
                       {e.cues.length > 0 && (
                         <p>
-                          Rule cues:{" "}
+                          Words used by the rules:{" "}
                           {e.cues
                             .map(
                               (c) =>
-                                `${c.passage}${c.negated ? " (negated/resolved)" : ""}`,
+                                `${c.passage}${c.negated ? " (meaning changed by nearby wording)" : ""}`,
                             )
                             .join(", ")}
                         </p>
                       )}
                       {e.score !== undefined && (
                         <p>
-                          Classifier score: {e.score.toFixed(3)} · uncalibrated
+                          Model score: {e.score.toFixed(3)} · uncalibrated (not
+                          a verified probability of correctness)
                         </p>
                       )}
                     </details>
@@ -239,8 +260,8 @@ export function AspectLab({
             ))
           )}
           <p className="muted">
-            These are candidate interpretations, not confirmed issues or
-            before/after complaint statistics.
+            These labels help you inspect a review. They do not confirm a
+            software defect or measure how complaints changed after an update.
           </p>
         </div>
       )}

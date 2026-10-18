@@ -43,6 +43,14 @@ export function NeuralPanel() {
         {report.parameter_count.toLocaleString()} parameters train; the negative
         threshold stays fixed at 0.5.
       </p>
+      <p>
+        DistilBERT is a model pretrained to represent language. Fine-tuning
+        continues its training for a specific task: here, predicting a review’s
+        recommendation. The two loss variants use different training objectives:
+        ordinary cross-entropy, and a weighted version that gives rare negative
+        reviews more influence. A seed controls the random initialization and
+        training order; repeating seeds checks variation between runs.
+      </p>
       <div className="evaluation-grid">
         <div>
           <strong>{report.selected.macro_f1.toFixed(3)}</strong>
@@ -74,7 +82,7 @@ export function NeuralPanel() {
               <th>Loss variant</th>
               <th>Epoch</th>
               <th>Mean macro F1</th>
-              <th>Seed SD</th>
+              <th>Variation across seeds (SD)</th>
               <th>Mean negative F1</th>
             </tr>
           </thead>
@@ -91,6 +99,10 @@ export function NeuralPanel() {
           </tbody>
         </table>
       </div>
+      <p className="muted">
+        SD is the standard deviation across the three runs. Zero here describes
+        identical class decisions, not certainty about future performance.
+      </p>
       <div className="detail">
         <strong>Measured outcome: retain the classical detector.</strong>
         <p>

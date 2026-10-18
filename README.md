@@ -4,7 +4,9 @@
 
 **Understand player feedback before and after a game update.**
 
-PatchPulse helps game developers compare player recommendations, explore the topics players discuss, and inspect the reviews behind the numbers. It brings those pieces together so a developer can investigate release feedback without relying on an overall rating alone.
+After a game update, an overall rating only tells part of the story. A developer also needs to know what players enjoy, what frustrates them, and which comments support that picture.
+
+PatchPulse brings recommendation trends, review topics, and supporting passages into one place. It helps you investigate feedback before and after an update, then look more closely at praise and complaints within individual reviews.
 
 ![PatchPulse dashboard with clearly labeled synthetic reviews](assets/desktop-preview.png)
 
@@ -14,7 +16,7 @@ PatchPulse helps game developers compare player recommendations, explore the top
 |---|---|
 | **Did recommendations change after an update?** | Compare recommendation rates and review counts in equal windows before and after the release date. |
 | **What are players talking about?** | Explore keyword mentions of performance, crashes, multiplayer, gameplay, and other topics. |
-| **Can one review praise gameplay and criticize multiplayer?** | Try the provisional aspect analyzer in Model lab; inspect separate praise, complaint, mixed, or uncertain outputs with evidence. |
+| **Can one review praise gameplay and criticize multiplayer?** | Open Analyze feedback to see suggested praise or complaints for individual topics, together with the passages behind each suggestion. |
 | **What did players actually say?** | Filter reviews and inspect the exact passages behind topic matches. |
 | **How much evidence supports an observation?** | See sample sizes, collection coverage, exclusions, and source-version details. |
 | **What can I share with a teammate?** | Export a brief containing the observed recommendation statistics, evidence references, and limitations. |
@@ -31,7 +33,7 @@ The overall recommendation is positive. The multiplayer feedback is negative. Tr
 
 PatchPulse is being built to preserve that distinction: **what players recommend, what they discuss, and what they praise or criticize are different questions.**
 
-Today, the application shows recorded recommendations, keyword-based topic mentions, and a **working prototype that separates explicit praise from complaints by aspect**. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on original synthetic examples. Outputs are labeled provisional. Reliable real-world detection still requires human-reviewed evaluation. [How the prototype works](docs/aspect_sentiment.md).
+Today, the application shows recorded recommendations, keyword-based topic mentions, and a **working prototype that separates explicit praise from complaints by topic**. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on original synthetic examples. Outputs are marked as suggestions that need checking. Reliable real-world detection still requires human-reviewed evaluation. [How the prototype works](docs/aspect_sentiment.md).
 
 ## Current project status
 
@@ -44,9 +46,11 @@ Today, the application shows recorded recommendations, keyword-based topic menti
 
 ## The NLP study
 
-This independent portfolio project grew out of studying natural language processing in a computer science master's program focused on AI/ML. The research explores how to represent mixed feedback, learn from imbalanced labels, and evaluate whether a more complex model actually helps.
+The technical challenge follows from the product question: understanding a review means more than assigning one positive or negative label. PatchPulse uses natural language processing (NLP)—methods for analyzing written language—to explore mixed feedback and compare ways of predicting overall recommendations.
 
-The first experiment exposed a common evaluation trap: **97% accuracy hid a model that detected none of the negative reviews.** Character-based features improved the result. A subsequent DistilBERT fine-tuning experiment did not beat that classical model at its tested decision threshold.
+The study asks whether a more complex model actually improves detection, especially when negative reviews are much less common than positive ones. Its methods and results are documented so the choices can be inspected and reproduced.
+
+The first experiment exposed a common evaluation trap: **97% accuracy hid a model that detected none of the negative reviews.** Features based on short character sequences improved the result. A subsequent fine-tuning experiment with DistilBERT, a pretrained transformer language model, did not beat that classical model at its tested decision threshold.
 
 | Model | Validation macro F1¹ | Negative reviews detected | Recommended reviews incorrectly flagged |
 |---|---:|---:|---:|
@@ -72,9 +76,9 @@ npm run build --prefix web
 uv run python -m patchpulse serve
 ```
 
-Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Model lab**, and inspect the results in **Methodology**. Text entered in the model lab stays local and is not stored. Open `/feedback` to try **Praise + complaint**, **Negation**, and **Same topic, mixed feedback**, or send a review from Evidence using **Analyze topic sentiment**.
+Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Analyze feedback**, and inspect the results in **How it works**. Text entered in Analyze feedback stays local and is not stored. Open `/feedback` to try **Praise + complaint**, **No crashes**, and **Mixed feedback**, or send a review from Reviews using **Analyze this review**.
 
-The synthetic demo demonstrates the workflow; its predictions and review statistics are not real game findings. The methodology page separately labels aggregate results from the private real-data study.
+The synthetic demo demonstrates the workflow; its predictions and review statistics are not real game findings. The How it works page separately labels aggregate results from the private real-data study.
 
 ## Data and design
 
@@ -109,4 +113,4 @@ Built with Python, FastAPI, SQLite, scikit-learn, React, and TypeScript. Optiona
 
 The next steps are human-reviewed topic sentiment, a bounded follow-up to the neural experiment, and untouched final evaluations. Source-use questions must be resolved before broader collection or a public real-text demo. Docker configuration is included, but its build has not been verified.
 
-Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md). This is a personal portfolio project, not a course submission or an endorsement by Valve, game developers, or a university.
+Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md). PatchPulse is an independent project and is not affiliated with Valve or the game developers.

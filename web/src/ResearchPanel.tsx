@@ -100,6 +100,11 @@ export function ResearchPanel() {
         character model catches fewer negatives with fewer false alarms. Neither
         detector measures aspect sentiment.
       </p>
+      <p className="muted">
+        A false alarm is a recommended review incorrectly predicted as not
+        recommended. The negative threshold is the decision cutoff applied to a
+        model score.
+      </p>
       <div className="detail">
         <strong>Development evidence, with wide uncertainty.</strong>
         <p>

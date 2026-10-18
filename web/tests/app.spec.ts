@@ -9,7 +9,7 @@ test("case, evidence filters, safe text, model, and brief export", async ({
     page.getByRole("heading", { name: /Find the signal/ }),
   ).toBeVisible();
   await expect(page.getByText("SYNTHETIC DEMO", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Open case study" }).click();
+  await page.getByRole("button", { name: "Browse reviews" }).click();
   await page
     .getByRole("combobox", { name: "Window", exact: true })
     .selectOption("before");
@@ -30,7 +30,7 @@ test("case, evidence filters, safe text, model, and brief export", async ({
     .click();
   await expect(
     page.getByText(
-      "Synthetic fixture. There is no Steam review behind this example.",
+      "This is an invented example, not a published Steam review.",
     ),
   ).toBeVisible();
   const download = page.waitForEvent("download");
@@ -44,12 +44,16 @@ test("case, evidence filters, safe text, model, and brief export", async ({
   expect((await download).suggestedFilename()).toBe(
     "patchpulse-release-brief.txt",
   );
-  await page.getByRole("button", { name: "Model lab", exact: false }).click();
+  await page
+    .getByRole("button", { name: "Analyze feedback", exact: false })
+    .click();
   await page.getByRole("button", { name: "Predict recommendation" }).click();
   await expect(page.getByRole("status")).toContainText(
     "Recommended-class score",
   );
-  await page.getByRole("button", { name: "Methodology", exact: false }).click();
+  await page
+    .getByRole("button", { name: "How it works", exact: false })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Validation confusion matrix" }),
   ).toBeVisible();
@@ -90,7 +94,7 @@ test("capture desktop and mobile screens and keyboard focus", async ({
         bounds.x + bounds.width <= viewport.width,
     ).toBeTruthy();
   }
-  for (const tab of ["Evidence", "Model lab", "Methodology"]) {
+  for (const tab of ["Reviews", "Analyze feedback", "How it works"]) {
     await page
       .getByRole("navigation")
       .getByRole("button", { name: tab })
@@ -101,7 +105,7 @@ test("capture desktop and mobile screens and keyboard focus", async ({
         .getByRole("button", { name: tab, exact: true }),
     ).toHaveAttribute("aria-current", "page");
     await page.screenshot({
-      path: `../assets/${testInfo.project.name}-${tab.toLowerCase().replace(" ", "-")}.png`,
+      path: `../assets/${testInfo.project.name}-${{ Reviews: "evidence", "Analyze feedback": "model-lab", "How it works": "methodology" }[tab] ?? tab.toLowerCase().replace(" ", "-")}.png`,
       animations: "disabled",
       fullPage: true,
     });
@@ -167,7 +171,7 @@ test("aspect scales and keyboard search preserve analytical context", async ({
   await expect(page.getByRole("status")).toContainText("matching reviews / 48");
   await page
     .getByRole("navigation")
-    .getByRole("button", { name: "Model lab", exact: true })
+    .getByRole("button", { name: "Analyze feedback", exact: true })
     .click();
   await page.getByLabel("Review text").fill("Example");
   await page.getByLabel("Review text").press("/");
@@ -175,6 +179,6 @@ test("aspect scales and keyboard search preserve analytical context", async ({
   await expect(
     page
       .getByRole("navigation")
-      .getByRole("button", { name: "Model lab", exact: true }),
+      .getByRole("button", { name: "Analyze feedback", exact: true }),
   ).toHaveAttribute("aria-current", "page");
 });

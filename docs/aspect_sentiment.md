@@ -1,6 +1,6 @@
 # Complaint versus praise: working aspect prototype
 
-PatchPulse now has a local feedback workspace at `/feedback` (also the first panel in Model lab). It analyzes individual review text without using the overall recommendation as an aspect label.
+PatchPulse now has a local feedback workspace at `/feedback` (also the first panel in Analyze feedback). It analyzes individual review text without using the overall recommendation as an aspect label.
 
 ## A concrete synthetic example
 
@@ -19,7 +19,7 @@ The rule baseline returns Gameplay / positive with the exact passage `Great miss
 - A bounded three-token negation window handles examples such as `no crashes` and `performance is not great`. Resolution phrases such as `fixed crashes` are handled separately from active failures.
 - Positive and negative statements about the same aspect combine into mixed feedback. Clauses with multiple aspects and conflicting cues stay uncertain rather than assigning all sentiment to every aspect.
 - Questions and mentions without recognized evaluative cues can remain uncertain. Uncertain, neutral and absent are separate states. Exact evidence is traceable, but exact offsets alone do not establish semantic correctness.
-- The Evidence view can send a selected review to the feedback workspace. Existing before/after topic counts remain mention counts, not complaint counts.
+- The Reviews view can send a selected review to the feedback workspace. Existing before/after topic counts remain mention counts, not complaint counts.
 - The same API can use a supervised passage-polarity classifier. Its aspect assignment still uses rules, so it is not an end-to-end learned aspect model.
 
 Rules can miss implicit topics, Other issue, sarcasm, idioms and longer negation dependencies. They are a baseline, not a production sentiment engine. Automatic complaint-change statistics remain withheld in real mode pending human evaluation.

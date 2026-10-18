@@ -34,7 +34,7 @@ test("human annotation requires explicit review and preserves Unicode offsets", 
   await expect(
     page.getByRole("button", { name: /Export 0 reviewed/ }),
   ).toBeDisabled();
-  await page.getByLabel("Reviewer pseudonym").fill("test-reviewer");
+  await page.getByLabel("Reviewer name or alias").fill("test-reviewer");
   const source = page.getByLabel("Source text — select a passage");
   await source.focus();
   await source.press("Control+Home");
@@ -43,10 +43,10 @@ test("human annotation requires explicit review and preserves Unicode offsets", 
   for (let i = 0; i < 7; i++) await source.press("Shift+ArrowRight");
   await expect(page.getByText("Selected: “Crashes”")).toBeVisible();
   await page
-    .getByRole("combobox", { name: "Aspect", exact: true })
+    .getByRole("combobox", { name: "Topic", exact: true })
     .selectOption("Stability");
   await page
-    .getByRole("combobox", { name: "Polarity", exact: true })
+    .getByRole("combobox", { name: "Sentiment", exact: true })
     .selectOption("negative");
   await page.getByRole("button", { name: "Add evidence span" }).click();
   await expect(page.getByText("Unicode offsets [2, 9)")).toBeVisible();
@@ -151,7 +151,7 @@ test("detector choice is sent to API and thresholds stay visible", async ({
   await page.goto("/");
   await page
     .getByRole("navigation")
-    .getByRole("button", { name: "Model lab", exact: true })
+    .getByRole("button", { name: "Analyze feedback", exact: true })
     .click();
   await page.getByLabel("Detector", { exact: true }).selectOption("sensitive");
   await page.getByRole("button", { name: "Predict recommendation" }).click();
@@ -160,7 +160,7 @@ test("detector choice is sent to API and thresholds stay visible", async ({
   );
   await page
     .getByRole("navigation")
-    .getByRole("button", { name: "Methodology", exact: true })
+    .getByRole("button", { name: "How it works", exact: true })
     .click();
   await expect(
     page.getByRole("region", { name: "Detector comparison" }),
@@ -178,7 +178,7 @@ test("neural study shows seed ablations and honest failure outcome", async ({
   await page.goto("/");
   await page
     .getByRole("navigation")
-    .getByRole("button", { name: "Methodology", exact: true })
+    .getByRole("button", { name: "How it works", exact: true })
     .click();
   const study = page.getByRole("region", {
     name: "Neural ablation comparison",

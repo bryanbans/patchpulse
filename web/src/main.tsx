@@ -69,7 +69,9 @@ function App() {
   const [data, setData] = useState<Case | null>(null),
     [error, setError] = useState(""),
     [tab, setTab] = useState(
-      window.location.pathname === "/feedback" ? "Model lab" : "Case study",
+      window.location.pathname === "/feedback"
+        ? "Analyze feedback"
+        : "Overview",
     );
   const [period, setPeriod] = useState("all"),
     [aspect, setAspect] = useState("all"),
@@ -100,7 +102,7 @@ function App() {
     [predicting, setPredicting] = useState(false),
     [predictError, setPredictError] = useState("");
   useEffect(() => {
-    if (tab === "Evidence" && focusSearch) {
+    if (tab === "Reviews" && focusSearch) {
       searchRef.current?.focus();
       setFocusSearch(false);
     }
@@ -116,7 +118,7 @@ function App() {
         !["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
       ) {
         event.preventDefault();
-        setTab("Evidence");
+        setTab("Reviews");
         setFocusSearch(true);
       }
     }
@@ -200,7 +202,7 @@ function App() {
   function selectAspect(value: string) {
     setAspect(value);
     setOffset(0);
-    setTab("Evidence");
+    setTab("Reviews");
   }
   const hasFilters =
     period !== "all" ||
@@ -228,11 +230,11 @@ function App() {
         </div>
         <span className="small-tag">
           {data?.mode === "synthetic"
-            ? "Original synthetic examples"
+            ? "Invented example reviews"
             : "Private source versions"}
         </span>
       </div>
-      {tab !== "Case study" && (
+      {tab !== "Overview" && (
         <div className="filters">
           <label>
             Window
@@ -249,7 +251,7 @@ function App() {
             </select>
           </label>
           <label>
-            Aspect mention
+            Topic mention
             <select
               value={aspect}
               onChange={(e) => {
@@ -257,7 +259,7 @@ function App() {
                 setOffset(0);
               }}
             >
-              <option value="all">All aspects</option>
+              <option value="all">All topics</option>
               {data?.mentions.map((m) => (
                 <option key={m.aspect}>{m.aspect}</option>
               ))}
@@ -311,14 +313,14 @@ function App() {
       <p className="muted" role="status">
         {busy
           ? "Loading evidence…"
-          : `${total} matching reviews / ${denominator} eligible reviews in selected window. Aspect mentions may overlap.`}
+          : `${total} matching reviews / ${denominator} eligible reviews in selected window. Topic mentions may overlap.`}
       </p>
       {!busy && rows.length === 0 && (
         <div className="empty">
-          No evidence matches these filters. Try another aspect or search term.
+          No evidence matches these filters. Try another topic or search term.
         </div>
       )}
-      {rows.slice(0, tab === "Case study" ? 3 : rows.length).map((r) => (
+      {rows.slice(0, tab === "Overview" ? 3 : rows.length).map((r) => (
         <article key={r.version_id} className="review">
           <div className="review-meta">
             <span className={r.voted_up ? "pill positive" : "pill negative"}>
@@ -342,10 +344,10 @@ function App() {
               className="text-button"
               onClick={() => {
                 setFeedbackInput({ text: r.text, revision: Date.now() });
-                setTab("Model lab");
+                setTab("Analyze feedback");
               }}
             >
-              Analyze topic sentiment ↗
+              Analyze this review ↗
             </button>
             <button
               className="text-button"
@@ -366,9 +368,9 @@ function App() {
                 <strong>Version</strong> <code>{r.version_id}</code>
               </p>
               <p>
-                Recorded recommendation is source metadata. These keyword
-                matches identify mentions; their polarity has not been
-                evaluated.
+                The recommendation comes from the review record. Topic words
+                show what is mentioned, but do not establish whether the player
+                praises or criticizes it.
               </p>
               {r.mentions.map((m) => (
                 <blockquote key={m.aspect}>
@@ -383,21 +385,20 @@ function App() {
                 </a>
               ) : (
                 <p>
-                  Synthetic fixture. There is no Steam review behind this
-                  example.
+                  This is an invented example, not a published Steam review.
                 </p>
               )}
             </div>
           )}
         </article>
       ))}
-      {tab === "Case study" ? (
+      {tab === "Overview" ? (
         <div className="evidence-preview-footer">
           <p>
             Start with a few examples, then explore the complete collected
             sample.
           </p>
-          <button className="secondary" onClick={() => setTab("Evidence")}>
+          <button className="secondary" onClick={() => setTab("Reviews")}>
             Browse all {total.toLocaleString()} reviews →
           </button>
         </div>
@@ -446,7 +447,7 @@ function App() {
         </a>
         <div className="sidebar-label">RELEASE INTELLIGENCE</div>
         <nav aria-label="Main navigation">
-          {["Case study", "Evidence", "Model lab", "Methodology"].map(
+          {["Overview", "Reviews", "Analyze feedback", "How it works"].map(
             (item, i) => (
               <button
                 key={item}
@@ -484,10 +485,10 @@ function App() {
           )}
         </nav>
         <div className="sidebar-note">
-          <span className="status-dot" /> Local research build
+          <span className="status-dot" /> Local preview
           <p>Evidence before conclusions.</p>
           <small>
-            Independent portfolio project.
+            Player feedback analysis.
             <br />
             Not affiliated with Valve or game developers.
           </small>
@@ -502,14 +503,14 @@ function App() {
             <button
               className="quick-search"
               onClick={() => {
-                setTab("Evidence");
+                setTab("Reviews");
                 setFocusSearch(true);
               }}
             >
               Search evidence <kbd>/</kbd>
             </button>
             <span className="build-tag">
-              RESEARCH BUILD <span>01</span>
+              PROTOTYPE <span>01</span>
             </span>
           </div>
         </header>
@@ -531,50 +532,50 @@ function App() {
               </strong>
               <span>
                 {data.mode === "synthetic"
-                  ? "Invented reviews and labels demonstrate the workflow. No real game findings."
-                  : "Retrospective source snapshot. Source text and model artifacts stay private."}
+                  ? "These invented reviews show how the app works. They are not findings about the game."
+                  : "Reviews were collected after the update for a local study. Source text and trained models stay private."}
               </span>
             </div>
             <div className="hero">
               <div>
                 <span className="eyebrow">PLAYER FEEDBACK, IN CONTEXT</span>
                 <h1>
-                  {tab === "Case study" ? (
+                  {tab === "Overview" ? (
                     <>
                       Find the signal.
                       <br />
                       <span className="hero-accent">Follow the evidence.</span>
                     </>
-                  ) : tab === "Evidence" ? (
+                  ) : tab === "Reviews" ? (
                     "Follow the evidence."
-                  ) : tab === "Model lab" ? (
+                  ) : tab === "Analyze feedback" ? (
                     "Test the text, not your assumptions."
                   ) : (
                     "Make the method inspectable."
                   )}
                 </h1>
                 <p>
-                  {tab === "Case study"
-                    ? "Investigate what players discuss around an update, with every observation tied to the collected sample."
-                    : tab === "Evidence"
-                      ? "Inspect versioned text, recorded recommendations, and exact keyword passages."
-                      : tab === "Model lab"
-                        ? "Separate praise from complaints by topic, then explore the overall recommendation experiment. Known recommendations remain separate."
-                        : "Reproducible collection, honest limits, and development results you can trace."}
+                  {tab === "Overview"
+                    ? "Compare recommendations before and after an update, explore review topics, and read the comments behind the numbers."
+                    : tab === "Reviews"
+                      ? "Filter the collected reviews by time, topic, or recommendation. Open a review to inspect its supporting passages."
+                      : tab === "Analyze feedback"
+                        ? "Paste a review to explore what it praises or criticizes. You can also try a separate model that predicts the overall recommendation."
+                        : "See where the data comes from, how the models were tested, and what the results can—and cannot—tell you."}
                 </p>
               </div>
               <button
                 className="primary"
                 onClick={
-                  tab === "Case study"
+                  tab === "Overview"
                     ? () => {
-                        setTab("Evidence");
+                        setTab("Reviews");
                       }
                     : exportBrief
                 }
               >
-                {tab === "Case study"
-                  ? "Open case study ↗"
+                {tab === "Overview"
+                  ? "Browse reviews ↗"
                   : "Export release brief ↓"}
               </button>
             </div>
@@ -602,14 +603,14 @@ function App() {
                 Official update ↗
               </a>
             </div>
-            {tab === "Case study" && (
+            {tab === "Overview" && (
               <>
                 <div className="section-label">
                   <h2>Recorded recommendations</h2>
                   <span>
                     Observed labels ·{" "}
                     {data.mode === "synthetic"
-                      ? "synthetic fixture"
+                      ? "invented demo data"
                       : "eligible collected sample"}
                   </span>
                 </div>
@@ -729,8 +730,9 @@ function App() {
                       </div>
                     </div>
                     <p className="muted">
-                      Counts of reviews mentioning each aspect. These are not
-                      complaint counts. Polarity awaits human review.
+                      Counts of reviews mentioning each topic. These are not
+                      complaint counts. A mention alone does not tell us whether
+                      the player is praising or criticizing the topic.
                     </p>
                     <div className="legend">
                       <span className="before-key" /> Before{" "}
@@ -797,7 +799,7 @@ function App() {
                             ? "At least one collection cap was reached. Windows are incomplete and may overrepresent later dates."
                             : data.mode === "real"
                               ? "Pagination exhausted both windows. A one-record mismatch with the after-window source total remains unresolved."
-                              : "Fixture coverage describes the demo only; it does not represent the player population."}
+                              : "These invented examples demonstrate collection states; they do not represent the player population."}
                         </p>
                       </div>
                     </div>
@@ -806,8 +808,9 @@ function App() {
                       <div>
                         <h3>Mentions are not sentiment</h3>
                         <p>
-                          A recommending review can criticize multiplayer. An
-                          aspect keyword alone does not tell us its polarity.
+                          A player can recommend a game while criticizing
+                          multiplayer. A topic word alone does not tell us
+                          whether the feedback is positive or negative.
                         </p>
                       </div>
                     </div>
@@ -828,25 +831,41 @@ function App() {
                 {evidencePanel}
               </>
             )}
-            {tab === "Evidence" && evidencePanel}
-            {tab === "Model lab" && (
+            {tab === "Reviews" && evidencePanel}
+            {tab === "Analyze feedback" && (
               <>
                 <AspectLab input={feedbackInput} />
                 <section className="panel lab">
                   <span className="eyebrow">
                     TEXT-ONLY RECOMMENDATION PREDICTION
                   </span>
-                  <h2>Explore the detection tradeoff.</h2>
+                  <h2>Would this player recommend the game?</h2>
+                  <p>
+                    This separate experiment estimates the overall
+                    recommendation from the review text. It does not replace a
+                    known recommendation or the topic-level analysis above.
+                  </p>
                   <p>
                     {models.find((m) => m.id === modelId)?.description ??
                       evaluation?.model_description ??
                       "TF-IDF + logistic regression"}
                     .{" "}
                     {data.mode === "synthetic"
-                      ? "Trained on synthetic examples; scores do not establish real-world quality."
-                      : "Local exploratory model; validation is not a final test."}{" "}
+                      ? "Trained on invented examples for this demo; accuracy on real reviews has not been established."
+                      : "An experimental model tested on development data, not the final test set."}{" "}
                     User input stays local and is not stored.
                   </p>
+                  <details className="annotation-guide">
+                    <summary>What do the model names mean?</summary>
+                    <p>
+                      TF-IDF measures how distinctive words or character
+                      fragments are in the training reviews. Logistic regression
+                      learns how those features relate to a recommendation.
+                      Balanced training gives the less common recommendation
+                      class more weight. The exact model configuration and
+                      evaluation are available in How it works.
+                    </p>
+                  </details>
                   <label htmlFor="model-choice">Detector</label>
                   <select
                     id="model-choice"
@@ -864,8 +883,10 @@ function App() {
                     ))}
                   </select>
                   <p className="muted">
-                    A lower negative-score threshold can catch more negative
-                    reviews and produce more false alarms. Scores are
+                    The threshold is the score at which a model labels a review
+                    not recommended. A lower threshold can catch more negative
+                    reviews and produce more false alarms. The scores are not
+                    verified probabilities of correctness; they are
                     uncalibrated.
                   </p>
                   <label htmlFor="example">Review text</label>
@@ -904,7 +925,9 @@ function App() {
                         <p>
                           Recommended-class score:{" "}
                           {prediction.score_recommended.toFixed(3)} ·
-                          uncalibrated. This is not an aspect sentiment score.
+                          uncalibrated. This score describes the overall
+                          recommendation, not praise or complaints about
+                          individual topics.
                           <br />
                           Not-recommended score:{" "}
                           {prediction.score_not_recommended?.toFixed(3)} ·
@@ -918,8 +941,37 @@ function App() {
                 </section>
               </>
             )}
-            {tab === "Methodology" && (
+            {tab === "How it works" && (
               <>
+                <section className="panel methodology">
+                  <span className="eyebrow">READING THE RESULTS</span>
+                  <h2>What is counted, and what is predicted?</h2>
+                  <p>
+                    <strong>Recorded recommendations</strong> are the
+                    recommendation labels already attached to the collected
+                    reviews. The overview counts those labels directly.
+                  </p>
+                  <p>
+                    <strong>Suggested topic sentiment</strong> means praise or
+                    criticism about one part of a game, such as multiplayer.
+                    These suggestions are experimental and need checking against
+                    the quoted text.
+                  </p>
+                  <p>
+                    <strong>Development results</strong> come from reviews used
+                    to compare models. They help guide the next experiment; they
+                    do not establish final accuracy on future reviews or another
+                    game.
+                  </p>
+                  <p>
+                    In the tables below, <strong>precision</strong> measures how
+                    often a negative prediction is correct;{" "}
+                    <strong>recall</strong> measures how many negative reviews
+                    are found. <strong>Macro F1</strong> balances precision and
+                    recall and gives each recommendation class equal weight.
+                    Higher is better, up to 1.
+                  </p>
+                </section>
                 <NeuralPanel />
                 <ResearchPanel />
                 <section className="panel methodology">
@@ -986,12 +1038,12 @@ function App() {
                     Real-data development uncertainty appears in the comparison
                     above.
                   </p>
-                  <h3>Help build the ground truth</h3>
+                  <h3>Help review the training labels</h3>
                   <p>
                     Review training examples without seeing source
-                    recommendations or model suggestions. Manually mark aspect
-                    passages and polarity, then export reviewed labels for
-                    validation.
+                    recommendations or model suggestions. Select topic passages
+                    and label their sentiment, then export your reviewed
+                    examples for validation.
                   </p>
                   <a className="secondary annotation-link" href="/annotate">
                     Open{" "}
@@ -1042,7 +1094,12 @@ function App() {
             )}
             <footer>
               <span>PATCHPULSE · EVIDENCE BEFORE CONCLUSIONS</span>
-              <span>Independent portfolio research · {data.mode} mode</span>
+              <span>
+                Local prototype ·{" "}
+                {data.mode === "synthetic"
+                  ? "invented demo data"
+                  : "private source data"}
+              </span>
             </footer>
           </>
         )}

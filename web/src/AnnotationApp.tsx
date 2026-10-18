@@ -194,7 +194,7 @@ export function AnnotationApp() {
       <div className="hero">
         <div>
           <span className="eyebrow">
-            HUMAN GROUND TRUTH · TRAINING DATA ONLY
+            REVIEW LABELING · TRAINING EXAMPLES ONLY
           </span>
           <h1>
             Read closely.
@@ -202,9 +202,10 @@ export function AnnotationApp() {
             <span className="hero-accent">Label deliberately.</span>
           </h1>
           <p>
-            Mark exact aspect passages and their polarity. Source
-            recommendations and model suggestions are hidden to reduce
-            anchoring.
+            Select the words that describe a topic, then label them as praise,
+            criticism, mixed feedback, or a neutral description. Recommendations
+            and model suggestions are hidden so they do not influence your
+            judgment.
           </p>
         </div>
       </div>
@@ -241,7 +242,7 @@ export function AnnotationApp() {
                 {row.human_reviewed ? "Reviewed" : "Needs human review"}
               </span>
             </div>
-            <label htmlFor="reviewer">Reviewer pseudonym</label>
+            <label htmlFor="reviewer">Reviewer name or alias</label>
             <input
               id="reviewer"
               value={reviewer}
@@ -282,26 +283,26 @@ export function AnnotationApp() {
             </p>
             <div className="annotation-fields">
               <label htmlFor="span-aspect">
-                Aspect
+                Topic
                 <select
                   id="span-aspect"
                   value={aspect}
                   onChange={(e) => setAspect(e.target.value)}
                 >
-                  <option value="">Choose an aspect</option>
+                  <option value="">Choose a topic</option>
                   {pilot.aspects.map((a) => (
                     <option key={a}>{a}</option>
                   ))}
                 </select>
               </label>
               <label htmlFor="span-polarity">
-                Polarity
+                Sentiment
                 <select
                   id="span-polarity"
                   value={polarity}
                   onChange={(e) => setPolarity(e.target.value)}
                 >
-                  <option value="">Choose polarity</option>
+                  <option value="">Choose sentiment</option>
                   {pilot.polarities.map((p) => (
                     <option key={p}>{p}</option>
                   ))}

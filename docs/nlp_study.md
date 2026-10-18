@@ -1,10 +1,10 @@
-# PatchPulse: NLP study and portfolio case study
+# PatchPulse: NLP study and results
 
 ## The question
 
 A player can recommend a game while criticizing a broken co-op session. Can we preserve that distinction and help a developer find specific complaints, with evidence, around an update?
 
-PatchPulse is an independent personal portfolio project inspired by studying natural language processing during a computer science master's program focused on AI/ML. It is not a course submission or an institution-endorsed product. The point is to demonstrate model-building and evaluation judgment on a real problem. A dashboard is the presentation layer; the NLP study is the technical centerpiece.
+An overall recommendation is useful, but it can hide specific praise and criticism in the same review. PatchPulse explores whether language-processing methods can make that detail easier to investigate while keeping every observation tied to evidence. This study documents the model comparisons, data constraints and decisions behind the application.
 
 ## What is implemented
 
@@ -82,6 +82,6 @@ Keep all source text, per-review scores, error text and fitted weights private. 
 4. Complete the bounded neural follow-up and human error review, then run locked temporal and unseen-game tests once selection is finished. Report any missed targets.
 5. Update this case study with final results and demonstrate the complete complaint/evidence workflow before describing PatchPulse as a finished NLP application.
 
-The portfolio should show the author's ability to explain and reproduce these choices. Development used AI-assisted implementation and experiment orchestration. [Author review prompts](author_review.md) separate existing artifacts from the author's still-to-be-recorded independent explanations. No inter-annotator agreement, production adoption, causal patch effect or completed mastery certification is claimed.
+Implementation and experiment execution were AI-assisted. [Author review notes](author_review.md) provide additional context. This study does not establish agreement between independent human reviewers, production adoption, or a causal effect of an update.
 
 References: [DistilBERT model card](https://huggingface.co/distilbert/distilbert-base-uncased/tree/12040accade4e8a0f71eabdb258fecc2e7e948be), [Hugging Face sequence classification](https://huggingface.co/docs/transformers/v5.20.1/en/tasks/sequence_classification), [weighted cross-entropy](https://docs.pytorch.org/docs/2.14/generated/torch.nn.CrossEntropyLoss.html).
