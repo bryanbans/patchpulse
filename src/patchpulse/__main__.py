@@ -15,6 +15,7 @@ def main():
             "train-baseline",
             "compare-baselines",
             "train-transformer",
+            "train-aspects",
             "annotate-export",
             "annotate-import",
             "serve",
@@ -42,6 +43,11 @@ def main():
         if not 1024 <= args.port <= 65535:
             parser.error("--port must be between 1024 and 65535")
         uvicorn.run("patchpulse.api:app", host="127.0.0.1", port=args.port)
+        return
+    if args.command == "train-aspects":
+        from .aspect_model import run
+
+        run(args.mode)
         return
     if args.command == "train-transformer":
         from .neural import run
@@ -71,6 +77,10 @@ def main():
         from .modeling import train
 
         print(json.dumps(train(case["evidence"], args.mode), indent=2))
+    if args.command == "build-demo" and args.mode == "synthetic":
+        from .aspect_model import run as train_demo_aspects
+
+        train_demo_aspects("synthetic")
     if args.command == "annotate-export":
         import random
 

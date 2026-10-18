@@ -1,0 +1,677 @@
+{
+  "label_source": "original synthetic fixtures; not human ground truth",
+  "records": [
+    {
+      "version_id": "synthetic-aspect-positive-00",
+      "text": "The combat is wonderfully satisfying.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "positive",
+          "start": 0,
+          "end": 37,
+          "passage": "The combat is wonderfully satisfying."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-01",
+      "text": "Co-op sessions run beautifully.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "positive",
+          "start": 0,
+          "end": 31,
+          "passage": "Co-op sessions run beautifully."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-02",
+      "text": "The game stays stable for hours.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "positive",
+          "start": 0,
+          "end": 32,
+          "passage": "The game stays stable for hours."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-03",
+      "text": "Frame pacing feels silky smooth.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "positive",
+          "start": 0,
+          "end": 32,
+          "passage": "Frame pacing feels silky smooth."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-04",
+      "text": "The menus are intuitive and responsive.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Interface",
+          "polarity": "positive",
+          "start": 0,
+          "end": 39,
+          "passage": "The menus are intuitive and responsive."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-05",
+      "text": "This price is a bargain.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Value",
+          "polarity": "positive",
+          "start": 0,
+          "end": 24,
+          "passage": "This price is a bargain."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-06",
+      "text": "Unlocking equipment feels rewarding.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Progression",
+          "polarity": "positive",
+          "start": 0,
+          "end": 36,
+          "passage": "Unlocking equipment feels rewarding."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-07",
+      "text": "The subtitles are clear and readable.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Accessibility",
+          "polarity": "positive",
+          "start": 0,
+          "end": 37,
+          "passage": "The subtitles are clear and readable."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-08",
+      "text": "The missions are clever and enjoyable.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "positive",
+          "start": 0,
+          "end": 38,
+          "passage": "The missions are clever and enjoyable."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-09",
+      "text": "The lobby connects quickly and reliably.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "positive",
+          "start": 0,
+          "end": 40,
+          "passage": "The lobby connects quickly and reliably."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-10",
+      "text": "The framerate is excellent on my laptop.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "positive",
+          "start": 0,
+          "end": 40,
+          "passage": "The framerate is excellent on my laptop."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-positive-11",
+      "text": "I love how reliable the game has become.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "positive",
+          "start": 0,
+          "end": 40,
+          "passage": "I love how reliable the game has become."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-00",
+      "text": "Combat feels tedious and unfair.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "negative",
+          "start": 0,
+          "end": 32,
+          "passage": "Combat feels tedious and unfair."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-01",
+      "text": "Our lobby disconnects every night.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "negative",
+          "start": 0,
+          "end": 34,
+          "passage": "Our lobby disconnects every night."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-02",
+      "text": "Crashes erase an hour of effort.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "negative",
+          "start": 0,
+          "end": 32,
+          "passage": "Crashes erase an hour of effort."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-03",
+      "text": "Stutters make aiming miserable.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "negative",
+          "start": 0,
+          "end": 31,
+          "passage": "Stutters make aiming miserable."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-04",
+      "text": "The menus are confusing and unresponsive.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Interface",
+          "polarity": "negative",
+          "start": 0,
+          "end": 41,
+          "passage": "The menus are confusing and unresponsive."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-05",
+      "text": "The DLC is wildly overpriced.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Value",
+          "polarity": "negative",
+          "start": 0,
+          "end": 29,
+          "passage": "The DLC is wildly overpriced."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-06",
+      "text": "The unlock grind is exhausting.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Progression",
+          "polarity": "negative",
+          "start": 0,
+          "end": 31,
+          "passage": "The unlock grind is exhausting."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-07",
+      "text": "Tiny subtitles are impossible to read.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Accessibility",
+          "polarity": "negative",
+          "start": 0,
+          "end": 38,
+          "passage": "Tiny subtitles are impossible to read."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-08",
+      "text": "Missions become repetitive and boring.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "negative",
+          "start": 0,
+          "end": 38,
+          "passage": "Missions become repetitive and boring."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-09",
+      "text": "Joining a server fails repeatedly.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "negative",
+          "start": 0,
+          "end": 34,
+          "passage": "Joining a server fails repeatedly."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-10",
+      "text": "Framerate drops ruin every encounter.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "negative",
+          "start": 0,
+          "end": 37,
+          "passage": "Framerate drops ruin every encounter."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-negative-11",
+      "text": "The game freezes on startup.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "negative",
+          "start": 0,
+          "end": 28,
+          "passage": "The game freezes on startup."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-00",
+      "text": "Combat is fun but the missions feel repetitive.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 47,
+          "passage": "Combat is fun but the missions feel repetitive."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-01",
+      "text": "Co-op is delightful when it connects but joining often fails.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 61,
+          "passage": "Co-op is delightful when it connects but joining often fails."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-02",
+      "text": "Crashes are less frequent but still erase progress.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 51,
+          "passage": "Crashes are less frequent but still erase progress."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-03",
+      "text": "The framerate improved but stutters remain annoying.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 52,
+          "passage": "The framerate improved but stutters remain annoying."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-04",
+      "text": "Menus look lovely but the controls feel clumsy.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Interface",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 47,
+          "passage": "Menus look lovely but the controls feel clumsy."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-05",
+      "text": "The base game is worth it but the DLC is expensive.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Value",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 51,
+          "passage": "The base game is worth it but the DLC is expensive."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-06",
+      "text": "Unlocks are exciting but the grind is exhausting.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Progression",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 49,
+          "passage": "Unlocks are exciting but the grind is exhausting."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-07",
+      "text": "Subtitles are clear but the colorblind options are inadequate.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Accessibility",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 62,
+          "passage": "Subtitles are clear but the colorblind options are inadequate."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-08",
+      "text": "I enjoy the weapons but dislike the difficulty spikes.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 54,
+          "passage": "I enjoy the weapons but dislike the difficulty spikes."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-09",
+      "text": "I love the co-op missions but hate the lobby failures.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 54,
+          "passage": "I love the co-op missions but hate the lobby failures."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-10",
+      "text": "Smooth exploration gives way to terrible combat lag.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 52,
+          "passage": "Smooth exploration gives way to terrible combat lag."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-mixed-11",
+      "text": "It usually works well but occasional freezes are frustrating.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "mixed",
+          "start": 0,
+          "end": 61,
+          "passage": "It usually works well but occasional freezes are frustrating."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-00",
+      "text": "Missions have three objective types.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 36,
+          "passage": "Missions have three objective types."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-01",
+      "text": "The lobby has four player slots.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 32,
+          "passage": "The lobby has four player slots."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-02",
+      "text": "The crash log is saved beside the settings file.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 48,
+          "passage": "The crash log is saved beside the settings file."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-03",
+      "text": "The framerate cap is set to sixty.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 34,
+          "passage": "The framerate cap is set to sixty."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-04",
+      "text": "The inventory opens with the tab key.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Interface",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 37,
+          "passage": "The inventory opens with the tab key."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-05",
+      "text": "The DLC is sold separately.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Value",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 27,
+          "passage": "The DLC is sold separately."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-06",
+      "text": "The final unlock requires level twenty.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Progression",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 39,
+          "passage": "The final unlock requires level twenty."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-07",
+      "text": "Subtitles can be enabled from the main menu.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Accessibility",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 44,
+          "passage": "Subtitles can be enabled from the main menu."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-08",
+      "text": "Two weapons can be equipped at once.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 36,
+          "passage": "Two weapons can be equipped at once."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-09",
+      "text": "The server browser lists regional lobbies.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Multiplayer",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 42,
+          "passage": "The server browser lists regional lobbies."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-10",
+      "text": "A performance graph appears in the overlay.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Performance",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 43,
+          "passage": "A performance graph appears in the overlay."
+        }
+      ]
+    },
+    {
+      "version_id": "synthetic-aspect-neutral-11",
+      "text": "The support page explains where to send a crash report.",
+      "human_reviewed": false,
+      "annotations": [
+        {
+          "aspect": "Stability",
+          "polarity": "neutral",
+          "start": 0,
+          "end": 55,
+          "passage": "The support page explains where to send a crash report."
+        }
+      ]
+    }
+  ]
+}

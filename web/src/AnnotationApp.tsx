@@ -119,6 +119,61 @@ export function AnnotationApp() {
     );
     captureSelection(e);
   }
+  async function resumeExport(file: File | undefined) {
+    if (!file || !pilot) return;
+    try {
+      if (file.size > 2000000)
+        throw Error("Export is too large for this pilot.");
+      const imported = JSON.parse(await file.text()) as Row[];
+      if (!Array.isArray(imported) || !imported.length)
+        throw Error("Choose a reviewed-label export.");
+      const known = new Map(pilot.records.map((r) => [r.version_id, r]));
+      const seen = new Set<string>();
+      for (const r of imported) {
+        if (
+          !known.has(r.version_id) ||
+          seen.has(r.version_id) ||
+          known.get(r.version_id)!.text !== r.text ||
+          r.human_reviewed !== true ||
+          !r.reviewer_id?.trim() ||
+          !Array.isArray(r.annotations)
+        )
+          throw Error(
+            "Export does not match this training sample or contains unreviewed records.",
+          );
+        seen.add(r.version_id);
+        for (const a of r.annotations) {
+          const raw = Array.from(r.text);
+          if (
+            !pilot.aspects.includes(a.aspect) ||
+            !pilot.polarities.includes(a.polarity) ||
+            !Number.isInteger(a.start) ||
+            !Number.isInteger(a.end) ||
+            a.start < 0 ||
+            a.end <= a.start ||
+            a.end > raw.length ||
+            raw.slice(a.start, a.end).join("") !== a.passage
+          )
+            throw Error("Export contains invalid evidence spans.");
+        }
+      }
+      const replacements = new Map(imported.map((r) => [r.version_id, r]));
+      const records = pilot.records.map(
+        (r) => replacements.get(r.version_id) ?? r,
+      );
+      setPilot({ ...pilot, records });
+      setReviewer(imported[0].reviewer_id!);
+      const next = records.findIndex((r) => !r.human_reviewed);
+      setIndex(next < 0 ? 0 : next);
+      setSelection(null);
+      setNotice(
+        `Restored ${imported.length} reviewed examples from your local export.`,
+      );
+      setError("");
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
   function download() {
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(reviewed, null, 2)], {
@@ -156,7 +211,11 @@ export function AnnotationApp() {
       {error && (
         <div className="error" role="alert">
           {error}
-          <button onClick={() => window.location.reload()}>Retry</button>
+          <button
+            onClick={() => (pilot ? setError("") : window.location.reload())}
+          >
+            {pilot ? "Dismiss" : "Retry"}
+          </button>
         </div>
       )}
       {!pilot && !error && <p role="status">Loading training examples…</p>}
@@ -331,7 +390,7 @@ export function AnnotationApp() {
             </div>
           </section>
           <section className="panel">
-            <h2>Export reviewed labels</h2>
+            <h2>Export or resume reviewed labels</h2>
             <p>
               Only examples you explicitly mark reviewed are exported. Nothing
               is uploaded or saved by this page. Export before leaving;
@@ -345,6 +404,18 @@ export function AnnotationApp() {
             >
               Export {reviewed.length} reviewed examples ↓
             </button>
+            <label className="resume-label" htmlFor="resume-labels">
+              Resume from a reviewed export (processed locally)
+            </label>
+            <input
+              id="resume-labels"
+              type="file"
+              accept=".json,application/json"
+              onChange={(e) => {
+                void resumeExport(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
             <p className="muted">
               Split fingerprint: <code>{pilot.split_hash.slice(0, 16)}…</code>
             </p>

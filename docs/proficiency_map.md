@@ -13,3 +13,6 @@ The project intentionally studies one compelling application in depth. It does n
 Primary artifacts: [NLP study/case study](nlp_study.md), [classical protocol](negative_detection.md), [neural implementation](../src/patchpulse/neural.py), [frozen experiment config](../configs/transformer.json), [actual results](../reports/transformer-real.json), [annotation validation](../src/patchpulse/annotations.py), [author review](author_review.md).
 
 A polished interface and a model name do not establish mastery. Clear hypotheses, correct implementation, meaningful comparisons, honest failures, and the author's ability to defend decisions provide the evidence. Public claims must remain at the implemented level until the remaining evaluations are done.
+
+
+The [working aspect prototype](aspect_sentiment.md) adds explicit clause segmentation, negation scope, mixed-feedback aggregation, source evidence offsets, grouped passage-level supervised learning and an API/UI comparison. These are inspectable implementations. Synthetic training/evaluation and software tests do not substitute for real human-reviewed aspect quality or final-test results.

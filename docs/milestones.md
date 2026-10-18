@@ -40,6 +40,14 @@
 - [x] Train-only annotation validation rejects held-out records, changed text, duplicate records/spans and invalid Unicode offsets.
 - [ ] Human aspect evaluation, neural follow-up and independent author review remain pending.
 
+## Aspect sentiment prototype
+
+- [x] Clause-scoped rules for praise, complaints, mixed feedback and uncertain attribution; exact Unicode evidence and local inference API.
+- [x] Grouped supervised passage-polarity training pipeline, artifact integrity checks and strict real-data label/guide/support gate.
+- [x] 48 explicitly authored synthetic examples, fixed 36/12 demonstration split and honest workflow-only evaluation; no synthetic human-review claims.
+- [x] Interactive feedback workspace and Evidence-to-lab handoff; annotation export/resume.
+- [ ] Independent real aspect/polarity/evidence evaluation remains pending; no real complaint-change aggregation yet.
+
 ## Remaining v1 work
 
 - [ ] M2: rights/retention decisions, second development game, frozen multi-game plan, dataset card expansion, real human annotation.

@@ -84,6 +84,33 @@ test("human annotation requires explicit review and preserves Unicode offsets", 
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: /Export 0 reviewed/ }),
+  ).toBeDisabled();
+  await page
+    .getByLabel("Resume from a reviewed export (processed locally)")
+    .setInputFiles({
+      name: "reviewed.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(labels)),
+    });
+  await expect(
+    page.getByRole("button", { name: /Export 1 reviewed/ }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "← Previous" }).click();
+  await expect(page.getByText("Stability · negative")).toBeVisible();
+  await page
+    .getByLabel("Resume from a reviewed export (processed locally)")
+    .setInputFiles({
+      name: "wrong.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(
+        JSON.stringify([{ ...labels[0], text: "wrong source text" }]),
+      ),
+    });
+  await expect(page.getByRole("alert")).toContainText("does not match");
+  await page.getByRole("button", { name: "Dismiss", exact: true }).click();
   await page.getByRole("button", { name: "Remove span 1" }).click();
   await expect(
     page.getByRole("button", { name: /Export 0 reviewed/ }),

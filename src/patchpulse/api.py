@@ -66,6 +66,12 @@ class PredictRequest(BaseModel):
     model_id: str = "selected"
 
 
+class FeedbackRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str = Field(min_length=1, max_length=8000)
+    method: str = "rules"
+
+
 class PredictResponse(BaseModel):
     task: str
     model_id: str
@@ -324,9 +330,7 @@ def model_revision(model_id="selected"):
     return hashlib.sha256(private_artifact(model_info(model_id)["artifact"]).read_bytes()).hexdigest()
 
 
-@app.post("/api/predict", response_model=PredictResponse)
-def predict(payload: PredictRequest, request: Request):
-    info = model_info(payload.model_id)
+def enforce_inference_limit(request):
     key = request.client.host if request.client else "local"
     queue = requests_by_ip[key]
     now = time.monotonic()
@@ -335,6 +339,12 @@ def predict(payload: PredictRequest, request: Request):
     if len(queue) >= 30:
         raise HTTPException(429, "Prediction limit reached; retry in a minute", headers={"Retry-After": "60"})
     queue.append(now)
+
+
+@app.post("/api/predict", response_model=PredictResponse)
+def predict(payload: PredictRequest, request: Request):
+    info = model_info(payload.model_id)
+    enforce_inference_limit(request)
     pipeline = model(payload.model_id)
     text = normalize(payload.text)
     base = {
@@ -359,6 +369,67 @@ def predict(payload: PredictRequest, request: Request):
         "prediction": "not recommended" if negative >= info["negative_threshold"] else "recommended",
         "score_recommended": score,
         "score_not_recommended": negative,
+    }
+
+
+@lru_cache(maxsize=1)
+def aspect_manifest():
+    path = FOLDER / "aspect-model.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+@lru_cache(maxsize=1)
+def aspect_polarity_model():
+    info = aspect_manifest()
+    if not info or info["mode"] != MODE:
+        raise HTTPException(
+            503, "No supervised polarity model for this data mode. Human labels are required for real mode."
+        )
+    path = private_artifact(info["artifact"])
+    if not path.exists() or hashlib.sha256(path.read_bytes()).hexdigest() != info["sha256"]:
+        raise HTTPException(503, "Aspect model is missing or failed integrity checks")
+    return joblib.load(path)
+
+
+@app.get("/api/feedback-status")
+def feedback_status():
+    info = aspect_manifest()
+    return {
+        "mode": MODE,
+        "methods": ["rules"] + (["supervised"] if info else []),
+        "real_world_quality_established": False,
+        "supervised_label_source": (
+            "original synthetic fixtures" if MODE == "synthetic" else "human review attestations"
+        )
+        if info
+        else None,
+        "message": "Provisional clause-scoped rules are available. Human-reviewed aspect evaluation is pending.",
+    }
+
+
+@app.post("/api/analyze-feedback")
+def analyze_feedback_request(payload: FeedbackRequest, request: Request):
+    from .aspects import analyze_feedback
+
+    if payload.method not in {"rules", "supervised"}:
+        raise HTTPException(422, "Unsupported aspect method")
+    if not payload.text.strip():
+        raise HTTPException(422, "Enter review text")
+    enforce_inference_limit(request)
+    model = aspect_polarity_model() if payload.method == "supervised" else None
+    result = analyze_feedback(payload.text, model)
+    info = aspect_manifest() if model is not None else None
+    return {
+        **result,
+        "mode": MODE,
+        "label_source": (
+            "synthetic authored examples; not real-world quality evidence"
+            if MODE == "synthetic"
+            else "human review attestations; development only"
+        )
+        if model
+        else "handwritten lexical rules; not human-reviewed ground truth",
+        "model_revision": info["sha256"] if info else None,
     }
 
 
@@ -400,5 +471,6 @@ if DIST.exists():
 
     @app.get("/")
     @app.get("/annotate")
+    @app.get("/feedback")
     def index():
         return FileResponse(DIST / "index.html")

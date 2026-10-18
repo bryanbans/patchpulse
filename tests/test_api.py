@@ -109,3 +109,55 @@ def test_public_neural_report_contains_only_aggregate_evaluation():
     assert report["final_tests_opened"] is False
     assert len(report["results"]) == 12
     assert all("text" not in row and "version_id" not in row for row in report["results"])
+
+
+def test_feedback_api_separates_praise_and_complaint_without_recommendation_input():
+    result = client.post(
+        "/api/analyze-feedback", json={"text": "Great missions, but multiplayer is broken."}
+    ).json()
+    assert {a["aspect"]: a["polarity"] for a in result["aspects"]} == {
+        "Gameplay": "positive",
+        "Multiplayer": "negative",
+    }
+    assert result["method"] == "aspect-rules-v1"
+    assert result["input_stored"] is False
+    assert "provisional" in result["validation_status"]
+    assert (
+        client.post("/api/analyze-feedback", json={"text": "Great missions", "voted_up": True}).status_code
+        == 422
+    )
+    assert client.post("/api/analyze-feedback", json={"text": "x" * 8001}).status_code == 422
+    assert client.post("/api/analyze-feedback", json={"text": " "}).status_code == 422
+    assert (
+        client.post("/api/analyze-feedback", json={"text": "missions", "method": "magic"}).status_code == 422
+    )
+
+
+def test_feedback_status_and_supervised_artifact_integrity(monkeypatch):
+    from patchpulse import api
+
+    status = client.get("/api/feedback-status").json()
+    assert not status["real_world_quality_established"]
+    monkeypatch.setattr(
+        api, "aspect_manifest", lambda: {"mode": api.MODE, "artifact": "baseline.joblib", "sha256": "bad"}
+    )
+    api.aspect_polarity_model.cache_clear()
+    result = client.post("/api/analyze-feedback", json={"text": "Great missions", "method": "supervised"})
+    assert result.status_code == 503
+    api.aspect_polarity_model.cache_clear()
+
+
+def test_supervised_feedback_is_separate_from_overall_recommendation():
+    from patchpulse import api
+
+    if not api.aspect_manifest():
+        return
+    response = client.post(
+        "/api/analyze-feedback", json={"text": "Our lobby disconnects every night.", "method": "supervised"}
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["method"] == "supervised-passage-v1"
+    assert "synthetic" in result["label_source"]
+    assert "recommendation" not in result
+    assert len(result["model_revision"]) == 64

@@ -14,6 +14,7 @@ PatchPulse helps game developers compare player recommendations, explore the top
 |---|---|
 | **Did recommendations change after an update?** | Compare recommendation rates and review counts in equal windows before and after the release date. |
 | **What are players talking about?** | Explore keyword mentions of performance, crashes, multiplayer, gameplay, and other topics. |
+| **Can one review praise gameplay and criticize multiplayer?** | Try the provisional aspect analyzer in Model lab; inspect separate praise, complaint, mixed, or uncertain outputs with evidence. |
 | **What did players actually say?** | Filter reviews and inspect the exact passages behind topic matches. |
 | **How much evidence supports an observation?** | See sample sizes, collection coverage, exclusions, and source-version details. |
 | **What can I share with a teammate?** | Export a brief containing the observed recommendation statistics, evidence references, and limitations. |
@@ -30,7 +31,7 @@ The overall recommendation is positive. The multiplayer feedback is negative. Tr
 
 PatchPulse is being built to preserve that distinction: **what players recommend, what they discuss, and what they praise or criticize are different questions.**
 
-Today, the application shows recorded recommendations and keyword-based topic mentions. Automatically distinguishing complaints from praise within each topic is the next major feature, and it requires human-reviewed evaluation. A keyword match alone is not presented as a complaint.
+Today, the application shows recorded recommendations, keyword-based topic mentions, and a **working prototype that separates explicit praise from complaints by aspect**. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on original synthetic examples. Outputs are labeled provisional. Reliable real-world detection still requires human-reviewed evaluation. [How the prototype works](docs/aspect_sentiment.md).
 
 ## Current project status
 
@@ -71,7 +72,7 @@ npm run build --prefix web
 uv run python -m patchpulse serve
 ```
 
-Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Model lab**, and inspect the results in **Methodology**. Text entered in the model lab stays local and is not stored.
+Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Model lab**, and inspect the results in **Methodology**. Text entered in the model lab stays local and is not stored. Open `/feedback` to try **Praise + complaint**, **Negation**, and **Same topic, mixed feedback**, or send a review from Evidence using **Analyze topic sentiment**.
 
 The synthetic demo demonstrates the workflow; its predictions and review statistics are not real game findings. The methodology page separately labels aggregate results from the private real-data study.
 

@@ -24,3 +24,10 @@ See [comparison protocol and limits](negative_detection.md). Private candidate a
 ## DistilBERT development comparison — 2026-10-18
 
 Base `distilbert/distilbert-base-uncased` at revision `12040accade4e8a0f71eabdb258fecc2e7e948be`, base card Apache-2.0. All 66,955,010 parameters fine-tuned; ordinary versus train-weighted cross-entropy, seeds 17/42/73, two epochs, 256-token right truncation, fixed .5 negative threshold. All twelve epoch evaluations predict only recommended; macro F1 .4925 and negative recall zero. Retain the character classifier; neural weights are private research artifacts and are not active in the serving model registry. Pretraining bias/exposure, truncation, minority scarcity and reused validation restrict claims. These results do not establish aspect polarity or final generalization. See [study](nlp_study.md) and [generated report](../reports/transformer-real.json).
+
+
+## Aspect sentiment prototypes
+
+`aspect-rules-v1` performs keyword aspect detection and clause-scoped polarity with explicit lexical cues, bounded negation and exact raw-text offsets. It does not use the overall recommendation. Mixed feedback combines praise and criticism for the same aspect; unsupported or ambiguous attribution can remain uncertain. Sarcasm, implicit aspects and longer dependencies are not reliably handled. No real-world quality claim.
+
+`supervised-passage-v1` retains rule-based aspect assignment and predicts polarity using word/character TF-IDF plus balanced logistic regression trained on reviewed passages. Its public demo is trained on 48 authored synthetic examples, with 36/12 grouped train/validation passages and approximately .211 macro F1. This is a workflow-only result, not a real benchmark or stronger detector. Synthetic data remains labeled synthetic and not human reviewed. Real fitting is gated by actual reviewed training labels, a frozen guide and minimum class support. No model weights or source reviews are redistributed. See [aspect study](aspect_sentiment.md).

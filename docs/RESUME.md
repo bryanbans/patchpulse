@@ -1,5 +1,8 @@
 # Latest development checkpoint — October 18, 2026
 
+**New:** the [complaint/praise prototype](aspect_sentiment.md) works at http://127.0.0.1:8000/feedback. It defaults to transparent rules; a supervised passage classifier is trained on 48 authored synthetic examples (not human reviewed) for workflow demonstration. The user requested synthetic examples to continue development. Human labeling remains pending. Annotation exports can now be resumed in the browser.
+
+
 PatchPulse is now framed around the NLP question: can we separate overall recommendations from specific complaints and preserve evidence? Read [the NLP study](nlp_study.md), [proficiency map](proficiency_map.md) and [author review guide](author_review.md). This is a personal portfolio research preview, not v1.0.0. No LinkedIn post has been sent.
 
 ## Newly completed

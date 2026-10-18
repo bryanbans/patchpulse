@@ -1,0 +1,11 @@
+{
+  "experiment_id": "passage-polarity-v1",
+  "guide_version": "0.1",
+  "taxonomy_frozen": false,
+  "seed": 42,
+  "validation_fraction": 0.25,
+  "minimum_review_groups_per_training_class": 2,
+  "classes": ["positive", "negative", "mixed", "neutral"],
+  "selection": "Fixed word/character TF-IDF + balanced logistic regression C=1. No validation tuning; grouped review/author split before fitting.",
+  "real_release_gate": "Actual human labels, frozen guide, support audit, held-out aspect/polarity/evidence evaluation. Training pilot is not a final test."
+}

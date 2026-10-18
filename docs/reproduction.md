@@ -8,7 +8,7 @@ Follow the README's setup commands for the synthetic demo. It uses 48 original e
 
 For frontend development, keep the synthetic API running on port 8000 and run `npm run dev --prefix web`. Vite proxies API calls to port 8000. Restart the API after rebuilding data or models because snapshots and models are cached in-process.
 
-The browser annotation workspace is `/annotate`. The synthetic port is practice only. Private real mode uses port 8001. Export annotations before leaving or refreshing; the page does not persist work. See the [annotation guide](annotation_guide.md).
+The complaint/praise workspace is `/feedback`; it includes rules and a synthetic-trained classifier. `build-demo` trains both the recommendation baseline and synthetic passage classifier. Rebuild only the synthetic demo when following that setup. The browser annotation workspace is `/annotate`. The synthetic port is practice only. Private real mode uses port 8001. Export annotations before leaving or refreshing; the page does not persist work. See the [annotation guide](annotation_guide.md).
 
 ## Private source study
 
@@ -46,6 +46,7 @@ Source text, pseudonymous author groups, keys, per-review scores, and fitted mod
 | `build-demo` | Prepare a case and train its initial baseline/split. |
 | `train-baseline` | Train the initial baseline and write a split; preserve existing study splits when comparing models. |
 | `compare-baselines` | Compare classical candidates against an existing frozen split. |
+| `train-aspects` | Train passage polarity on synthetic fixtures, or on supported reviewed training labels after freezing the guide. |
 | `train-transformer` | Run the optional bounded neural study against an existing frozen split. |
 | `annotate-export` | Export a blinded sample from the frozen training partition. |
 | `annotate-import` | Validate reviewed training labels; requires `--file PATH`. |

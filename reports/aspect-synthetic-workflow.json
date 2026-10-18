@@ -1,0 +1,195 @@
+{
+  "status": "synthetic workflow evidence only; not real-player accuracy",
+  "label_source": "original authored synthetic reviews; no independent human review claimed",
+  "review_records": 48,
+  "human_reviewed_records": 0,
+  "example": {
+    "text": "I recommend the game. Great missions, but our co-op sessions keep disconnecting.",
+    "synthetic_overall_recommendation": true,
+    "analysis": {
+      "task": "aspect detection and passage polarity",
+      "method": "aspect-rules-v1",
+      "validation_status": "provisional; real-world aspect quality has not been established",
+      "input_stored": false,
+      "aspects": [
+        {
+          "aspect": "Gameplay",
+          "polarity": "positive",
+          "evidence": [
+            {
+              "start": 22,
+              "end": 36,
+              "passage": "Great missions",
+              "polarity": "positive",
+              "reason": "Clause-scoped evaluative cues with a three-token negation window",
+              "cues": [
+                {
+                  "start": 22,
+                  "end": 27,
+                  "passage": "Great",
+                  "polarity": "positive",
+                  "negated": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "aspect": "Multiplayer",
+          "polarity": "negative",
+          "evidence": [
+            {
+              "start": 42,
+              "end": 79,
+              "passage": "our co-op sessions keep disconnecting",
+              "polarity": "negative",
+              "reason": "Clause-scoped evaluative cues with a three-token negation window",
+              "cues": [
+                {
+                  "start": 66,
+                  "end": 79,
+                  "passage": "disconnecting",
+                  "polarity": "negative",
+                  "negated": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "limitations": [
+        "Keyword aspect detection can miss implicit topics and Other issue.",
+        "No recognized cue means uncertain, not neutral or absent.",
+        "Rules do not resolve sarcasm, implied meaning, or every negation scope.",
+        "Passages are exact source spans, not proof that attribution is correct.",
+        "Overall recommendations are not inputs and are never assigned to every aspect."
+      ]
+    }
+  },
+  "supervised_passage_workflow": {
+    "mode": "synthetic",
+    "task": "polarity classification given an evidence passage",
+    "status": "synthetic workflow check only",
+    "real_world_quality_established": false,
+    "label_source": "synthetic authored",
+    "run_id": "20261018T184744686535Z",
+    "config": {
+      "experiment_id": "passage-polarity-v1",
+      "guide_version": "0.1",
+      "taxonomy_frozen": false,
+      "seed": 42,
+      "validation_fraction": 0.25,
+      "minimum_review_groups_per_training_class": 2,
+      "classes": [
+        "positive",
+        "negative",
+        "mixed",
+        "neutral"
+      ],
+      "selection": "Fixed word/character TF-IDF + balanced logistic regression C=1. No validation tuning; grouped review/author split before fitting.",
+      "real_release_gate": "Actual human labels, frozen guide, support audit, held-out aspect/polarity/evidence evaluation. Training pilot is not a final test."
+    },
+    "split_hash": "f5c643b5db2a2cd28aa163129a33695a318dfbc326e49a4c23b277e3203f1b41",
+    "train_passages": 36,
+    "validation_passages": 12,
+    "training_class_support": {
+      "positive": 9,
+      "negative": 10,
+      "mixed": 9,
+      "neutral": 8
+    },
+    "validation_class_support": {
+      "positive": 3,
+      "negative": 2,
+      "mixed": 3,
+      "neutral": 4
+    },
+    "macro_f1": 0.2111111111111111,
+    "classification_report": {
+      "positive": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 3.0
+      },
+      "negative": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 2.0
+      },
+      "mixed": {
+        "precision": 0.3333333333333333,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.4444444444444444,
+        "support": 3.0
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1-score": 0.4,
+        "support": 4.0
+      },
+      "accuracy": 0.25,
+      "macro avg": {
+        "precision": 0.3333333333333333,
+        "recall": 0.22916666666666666,
+        "f1-score": 0.2111111111111111,
+        "support": 12.0
+      },
+      "weighted avg": {
+        "precision": 0.4166666666666667,
+        "recall": 0.25,
+        "f1-score": 0.24444444444444446,
+        "support": 12.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        0,
+        1,
+        2,
+        0
+      ],
+      [
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        2,
+        0
+      ],
+      [
+        2,
+        0,
+        1,
+        1
+      ]
+    ],
+    "class_order": [
+      "positive",
+      "negative",
+      "mixed",
+      "neutral"
+    ],
+    "model_sha256": "e7550b09c5ec53814186413dba621836f88f87eed3b3d9e1585632a607522c15",
+    "limitations": [
+      "Gold-passage polarity does not establish end-to-end aspect detection or evidence relevance.",
+      "No uncertainty calibration; short annotated spans may differ from detector clauses.",
+      "Pilot taxonomy may change; final temporal and unseen-game sets remain unopened."
+    ],
+    "final_tests_opened": false
+  },
+  "source_sha256": {
+    "data/fixtures/aspect-polarity.json": "4067ad3ec116a74edeff60a2ce15a4e3ebbb82519f118a0a609968fb65cb8e08",
+    "configs/aspects.json": "e3bdb247fa279bd424162e90437b9d7b79947d8d025f54021a59e454307f566d",
+    "src/patchpulse/aspects.py": "70859751ca3d8daea0454d44ff652da4ad1c25ec04cdb5c32a87e826c2d540f6",
+    "src/patchpulse/aspect_model.py": "e09b4eda29859dd2289e6c8cfb66a4d4791ce915422949bd0484b097b0119ef4"
+  },
+  "real_world_quality_established": false,
+  "final_tests_opened": false
+}

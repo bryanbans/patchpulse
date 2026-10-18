@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./style.css";
 import { ResearchPanel } from "./ResearchPanel";
 import { NeuralPanel } from "./NeuralPanel";
+import { AspectLab } from "./AspectLab";
 import { AnnotationApp } from "./AnnotationApp";
 
 type Period = {
@@ -58,12 +59,18 @@ const pct = (rate: number | null) =>
   rate === null ? "Insufficient data" : `${(rate * 100).toFixed(1)}%`;
 
 function App() {
+  const [feedbackInput, setFeedbackInput] = useState<{
+    text: string;
+    revision: number;
+  }>();
   const searchRef = useRef<HTMLInputElement>(null);
   const [focusSearch, setFocusSearch] = useState(false);
   const [aspectView, setAspectView] = useState<"counts" | "share">("counts");
   const [data, setData] = useState<Case | null>(null),
     [error, setError] = useState(""),
-    [tab, setTab] = useState("Case study");
+    [tab, setTab] = useState(
+      window.location.pathname === "/feedback" ? "Model lab" : "Case study",
+    );
   const [period, setPeriod] = useState("all"),
     [aspect, setAspect] = useState("all"),
     [recommendation, setRecommendation] = useState("all"),
@@ -333,6 +340,15 @@ function App() {
             </div>
             <button
               className="text-button"
+              onClick={() => {
+                setFeedbackInput({ text: r.text, revision: Date.now() });
+                setTab("Model lab");
+              }}
+            >
+              Analyze topic sentiment ↗
+            </button>
+            <button
+              className="text-button"
               aria-expanded={expanded === r.version_id}
               onClick={() =>
                 setExpanded(expanded === r.version_id ? "" : r.version_id)
@@ -543,7 +559,7 @@ function App() {
                     : tab === "Evidence"
                       ? "Inspect versioned text, recorded recommendations, and exact keyword passages."
                       : tab === "Model lab"
-                        ? "Recommendation prediction is a separate text-only experiment. It does not replace a known recommendation."
+                        ? "Separate praise from complaints by topic, then explore the overall recommendation experiment. Known recommendations remain separate."
                         : "Reproducible collection, honest limits, and development results you can trace."}
                 </p>
               </div>
@@ -814,90 +830,93 @@ function App() {
             )}
             {tab === "Evidence" && evidencePanel}
             {tab === "Model lab" && (
-              <section className="panel lab">
-                <span className="eyebrow">
-                  TEXT-ONLY RECOMMENDATION PREDICTION
-                </span>
-                <h2>Explore the detection tradeoff.</h2>
-                <p>
-                  {models.find((m) => m.id === modelId)?.description ??
-                    evaluation?.model_description ??
-                    "TF-IDF + logistic regression"}
-                  .{" "}
-                  {data.mode === "synthetic"
-                    ? "Trained on synthetic examples; scores do not establish real-world quality."
-                    : "Local exploratory model; validation is not a final test."}{" "}
-                  User input stays local and is not stored.
-                </p>
-                <label htmlFor="model-choice">Detector</label>
-                <select
-                  id="model-choice"
-                  value={modelId}
-                  onChange={(e) => {
-                    setModelId(e.target.value);
-                    setPrediction(null);
-                  }}
-                >
-                  {models.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.description} · negative threshold{" "}
-                      {m.negative_threshold}
-                    </option>
-                  ))}
-                </select>
-                <p className="muted">
-                  A lower negative-score threshold can catch more negative
-                  reviews and produce more false alarms. Scores are
-                  uncalibrated.
-                </p>
-                <label htmlFor="example">Review text</label>
-                <textarea
-                  id="example"
-                  value={text}
-                  maxLength={8000}
-                  onChange={(e) => {
-                    setText(e.target.value);
-                    setPrediction(null);
-                  }}
-                  rows={5}
-                />
-                <div className="lab-actions">
-                  <span>{text.length} / 8,000 characters</span>
-                  <button
-                    className="primary"
-                    disabled={!text.trim() || predicting}
-                    onClick={predict}
+              <>
+                <AspectLab input={feedbackInput} />
+                <section className="panel lab">
+                  <span className="eyebrow">
+                    TEXT-ONLY RECOMMENDATION PREDICTION
+                  </span>
+                  <h2>Explore the detection tradeoff.</h2>
+                  <p>
+                    {models.find((m) => m.id === modelId)?.description ??
+                      evaluation?.model_description ??
+                      "TF-IDF + logistic regression"}
+                    .{" "}
+                    {data.mode === "synthetic"
+                      ? "Trained on synthetic examples; scores do not establish real-world quality."
+                      : "Local exploratory model; validation is not a final test."}{" "}
+                    User input stays local and is not stored.
+                  </p>
+                  <label htmlFor="model-choice">Detector</label>
+                  <select
+                    id="model-choice"
+                    value={modelId}
+                    onChange={(e) => {
+                      setModelId(e.target.value);
+                      setPrediction(null);
+                    }}
                   >
-                    {predicting ? "Predicting…" : "Predict recommendation ↗"}
-                  </button>
-                </div>
-                {predictError && <p role="alert">{predictError}</p>}
-                {prediction && (
-                  <div className="prediction" role="status">
-                    <span className="eyebrow">
-                      {prediction.abstention_reason
-                        ? "ABSTAINED"
-                        : "MODEL OUTPUT"}
-                    </span>
-                    <h3>
-                      {prediction.prediction ?? prediction.abstention_reason}
-                    </h3>
-                    {prediction.score_recommended !== null && (
-                      <p>
-                        Recommended-class score:{" "}
-                        {prediction.score_recommended.toFixed(3)} ·
-                        uncalibrated. This is not an aspect sentiment score.
-                        <br />
-                        Not-recommended score:{" "}
-                        {prediction.score_not_recommended?.toFixed(3)} ·
-                        decision threshold: {prediction.negative_threshold}.
-                        <br />
-                        Model: {prediction.model_id}
-                      </p>
-                    )}
+                    {models.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.description} · negative threshold{" "}
+                        {m.negative_threshold}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="muted">
+                    A lower negative-score threshold can catch more negative
+                    reviews and produce more false alarms. Scores are
+                    uncalibrated.
+                  </p>
+                  <label htmlFor="example">Review text</label>
+                  <textarea
+                    id="example"
+                    value={text}
+                    maxLength={8000}
+                    onChange={(e) => {
+                      setText(e.target.value);
+                      setPrediction(null);
+                    }}
+                    rows={5}
+                  />
+                  <div className="lab-actions">
+                    <span>{text.length} / 8,000 characters</span>
+                    <button
+                      className="primary"
+                      disabled={!text.trim() || predicting}
+                      onClick={predict}
+                    >
+                      {predicting ? "Predicting…" : "Predict recommendation ↗"}
+                    </button>
                   </div>
-                )}
-              </section>
+                  {predictError && <p role="alert">{predictError}</p>}
+                  {prediction && (
+                    <div className="prediction" role="status">
+                      <span className="eyebrow">
+                        {prediction.abstention_reason
+                          ? "ABSTAINED"
+                          : "MODEL OUTPUT"}
+                      </span>
+                      <h3>
+                        {prediction.prediction ?? prediction.abstention_reason}
+                      </h3>
+                      {prediction.score_recommended !== null && (
+                        <p>
+                          Recommended-class score:{" "}
+                          {prediction.score_recommended.toFixed(3)} ·
+                          uncalibrated. This is not an aspect sentiment score.
+                          <br />
+                          Not-recommended score:{" "}
+                          {prediction.score_not_recommended?.toFixed(3)} ·
+                          decision threshold: {prediction.negative_threshold}.
+                          <br />
+                          Model: {prediction.model_id}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </section>
+              </>
             )}
             {tab === "Methodology" && (
               <>
