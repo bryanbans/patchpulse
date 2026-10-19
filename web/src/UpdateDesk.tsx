@@ -107,65 +107,13 @@ export function UpdateDesk({
             <span>RECORDED RECOMMENDATIONS</span>
             <span className="small-tag">Observed labels</span>
           </div>
-          <div className="pulse-chart">
-            <svg
-              viewBox="0 0 240 240"
-              role="img"
-              aria-label={`Before ${percent(before.rate)} recommended; after ${percent(after.rate)} recommended`}
-            >
-              <circle
-                cx="120"
-                cy="120"
-                r="96"
-                fill="none"
-                stroke="#e3e9f4"
-                strokeWidth="13"
-              />
-              <circle
-                cx="120"
-                cy="120"
-                r="96"
-                fill="none"
-                stroke="#7389bd"
-                strokeOpacity={before.rate ? 1 : 0}
-                strokeWidth="13"
-                strokeDasharray={`${(before.rate ?? 0) * 603.19} 603.19`}
-                transform="rotate(-90 120 120)"
-                strokeLinecap="round"
-              />
-              <circle
-                cx="120"
-                cy="120"
-                r="74"
-                fill="none"
-                stroke="#e1eff3"
-                strokeWidth="13"
-              />
-              <circle
-                cx="120"
-                cy="120"
-                r="74"
-                fill="none"
-                stroke="#168193"
-                strokeOpacity={after.rate ? 1 : 0}
-                strokeWidth="13"
-                strokeDasharray={`${(after.rate ?? 0) * 464.96} 464.96`}
-                transform="rotate(-90 120 120)"
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="pulse-center">
-              <strong>
-                {study.change_pp === null
-                  ? "—"
-                  : `${study.change_pp >= 0 ? "+" : ""}${study.change_pp.toFixed(1)}`}
-              </strong>
-              <span>
-                percentage points
-                <br />
-                after minus before
-              </span>
-            </div>
+          <div className="comparison-readout">
+            <strong>{study.change_pp === null ? "—" : `${study.change_pp >= 0 ? "+" : ""}${study.change_pp.toFixed(1)}`}<small> pp</small></strong>
+            <span>Recommendation rate change · after minus before</span>
+          </div>
+          <div className="rate-comparison" role="img" aria-label={`Before ${percent(before.rate)} recommended; after ${percent(after.rate)} recommended. Both bars use a zero to 100 percent scale.`}>
+            {[before, after].map((period, index) => <div className="rate-row" key={index}><span>{index ? "After" : "Before"}</span><div className="rate-track"><i style={{width: `${(period.rate ?? 0) * 100}%`}} /></div><b>{percent(period.rate)}</b></div>)}
+            <div className="rate-axis"><span>0%</span><span>100%</span></div>
           </div>
           <div className="pulse-periods">
             <div>
