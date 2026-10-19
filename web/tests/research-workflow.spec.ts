@@ -41,6 +41,7 @@ test("topic investigation keeps a stable reader and a source-linked session note
   await page
     .getByLabel("Your interpretation")
     .fill("A passage to investigate, not a causal conclusion.");
+  await page.getByLabel("Next investigation").fill("Compare the same topic before the update.");
   const download = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Export notebook", exact: false })
@@ -52,6 +53,7 @@ test("topic investigation keeps a stable reader and a source-linked session note
   expect(content).toContain(quote);
   expect(content).toContain("A passage to investigate");
   expect(content).toContain("not validated findings");
+  expect(content).toContain("Next investigation: Compare the same topic before the update.");
   await page.screenshot({
     path: `../assets/${info.project.name}-notebook.png`,
     fullPage: true,

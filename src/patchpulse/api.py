@@ -150,6 +150,14 @@ def study(case_id: str):
     return {k: v for k, v in case().items() if k != "evidence"}
 
 
+@lru_cache(maxsize=4096)
+def review_suggestions(text):
+    """Memoize rules for existing local review records; never write predictions to disk."""
+    from .aspects import analyze_feedback
+
+    return analyze_feedback(text)
+
+
 @app.get("/api/evidence", response_model=EvidenceResponse)
 def evidence(
     request: Request,
@@ -159,10 +167,21 @@ def evidence(
     keyword: str = Query("", max_length=200),
     quality: str = "all",
     polarity: str = "all",
+    suggestion: str = "all",
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
-    allowed = {"period", "aspect", "recommendation", "keyword", "quality", "polarity", "offset", "limit"}
+    allowed = {
+        "period",
+        "aspect",
+        "recommendation",
+        "keyword",
+        "quality",
+        "polarity",
+        "suggestion",
+        "offset",
+        "limit",
+    }
     if set(request.query_params) - allowed:
         raise HTTPException(422, "Unknown evidence filter")
     if period not in {"all", "before", "after"} or aspect not in {"all", *ASPECTS}:
@@ -171,6 +190,8 @@ def evidence(
         raise HTTPException(422, "Unknown recommendation or quality filter")
     if polarity not in {"all", "unreviewed"}:
         raise HTTPException(422, "Aspect polarity is not yet human evaluated; use unreviewed")
+    if suggestion not in {"all", "complaint", "praise", "needs_review"}:
+        raise HTTPException(422, "Unknown suggested feedback filter")
     rows = case()["evidence"]
     denominator = sum(period == "all" or r["period"] == period for r in rows)
     filtered = [
@@ -182,6 +203,25 @@ def evidence(
         and keyword.casefold() in r["text"].casefold()
         and (quality == "all" or "short" in r["quality_flags"])
     ]
+    if suggestion != "all":
+        wanted = {
+            "complaint": {"negative", "mixed"},
+            "praise": {"positive", "mixed"},
+            "needs_review": {"uncertain"},
+        }[suggestion]
+        matches = []
+        for row in filtered:
+            analysis = review_suggestions(row["text"])
+            passages = [
+                {"aspect": item["aspect"], "method": analysis["method"], **passage}
+                for item in analysis["aspects"]
+                if aspect == "all" or item["aspect"] == aspect
+                for passage in item["evidence"]
+                if passage["polarity"] in wanted
+            ]
+            if passages:
+                matches.append({**row, "suggested_passages": passages})
+        filtered = matches
     safe = [
         {k: v for k, v in r.items() if k not in {"author_group", "text_hash"}}
         for r in filtered[offset : offset + limit]

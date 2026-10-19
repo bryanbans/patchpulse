@@ -36,6 +36,7 @@ export function UpdateDesk({
   notesCount,
   onInspect,
   onBrowse,
+  onComplaints,
   onAnalyze,
   onNotebook,
   onBrief,
@@ -44,6 +45,7 @@ export function UpdateDesk({
   notesCount: number;
   onInspect: (topic: string) => void;
   onBrowse: (negative?: boolean) => void;
+  onComplaints: () => void;
   onAnalyze: () => void;
   onNotebook: () => void;
   onBrief: () => void;
@@ -88,7 +90,8 @@ export function UpdateDesk({
             actual comments. Keep the evidence worth coming back to.
           </p>
           <div className="story-actions">
-            <button className="primary" onClick={() => onBrowse()}>
+            <button className="primary" onClick={onComplaints}>Find potential complaints →</button>
+            <button className="secondary" onClick={() => onBrowse()}>
               Browse reviews ↗
             </button>
             <button className="text-button" onClick={onAnalyze}>

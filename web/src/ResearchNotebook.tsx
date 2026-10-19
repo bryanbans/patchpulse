@@ -8,6 +8,7 @@ export type ResearchNote = {
   source: string;
   method?: string;
   annotation: string;
+  nextStep?: string;
 };
 export type NoteDraft = Omit<ResearchNote, "id" | "annotation">;
 
@@ -15,12 +16,14 @@ export function ResearchNotebook({
   notes,
   onRemove,
   onEdit,
+  onNextStep,
   onBrowse,
   onBrief,
 }: {
   notes: ResearchNote[];
   onRemove: (id: string) => void;
   onEdit: (id: string, text: string) => void;
+  onNextStep: (id: string, text: string) => void;
   onBrowse: () => void;
   onBrief: () => void;
 }) {
@@ -30,7 +33,7 @@ export function ResearchNotebook({
       "Session notes, not validated findings. May contain private source text. Review before sharing.",
       ...notes.map(
         (n, i) =>
-          `\n${i + 1}. ${n.topic} · ${n.label}\nSource: ${n.source}${n.method ? `\nMethod: ${n.method}` : ""}\nPassage:\n${n.text}\nResearcher's note: ${n.annotation || "No interpretation added."}`,
+          `\n${i + 1}. ${n.topic} · ${n.label}\nSource: ${n.source}${n.method ? `\nMethod: ${n.method}` : ""}\nPassage:\n${n.text}\nResearcher's note: ${n.annotation || "No interpretation added."}\nNext investigation: ${n.nextStep || "Not yet decided."}`,
       ),
     ].join("\n");
     const url = URL.createObjectURL(
@@ -50,7 +53,7 @@ export function ResearchNotebook({
           <h1 id="notebook-title">Evidence for the next decision.</h1>
           <p>
             Keep useful evidence together. Add your interpretation before
-            drawing a conclusion.
+            drawing a conclusion. Record a concrete next check: reproduce the issue, compare earlier reviews, or gather more evidence.
           </p>
         </div>
         <button className="primary" disabled={!notes.length} onClick={download}>
@@ -112,6 +115,9 @@ export function ResearchNotebook({
                   onChange={(e) => onEdit(n.id, e.target.value)}
                   placeholder="What does this passage support—and what is still uncertain?"
                 />
+              </label>
+              <label className="next-investigation">Next investigation
+                <input value={n.nextStep || ""} onChange={e => onNextStep(n.id, e.target.value)} placeholder="e.g. Reproduce disconnects with a four-player lobby" />
               </label>
             </article>
           ))}

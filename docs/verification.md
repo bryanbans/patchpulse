@@ -61,3 +61,9 @@ The visual identity uses a graphite project rail, cool reading canvas, blue rele
 Replaced circular recommendation graphics with aligned zero-to-100-percent bars and converted topic cards into comparable investigation rows. Added a consistent dark canvas, restrained series colors and compact layout across the existing review, analysis and notebook workflows. No detector or evaluation results changed.
 
 Validation: production build passed; all 40 Playwright checks passed across desktop/mobile. Visually inspected desktop overview and analysis plus mobile overview; refreshed synthetic screenshots. Focused computed text-contrast scan across five workspaces returned no failures after button/skip-link fixes (not a comprehensive accessibility audit).
+
+## Game-developer investigation review — 2026-10-18
+
+Added provisional rule-suggestion retrieval across recommendation labels, scoped to the selected topic and applied before pagination. The overview opens after-update potential complaints; exact matched passages remain next to the complete review. Added return-to-review navigation, isolated evidence errors with retry, stale-row hiding and user-authored next-investigation fields in notebook exports. Human-evaluated polarity remains gated; no model, training data, detector version or quality claim changed.
+
+Validation: 84 Python tests passed; lint/format and production build passed; all 44 desktop/mobile browser tests passed, followed by focused passing notebook/export and triage checks after final refinements. Visually inspected desktop/mobile triage and refreshed synthetic captures. Five-workspace text-contrast scan found no failures. Local private-data timing for the after-window complaint filter was 0.760s cold and 0.005s warm; this is an implementation smoke check, not accuracy evidence. Source data remains private.

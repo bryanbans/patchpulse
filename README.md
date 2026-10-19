@@ -118,3 +118,9 @@ Built with Python, FastAPI, SQLite, scikit-learn, React, and TypeScript. Optiona
 The next steps are human-reviewed topic sentiment, a bounded follow-up to the neural experiment, and untouched final evaluations. Source-use questions must be resolved before broader collection or a public real-text demo. Docker configuration is included, but its build has not been verified.
 
 Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md). PatchPulse is an independent project and is not affiliated with Valve or the game developers.
+
+### Investigate a possible complaint
+
+Choose **Find potential complaints** to browse rule-suggested passages after the update, including complaints inside recommended reviews. Narrow by topic, window or text; **Why this review matched** shows the exact passage next to the full source review. Analyze a review for the rule explanation, then return to the same review and filters. Save useful evidence to Notebook and record the next investigation before exporting.
+
+These filters are experimental retrieval aids, not verified complaint labels or complaint-rate measurements. Mixed passages can match both praise and complaint filters. A review with no match may still contain a complaint. Notebook interpretations and next steps are your own; they remain session-only until exported.

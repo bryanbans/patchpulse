@@ -43,3 +43,9 @@ Keep source-version provenance, coverage, UTC window boundaries, sample sizes, u
 Native disclosures, visible focus, a skip link, accessible review descriptions and labeled controls support keyboard/screen-reader use. Selecting a review moves focus to its reader. Mobile stacks the release context and comparison in reading order; workspaces stack without hiding the source text or actions. Form text is at least 16 pixels on compact screens. Reduced-motion preferences remain supported. Focused text-contrast checks are useful but are not a comprehensive accessibility certification.
 
 Browser checks cover topic scope, reader selection, session-note provenance, editing/export/removal, refresh clearing, analysis-state continuity, uncertainty retention and narrow layouts, alongside the existing analysis/annotation flows. Public screenshots use synthetic data only.
+
+## Complaint investigation
+
+The overview's complaint shortcut opens the after window with all recommendation labels. Suggested-feedback filtering uses the existing rule detector; results are explicitly provisional. Filtering applies before pagination and matches the selected topic's passages, not criticism elsewhere in the review. Mixed passages can match either praise or complaint. Exact snippets explain retrieval; the full source remains available. The original human-evaluated polarity gate remains closed.
+
+Filtering hides stale rows during loading and after errors, with an explicit retry. Returning from analysis preserves review scope. Notebook next-investigation fields are user-authored and exported beside interpretation and source, never generated priorities or ground truth.

@@ -161,3 +161,38 @@ def test_supervised_feedback_is_separate_from_overall_recommendation():
     assert "synthetic" in result["label_source"]
     assert "recommendation" not in result
     assert len(result["model_revision"]) == 64
+
+
+def test_suggested_complaints_are_topic_scoped_and_keep_exact_evidence(monkeypatch):
+    import patchpulse.api as api_module
+
+    rows = [
+        {
+            "version_id": str(i),
+            "text": text,
+            "voted_up": True,
+            "period": "after",
+            "mentions": [{"aspect": "Gameplay"}, {"aspect": "Multiplayer"}],
+            "quality_flags": [],
+        }
+        for i, text in enumerate(
+            [
+                "Great missions, but co-op keeps disconnecting.",
+                "The combat is terrible but co-op is great.",
+                "Could the co-op disconnect?",
+            ]
+        )
+    ]
+    monkeypatch.setattr(api_module, "case", lambda: {"evidence": rows})
+    response = client.get("/api/evidence?suggestion=complaint&aspect=Multiplayer&limit=1").json()
+    assert response["total"] == 1
+    assert response["denominator"] == 3
+    row = response["records"][0]
+    assert row["voted_up"] is True
+    for passage in row["suggested_passages"]:
+        assert passage["aspect"] == "Multiplayer"
+        assert row["text"][passage["start"] : passage["end"]] == passage["passage"]
+        assert passage["method"].startswith("aspect-rules-")
+    assert client.get("/api/evidence?suggestion=complaint&offset=1").json()["total"] == 2
+    assert client.get("/api/evidence?suggestion=unknown").status_code == 422
+    assert "suggested_passages" not in client.get("/api/evidence").json()["records"][0]

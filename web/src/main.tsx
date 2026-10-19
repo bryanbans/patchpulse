@@ -40,6 +40,7 @@ type Evidence = {
   created_at: number;
   mentions: { aspect: string; passage: string; start: number; end: number }[];
   source_url: string | null;
+  suggested_passages?: { aspect: string; passage: string; polarity: string; method: string }[];
 };
 type Evaluation = {
   status: string;
@@ -72,6 +73,10 @@ function App() {
   const [focusSearch, setFocusSearch] = useState(false);
   const [notes, setNotes] = useState<ResearchNote[]>([]);
   const [notice, setNotice] = useState("");
+  const [suggestion, setSuggestion] = useState("all");
+  const [evidenceError, setEvidenceError] = useState("");
+  const [retryEvidence, setRetryEvidence] = useState(0);
+  const [returnToReview, setReturnToReview] = useState(false);
   const [activeReview, setActiveReview] = useState("");
   const readerRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -180,10 +185,12 @@ function App() {
   useEffect(() => {
     let cancelled = false;
     setBusy(true);
+    setEvidenceError("");
     const q = new URLSearchParams({
       period,
       aspect,
       recommendation,
+      suggestion,
       keyword,
       offset: String(offset),
       limit: "12",
@@ -199,7 +206,7 @@ function App() {
         }
       })
       .catch((e) => {
-        if (!cancelled) setError(e.message);
+        if (!cancelled) { setEvidenceError(e.message); setRows([]); }
       })
       .finally(() => {
         if (!cancelled) setBusy(false);
@@ -207,7 +214,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, [period, aspect, recommendation, keyword, offset]);
+  }, [period, aspect, recommendation, suggestion, keyword, offset, retryEvidence]);
   async function exportBrief() {
     try {
       const b = await api<{ text: string }>("/api/briefs/drg-season-05");
@@ -249,8 +256,9 @@ function App() {
     period !== "all" ||
     aspect !== "all" ||
     recommendation !== "all" ||
-    keyword !== "";
+    keyword !== "" || suggestion !== "all";
   function clearFilters() {
+    setSuggestion("all");
     setPeriod("all");
     setAspect("all");
     setRecommendation("all");
@@ -274,6 +282,17 @@ function App() {
             ? "Invented example reviews"
             : "Private source versions"}
         </span>
+      </div>
+      <div className="triage-controls">
+        <label>Suggested feedback
+          <select value={suggestion} onChange={e => {setSuggestion(e.target.value); setOffset(0);}}>
+            <option value="all">All feedback</option>
+            <option value="complaint">Potential complaints</option>
+            <option value="praise">Potential praise</option>
+            <option value="needs_review">Needs review</option>
+          </select>
+        </label>
+        <p>Experimental topic-and-wording rules. Complaint and praise filters include mixed passages and recommended reviews. A missing match does not mean there is no complaint.</p>
       </div>
       {tab !== "Overview" && (
         <div className="filters">
@@ -345,6 +364,7 @@ function App() {
               ? ` · ${recommendation === "positive" ? "recommended" : "not recommended"}`
               : ""}
             {keyword ? ` · “${keyword}”` : ""}
+            {suggestion !== "all" ? ` · suggested ${suggestion.replace("_", " ")}` : ""}
           </span>
           <button className="text-button" onClick={clearFilters}>
             Clear filters
@@ -356,12 +376,13 @@ function App() {
           ? "Loading evidence…"
           : `${total} matching reviews / ${denominator} eligible reviews in selected window. Topic mentions may overlap.`}
       </p>
-      {!busy && rows.length === 0 && (
+      {evidenceError && <div role="alert" className="error">{evidenceError} <button className="secondary" onClick={() => setRetryEvidence(n => n + 1)}>Retry evidence</button></div>}
+      {!busy && !evidenceError && rows.length === 0 && (
         <div className="empty">
           No evidence matches these filters. Try another topic or search term.
         </div>
       )}
-      {rows.length > 0 && (
+      {!busy && !evidenceError && rows.length > 0 && (
         <div className="review-split">
           <div className="review-list" aria-label="Matching reviews">
             {rows.map((r, i) => (
@@ -393,6 +414,7 @@ function App() {
                   Recorded recommendation:{" "}
                   {r.voted_up ? "recommended" : "not recommended"}.
                 </span>
+                {r.suggested_passages?.length ? <span className="signal-label">Suggested {suggestion.replace("_", " ")} · {r.suggested_passages.map(p => p.aspect).filter((x,i,a) => a.indexOf(x) === i).join(" / ")}</span> : null}
                 <p id={`review-preview-${r.version_id}`}>
                   {r.text.slice(0, 145)}
                   {r.text.length > 145 ? "…" : ""}
@@ -428,6 +450,7 @@ function App() {
                     {date(r.created_at)} UTC
                   </span>
                 </div>
+                {r.suggested_passages?.length ? <div className="matched-passages"><strong>Why this review matched</strong><p>Rule suggestions to verify against the full review below.</p>{r.suggested_passages.map((p,i) => <blockquote key={i}><span>{p.aspect} · {p.polarity === "mixed" ? "Mixed feedback" : p.polarity === "negative" ? "Potential complaint" : p.polarity === "positive" ? "Potential praise" : "Needs review"}</span>{p.passage}</blockquote>)}</div> : null}
                 <p>{r.text}</p>
                 <div className="review-bottom">
                   <button
@@ -467,6 +490,7 @@ function App() {
                   <button
                     className="text-button"
                     onClick={() => {
+                      setReturnToReview(true);
                       setFeedbackInput({
                         text: r.text,
                         revision: Date.now(),
@@ -712,8 +736,10 @@ function App() {
                   clearFilters();
                   selectAspect(topic);
                 }}
+                onComplaints={() => {clearFilters(); setPeriod("after"); setSuggestion("complaint"); setTab("Reviews");}}
                 onBrowse={browseReviews}
                 onAnalyze={() => {
+                  setReturnToReview(false);
                   setFeedbackInput({
                     text: "Great missions, but our co-op sessions keep disconnecting.",
                     revision: Date.now(),
@@ -728,6 +754,7 @@ function App() {
             {tab === "Notebook" && (
               <ResearchNotebook
                 notes={notes}
+                onNextStep={(id, nextStep) => setNotes(current => current.map(n => n.id === id ? {...n, nextStep} : n))}
                 onRemove={(id) =>
                   setNotes((current) => current.filter((n) => n.id !== id))
                 }
@@ -744,6 +771,7 @@ function App() {
             )}
             {tab === "Reviews" && evidencePanel}
             <div className="analysis-route" hidden={tab !== "Analyze feedback"}>
+              {returnToReview && <button className="secondary return-review" onClick={() => setTab("Reviews")}>← Back to review and filters</button>}
               <AspectLab input={feedbackInput} onSave={saveNote} />
               <details className="model-experiment">
                 <summary>
