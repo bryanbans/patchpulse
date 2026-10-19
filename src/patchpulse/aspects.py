@@ -5,12 +5,13 @@ from collections import defaultdict
 
 from .core import ASPECTS
 
-VERSION = "aspect-rules-v2"
+VERSION = "aspect-rules-v3"
 ASPECT_PATTERNS = {
     **ASPECTS,
     "Stability": ASPECTS["Stability"] + r"|\b(unstable|stable|startup)\b",
     "Gameplay": ASPECTS["Gameplay"] + r"|\b(gameplay)\b",
-    "Multiplayer": ASPECTS["Multiplayer"] + r"|\b(coop|cooperative|co-operative)\b",
+    "Multiplayer": ASPECTS["Multiplayer"]
+    + r"|\b(coop|cooperative|co-operative|matchmak\w*|desync\w*|rubberband\w*|timeout|ping)\b",
     "Interface": ASPECTS["Interface"] + r"|\b(inventory|hud)\b",
     "Value": ASPECTS["Value"] + r"|\b(cost|bargain|worth|affordable|overpriced)\b",
     "Progression": ASPECTS["Progression"] + r"|\b(exploration)\b",
@@ -18,18 +19,32 @@ ASPECT_PATTERNS = {
 
 # Evaluative cues are explicit so a reviewer can inspect the rule's decision.
 POSITIVE = re.compile(
-    r"\b(great|good|excellent|amazing|awesome|fantastic|fun|smooth|stable|responsive|polished|fair|affordable|love\w*|enjoy\w*|favorite|favourite|fixed|resolved|improv\w*|reliable|works?|working|worth)\b",
+    r"\b(great|good|excellent|amazing|awesome|fantastic|fun|smooth|stable|responsive|polished|fair|affordable|love\w*|enjoy\w*|favorite|favourite|fix\w*|resolved|improv\w*|reliable|works?|working|worth|seamless|bargain)\b",
     re.I,
 )
 NEGATIVE = re.compile(
-    r"\b(bad|awful|terrible|broken|unplayable|unreliable|unresponsive|boring|repetitive|frustrat\w*|exhaust\w*|painful\w*|expensive|overpriced|hate\w*|crash\w*|freez\w*|frozen|disconnect\w*|stutter\w*|laggy|lags?|slow|ruin\w*|fail\w*)\b",
+    r"\b(bad|awful|terrible|broken|unplayable|unreliable|unresponsive|boring|repetitive|frustrat\w*|exhaust\w*|painful\w*|expensive|overpriced|hate\w*|crash\w*|freez\w*|frozen|disconnect\w*|stutter\w*|laggy|lags?|slow|ruin\w*|fail\w*|kick\w*|desync\w*|rubberband\w*|timeout|ridiculous)\b",
     re.I,
 )
 TOKENS = re.compile(r"[^\W_]+(?:['’][^\W_]+)?", re.UNICODE)
 NEGATORS = {"not", "no", "never", "without", "neither", "hardly"}
 BOUNDARY = re.compile(r"[.!?;,\r\n]+\s*|\b(?:but|however|yet|although|whereas|except|while)\b[\s,:]*", re.I)
 NONASSERTION = re.compile(r"\b(?:if|unless|wish|wishes|wished|hope|hopes|hopefully)\b", re.I)
-RESOLUTION = {"fixed", "resolved", "eliminated", "removed"}
+RESOLUTION = {"fix", "fixed", "resolved", "eliminated", "removed"}
+MULTIPLAYER_COMPLAINT = re.compile(
+    r"\b(?:(?:get|gets|got|getting)\s+kicked|can(?:not|'t)\s+(?:join|connect)|"
+    r"unable\s+to\s+(?:join|connect)|(?:voice\s+chat\s+)?never\s+connects?|"
+    r"stuck\s+(?:in|on)\s+(?:a\s+)?(?:queue|loading)|"
+    r"(?:queue\s+times?|queue)\s+(?:is|are|takes?)\s+(?:forever|ridiculous)|"
+    r"(?:matchmaking|matchmaker)\s+(?:fails?|failed|is\s+broken)|"
+    r"takes\s+forever\s+to\s+find\s+(?:a\s+)?lobb(?:y|ies))\b",
+    re.I,
+)
+PHRASE_CUES = [
+    (re.compile(r"\b(?:do|does)\s+not\s+respond\b|\b(?:do|does)n't\s+respond\b", re.I), "negative"),
+    (re.compile(r"\beasy\s+to\s+read\b", re.I), "positive"),
+    (re.compile(r"\bgrind(?:ing)?\s+never\s+ends?\b", re.I), "negative"),
+]
 
 
 def is_negator(token):
@@ -45,7 +60,10 @@ def negated_before(text, position):
 
 
 def aspect_mentions(text):
-    return {aspect for aspect, pattern in ASPECT_PATTERNS.items() if re.search(pattern, text, re.I)}
+    found = {aspect for aspect, pattern in ASPECT_PATTERNS.items() if re.search(pattern, text, re.I)}
+    if MULTIPLAYER_COMPLAINT.search(text):
+        found.add("Multiplayer")
+    return found
 
 
 def cues(text, offset=0):
@@ -76,6 +94,27 @@ def cues(text, offset=0):
                     "passage": match.group(),
                     "polarity": polarity,
                     "negated": bool(negated),
+                }
+            )
+    for match in MULTIPLAYER_COMPLAINT.finditer(text):
+        found.append(
+            {
+                "start": offset + match.start(),
+                "end": offset + match.end(),
+                "passage": match.group(),
+                "polarity": "negative",
+                "negated": False,
+            }
+        )
+    for pattern, polarity in PHRASE_CUES:
+        for match in pattern.finditer(text):
+            found.append(
+                {
+                    "start": offset + match.start(),
+                    "end": offset + match.end(),
+                    "passage": match.group(),
+                    "polarity": polarity,
+                    "negated": False,
                 }
             )
     return sorted(found, key=lambda x: x["start"])

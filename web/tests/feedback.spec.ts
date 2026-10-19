@@ -123,7 +123,7 @@ test("repair negation and learned abstentions remain visible with development pr
   await page
     .getByText("How is this detector checked?", { exact: true })
     .click();
-  await expect(page.locator(".feedback-checks")).toContainText("46 of 48");
+  await expect(page.locator(".feedback-checks")).toContainText("47 of 48");
   await expect(page.locator(".feedback-checks")).toContainText(
     "not an estimate of accuracy on new reviews",
   );

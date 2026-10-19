@@ -60,13 +60,13 @@ The remaining evaluation must separately measure aspect detection, polarity on k
 The original recommendation study, model selection and final-test manifest remain intact. No raw real review text or fitted weights are added to GitHub.
 
 
-## Version 2: development checks and measured changes
+## Version 3: development checks and measured changes
 
 The new [48-case challenge suite](../data/fixtures/aspect-challenge.json) is original AI-authored synthetic material with **no independent human review**. It is separate from the 48-passage training fixture, but can share examples and wording. These public cases were used to guide the changes: they are development/regression checks, not an untouched benchmark or a real-player accuracy estimate.
 
 | Check on the same authored scenarios | Rules v1 | Rules v2 |
 |---|---:|---:|
-| Reviews with exactly the expected topic/polarity map | 39 / 48 | 46 / 48 |
+| Reviews with exactly the expected topic/polarity map | 39 / 48 | 47 / 48 |
 | Repair/resolution scenarios | 7 / 8 | 8 / 8 |
 | Questions, wishes and conditionals | 2 / 6 | 6 / 6 |
 | Topic mentions without asserted sentiment | 3 / 5 | 5 / 5 |
@@ -74,7 +74,7 @@ The new [48-case challenge suite](../data/fixtures/aspect-challenge.json) is ori
 
 Version 2 scopes negation to a nearby repair verb, including contractions: `crashes aren't fixed` is a complaint, while `crashes were fixed without a restart` is praise. Plural `crash logs` and `crash reports` no longer act as failure cues. Explicit questions and conditional/wish wording abstain; the learned classifier cannot override these safeguards or ambiguous multi-topic scope. Evidence retains exact Unicode offsets.
 
-The two remaining mismatches are preserved in the report: an implicit multiplayer complaint (`My friends get kicked out every five minutes`) is missed, and a descriptive server-browser statement remains uncertain instead of neutral. A correct sarcastic example in this small suite does **not** establish sarcasm understanding.
+The remaining mismatch is preserved in the report: a descriptive server-browser statement remains uncertain instead of neutral. Version 3 adds cautious gaming-language patterns for explicit failed matchmaking, disconnects, kick events, queue failures and failed joins. A correct sarcastic example in this small suite does **not** establish sarcasm understanding.
 
 The existing synthetic-trained classifier matches only **23 / 48** complete topic/polarity maps on the same scenarios. This comparison may overlap its training language and includes the new rule safeguards. It is not a generalization estimate or a fair test of the intrinsic potential of learned models. Transparent rules remain the default. The prior .211 gold-passage validation macro F1 is a different task and dataset; do not compare those numbers directly.
 

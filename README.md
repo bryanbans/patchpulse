@@ -35,6 +35,17 @@ PatchPulse is being built to preserve that distinction: **what players recommend
 
 Today, the application shows recorded recommendations, keyword-based topic mentions, and a **working prototype that separates explicit praise from complaints by topic**. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on original synthetic examples. Outputs are marked as suggestions that need checking. Reliable real-world detection still requires human-reviewed evaluation. [How the prototype works](docs/aspect_sentiment.md).
 
+## Use your own review export
+
+PatchPulse is usable with a local review export, not only the bundled demo. Start the app, open **Import data**, select a CSV or JSON file, choose the column containing review text, then run the complaint-candidate queue.
+
+- CSV needs a header row. JSON may be an array of review objects or `{ "records": [...] }`.
+- The text field is required; an ID field is optional and is carried into the exported candidate queue.
+- Each run accepts up to 200 reviews and up to 1.5 MB in the browser. Split larger exports into batches.
+- The browser parses the file and sends the selected text to the loopback process for inference only. PatchPulse does not write imported data to disk, persist it in browser storage, or upload it to a remote service.
+
+The output lists exact passages that matched transparent complaint rules and a topic-level candidate count. It is a review queue, not an issue count, a defect confirmation, or a validated complaint rate. Read the full review before making a product decision; no match does not prove that a review contains no complaint.
+
 ## Current project status
 
 **Working local prototype with a reproducible NLP study.**

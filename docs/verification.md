@@ -60,6 +60,14 @@ The visual identity uses a graphite project rail, cool reading canvas, blue rele
 
 Replaced circular recommendation graphics with aligned zero-to-100-percent bars and converted topic cards into comparable investigation rows. Added a consistent dark canvas, restrained series colors and compact layout across the existing review, analysis and notebook workflows. No detector or evaluation results changed.
 
+## Local import and complaint-rule update — 2026-10-18
+
+Added a browser-parsed CSV/JSON import workspace. A user maps a text column, optionally carries a review ID, and submits at most 200 reviews to the loopback API for transient rule-based candidate retrieval. The API never writes imported text to disk, returns exact source spans, limits candidates to 100 returned records, and exports a clearly provisional review queue. The batch request is bounded to 2 MB; the browser limits selected files to 1.5 MB.
+
+Aspect rules are now v3. Explicit failed-matchmaking, failed-join, kick-event, queue, desync, rubberband and failed-repair language is handled conservatively, while questions and conditions still abstain. The authored development suite now has 47/48 exact review maps and 23/23 expected complaint decisions; this is a regression result from cases used during development, not an accuracy estimate for player reviews. The remaining descriptive server-browser mismatch stays visible. Actual human-reviewed evaluation is still required before reporting complaint detection as reliable or calculating real complaint rates.
+
+Validation: 89 Python tests, lint and formatting checks passed; 48 desktop/mobile browser checks passed, including CSV import, malformed JSON feedback, candidate export, exact offsets and review scopes. The public-file guard passed for 118 tracked files.
+
 Validation: production build passed; all 40 Playwright checks passed across desktop/mobile. Visually inspected desktop overview and analysis plus mobile overview; refreshed synthetic screenshots. Focused computed text-contrast scan across five workspaces returned no failures after button/skip-link fixes (not a comprehensive accessibility audit).
 
 ## Game-developer investigation review — 2026-10-18

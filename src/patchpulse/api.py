@@ -72,6 +72,21 @@ class FeedbackRequest(BaseModel):
     method: str = "rules"
 
 
+class ImportedReview(BaseModel):
+    """A bounded, transient review passed from the local import workspace."""
+
+    model_config = ConfigDict(extra="forbid")
+    id: str | None = Field(default=None, max_length=200)
+    text: str = Field(min_length=1, max_length=8000)
+
+
+class BulkFeedbackRequest(BaseModel):
+    """Import body is parsed in the browser and never written by this API."""
+
+    model_config = ConfigDict(extra="forbid")
+    records: list[ImportedReview] = Field(min_length=1, max_length=200)
+
+
 class PredictResponse(BaseModel):
     task: str
     model_id: str
@@ -101,7 +116,7 @@ async def request_controls(request: Request, call_next):
         chunks = []
         async for chunk in request.stream():
             size += len(chunk)
-            if size > 40000:
+            if size > 2_000_000:
                 return Response("Request too large", status_code=413)
             chunks.append(chunk)
         # Starlette's cached request replays _body to the downstream route.
@@ -486,6 +501,57 @@ def analyze_feedback_request(payload: FeedbackRequest, request: Request):
         if model
         else "handwritten lexical rules; not human-reviewed ground truth",
         "model_revision": info["sha256"] if info else None,
+    }
+
+
+@app.post("/api/analyze-feedback-batch")
+def analyze_feedback_batch(payload: BulkFeedbackRequest, request: Request):
+    """Return bounded, local candidate retrieval for a browser-parsed import."""
+    from .aspects import analyze_feedback
+
+    enforce_inference_limit(request)
+    by_aspect = defaultdict(int)
+    candidates = []
+    for index, record in enumerate(payload.records):
+        result = analyze_feedback(record.text)
+        suggestions = []
+        for aspect in result["aspects"]:
+            for evidence in aspect["evidence"]:
+                if evidence["polarity"] in {"negative", "mixed"}:
+                    suggestions.append(
+                        {
+                            "aspect": aspect["aspect"],
+                            "polarity": evidence["polarity"],
+                            "passage": evidence["passage"],
+                            "start": evidence["start"],
+                            "end": evidence["end"],
+                        }
+                    )
+        if suggestions:
+            for aspect in {item["aspect"] for item in suggestions}:
+                by_aspect[aspect] += 1
+            candidates.append(
+                {
+                    "index": index,
+                    "id": record.id,
+                    "text": record.text,
+                    "suggestions": suggestions,
+                }
+            )
+    return {
+        "task": "provisional complaint candidate retrieval",
+        "method": "aspect-rules-v3",
+        "input_stored": False,
+        "records_received": len(payload.records),
+        "candidate_reviews": len(candidates),
+        "candidate_reviews_by_aspect": dict(sorted(by_aspect.items())),
+        "candidates": candidates[:100],
+        "limitations": [
+            "Candidates use transparent rules, not human-validated complaint labels.",
+            "No candidate does not prove that a review has no complaint.",
+            "Mixed passages appear as complaint candidates and require source review.",
+            "The request is processed in local memory and is not saved by PatchPulse.",
+        ],
     }
 
 

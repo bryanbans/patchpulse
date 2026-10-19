@@ -12,9 +12,9 @@ def test_development_challenges_keep_known_limits_visible():
     result = evaluate(suite["records"])
     assert not suite["human_reviewed"]
     assert result["reviews"] == 48
-    assert {r["id"] for r in result["failures"]} == {"challenge-047", "challenge-048"}
+    assert {r["id"] for r in result["failures"]} == {"challenge-048"}
     assert result["recommendation_invariance"] == {"passed": 48, "total": 48}
-    assert result["exact_evidence_substrings"] == {"passed": 55, "total": 55}
+    assert result["exact_evidence_substrings"] == {"passed": 56, "total": 56}
     published = json.loads((ROOT / "reports/aspect-challenge.json").read_text(encoding="utf-8"))
     assert published["rules"] == result
     assert published["suite_sha256"] == fingerprint(ROOT / "data/fixtures/aspect-challenge.json")

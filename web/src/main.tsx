@@ -6,6 +6,7 @@ import { NeuralPanel } from "./NeuralPanel";
 import { AspectLab } from "./AspectLab";
 import { AnnotationApp } from "./AnnotationApp";
 import { UpdateDesk } from "./UpdateDesk";
+import { ImportWorkspace } from "./ImportWorkspace";
 import {
   ResearchNotebook,
   type ResearchNote,
@@ -604,6 +605,7 @@ function App() {
             "Overview",
             "Reviews",
             "Analyze feedback",
+            "Import data",
             "Notebook",
             "How it works",
           ].map((item, i) => (
@@ -630,6 +632,7 @@ function App() {
                       "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
                       "M21 21l-5-5 M18 10a8 8 0 1 1-16 0a8 8 0 0 1 16 0",
                       "M9 3h6 M10 3v7L4 20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1l-6-10V3 M7 15h10",
+                      "M12 3v12 M7 10l5 5 5-5 M5 21h14",
                       "M3 4h7a2 2 0 0 1 2 2v15a3 3 0 0 0-3-2H3z M21 4h-7a2 2 0 0 0-2 2v15a3 3 0 0 1 3-2h6z",
                       "M5 3h14v18H5z M9 8h6 M9 12h6 M9 16h3",
                     ][i]
@@ -769,6 +772,7 @@ function App() {
                 onBrief={exportBrief}
               />
             )}
+            {tab === "Import data" && <ImportWorkspace />}
             {tab === "Reviews" && evidencePanel}
             <div className="analysis-route" hidden={tab !== "Analyze feedback"}>
               {returnToReview && <button className="secondary return-review" onClick={() => setTab("Reviews")}>← Back to review and filters</button>}

@@ -36,6 +36,10 @@ def polarities(text):
         ("The update fixed crashes.", {"Stability": "positive"}),
         ("The crashes are fixed.", {"Stability": "positive"}),
         ("The crashes are not fixed.", {"Stability": "negative"}),
+        ("My squad gets kicked at extraction.", {"Multiplayer": "negative"}),
+        ("I can't join my friends' lobby.", {"Multiplayer": "negative"}),
+        ("The patch did not fix the disconnects.", {"Multiplayer": "negative"}),
+        ("The controls do not respond in menus.", {"Interface": "negative"}),
     ],
 )
 def test_clause_scope_negation_and_abstention(text, expected):

@@ -27,7 +27,7 @@ def test_predict_does_not_accept_label_features_or_unknown_models():
     assert client.post("/api/predict", json={"text": "great", "voted_up": True}).status_code == 422
     assert client.post("/api/predict", json={"text": "great", "model_id": "other"}).status_code == 422
     assert client.post("/api/predict", json={"text": "x" * 8001}).status_code == 422
-    assert client.post("/api/predict", content=b"x" * 40001).status_code == 413
+    assert client.post("/api/predict", content=b"x" * 2_000_001).status_code == 413
 
 
 def test_predictions_and_abstention():
@@ -119,7 +119,7 @@ def test_feedback_api_separates_praise_and_complaint_without_recommendation_inpu
         "Gameplay": "positive",
         "Multiplayer": "negative",
     }
-    assert result["method"] == "aspect-rules-v2"
+    assert result["method"] == "aspect-rules-v3"
     assert result["input_stored"] is False
     assert "provisional" in result["validation_status"]
     assert (
@@ -196,3 +196,33 @@ def test_suggested_complaints_are_topic_scoped_and_keep_exact_evidence(monkeypat
     assert client.get("/api/evidence?suggestion=complaint&offset=1").json()["total"] == 2
     assert client.get("/api/evidence?suggestion=unknown").status_code == 422
     assert "suggested_passages" not in client.get("/api/evidence").json()["records"][0]
+
+
+def test_batch_import_returns_source_linked_candidates_without_persisting_input():
+    response = client.post(
+        "/api/analyze-feedback-batch",
+        json={
+            "records": [
+                {"id": "recommended-review", "text": "The missions are fun, but matchmaking fails nightly."},
+                {"id": "praise-only", "text": "The subtitles are excellent."},
+            ]
+        },
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["input_stored"] is False
+    assert result["records_received"] == 2
+    assert result["candidate_reviews"] == 1
+    candidate = result["candidates"][0]
+    assert candidate["id"] == "recommended-review"
+    suggestion = candidate["suggestions"][0]
+    assert suggestion["aspect"] == "Multiplayer"
+    assert suggestion["polarity"] == "negative"
+    assert candidate["text"][suggestion["start"] : suggestion["end"]] == suggestion["passage"]
+    assert client.post("/api/analyze-feedback-batch", json={"records": []}).status_code == 422
+    assert (
+        client.post(
+            "/api/analyze-feedback-batch", json={"records": [{"text": "x", "voted_up": True}]}
+        ).status_code
+        == 422
+    )

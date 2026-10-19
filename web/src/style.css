@@ -3290,3 +3290,31 @@ input::placeholder,textarea::placeholder { color: #96a3ba; }
 .next-investigation {margin-top:14px;}
 .next-investigation input {width:100%;padding:10px;font-size:13px;}
 @media(max-width:700px) {.next-investigation input {font-size:16px;}}
+
+.import-workspace { padding-bottom: 44px; }
+.import-workspace > .desk-title { margin-bottom: 18px; }
+.import-privacy { border: 1px solid #485046; background: #232924; color: #d4dec9; padding: 14px 16px; border-radius: 6px; font-size: 13px; }
+.import-privacy strong { color: #edffd8; margin-right: 6px; }
+.import-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+.import-card, .import-results { border: 1px solid #343e52; background: #191f2b; border-radius: 6px; padding: 22px; }
+.import-card h2, .import-results h2 { font-size: 20px; margin: 0 0 8px; color: #eef2fb; }
+.import-card p, .import-results > p { color: #b6c1d6; font-size: 13px; }
+.import-card code { color: #d2dcff; }
+.import-card label { display: grid; gap: 6px; margin: 14px 0; font-size: 12px; font-weight: 700; color: #cfdaef; }
+.import-card label small { font-weight: 400; color: #a8b5cf; }
+.import-card select { width: 100%; padding: 10px; }
+.import-file { border-top: 1px solid #354158; padding-top: 12px; }
+.import-results { margin-top: 18px; }
+.results-heading { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.import-topic-counts { display: flex; flex-wrap: wrap; gap: 9px; margin: 16px 0; }
+.import-topic-counts span { display: grid; gap: 1px; min-width: 108px; padding: 10px 12px; background: #242c3d; border-left: 2px solid #7f91e8; color: #b7c4dd; font-size: 11px; }
+.import-topic-counts strong { font: 24px var(--mono); color: #edf2ff; }
+.candidate-list { display: grid; gap: 12px; }
+.candidate-list article { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(0, 1.6fr); gap: 18px; border-top: 1px solid #354158; padding: 16px 0; }
+.candidate-list article > div > span { color: #a7b7ee; font: 10px var(--mono); }
+.candidate-list p { color: #e5c2cd; font-size: 13px; }
+.candidate-list p strong { color: #f3cfda; }
+.candidate-list blockquote { margin: 0; padding-left: 15px; border-left: 2px solid #6f84ca; color: #e5ebf8; font-size: 14px; }
+.import-results details { margin-top: 18px; color: #b4c1d7; font-size: 13px; }
+@media(max-width:800px) { .import-grid { grid-template-columns: 1fr; } }
+@media(max-width:700px) { .results-heading, .candidate-list article { display: grid; grid-template-columns: 1fr; } .candidate-list { gap: 5px; } .import-card, .import-results { padding: 18px; } }

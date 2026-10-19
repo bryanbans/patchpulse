@@ -1,8 +1,8 @@
 {
   "suite_id": "aspect-challenge-v1",
   "suite_sha256": "787bf03215ee58ac4132cdc9650a7a1b6351067f52a8fdad6100170183b024f3",
-  "method": "aspect-rules-v2",
-  "detector_sha256": "bc6eb4bead5f26f93fa0634c2125a856a23a1b502ee58a27c717625074c4757c",
+  "method": "aspect-rules-v3",
+  "detector_sha256": "13238277018c514c79d91f8d9c1f951b160190110807f57c430557f48da6764c",
   "fingerprint_policy": "UTF-8 bytes with CRLF normalized to LF",
   "provenance": "Original AI-authored synthetic development cases; no independent human review",
   "status": "Public development challenge suite used to guide changes, not an untouched test or a real-player accuracy estimate",
@@ -11,7 +11,7 @@
   "final_tests_opened": false,
   "rules": {
     "reviews": 48,
-    "exact_review_matches": 46,
+    "exact_review_matches": 47,
     "expected_topic_label_support": {
       "positive": 17,
       "negative": 22,
@@ -21,22 +21,22 @@
     },
     "predicted_topic_label_support": {
       "positive": 17,
-      "negative": 21,
+      "negative": 22,
       "mixed": 1,
       "uncertain": 15
     },
     "abstentions": {
       "uncertain": 15,
-      "recognized_topics": 54,
+      "recognized_topics": 55,
       "note": "Abstention counts are conditional on recognized topics; missed implicit topics are scored separately."
     },
     "aspect_detection": {
-      "tp": 54,
+      "tp": 55,
       "fp": 0,
-      "fn": 1,
+      "fn": 0,
       "precision": 1.0,
-      "recall": 0.9818181818181818,
-      "f1": 0.9908256880733946
+      "recall": 1.0,
+      "f1": 1.0
     },
     "end_to_end_praise": {
       "tp": 18,
@@ -47,20 +47,20 @@
       "f1": 1.0
     },
     "end_to_end_complaint": {
-      "tp": 22,
+      "tp": 23,
       "fp": 0,
-      "fn": 1,
+      "fn": 0,
       "precision": 1.0,
-      "recall": 0.9565217391304348,
-      "f1": 0.9777777777777777
+      "recall": 1.0,
+      "f1": 1.0
     },
     "recommendation_invariance": {
       "passed": 48,
       "total": 48
     },
     "exact_evidence_substrings": {
-      "passed": 55,
-      "total": 55
+      "passed": 56,
+      "total": 56
     },
     "phenomenon_slices": {
       "contrast": {
@@ -100,18 +100,11 @@
         "total": 2
       },
       "known-limit": {
-        "correct": 1,
+        "correct": 2,
         "total": 3
       }
     },
     "failures": [
-      {
-        "id": "challenge-047",
-        "expected": {
-          "Multiplayer": "negative"
-        },
-        "predicted": {}
-      },
       {
         "id": "challenge-048",
         "expected": {
@@ -297,7 +290,7 @@
     "status": "Authored development scenarios may overlap training language; not held-out performance",
     "results": {
       "reviews": 48,
-      "exact_review_matches": 23,
+      "exact_review_matches": 24,
       "expected_topic_label_support": {
         "positive": 17,
         "negative": 22,
@@ -308,22 +301,22 @@
       "predicted_topic_label_support": {
         "mixed": 7,
         "positive": 9,
-        "negative": 14,
+        "negative": 15,
         "neutral": 15,
         "uncertain": 9
       },
       "abstentions": {
         "uncertain": 9,
-        "recognized_topics": 54,
+        "recognized_topics": 55,
         "note": "Abstention counts are conditional on recognized topics; missed implicit topics are scored separately."
       },
       "aspect_detection": {
-        "tp": 54,
+        "tp": 55,
         "fp": 0,
-        "fn": 1,
+        "fn": 0,
         "precision": 1.0,
-        "recall": 0.9818181818181818,
-        "f1": 0.9908256880733946
+        "recall": 1.0,
+        "f1": 1.0
       },
       "end_to_end_praise": {
         "tp": 11,
@@ -334,20 +327,20 @@
         "f1": 0.6470588235294118
       },
       "end_to_end_complaint": {
-        "tp": 12,
+        "tp": 13,
         "fp": 9,
-        "fn": 11,
-        "precision": 0.5714285714285714,
-        "recall": 0.5217391304347826,
-        "f1": 0.5454545454545454
+        "fn": 10,
+        "precision": 0.5909090909090909,
+        "recall": 0.5652173913043478,
+        "f1": 0.5777777777777777
       },
       "recommendation_invariance": {
         "passed": 48,
         "total": 48
       },
       "exact_evidence_substrings": {
-        "passed": 55,
-        "total": 55
+        "passed": 56,
+        "total": 56
       },
       "phenomenon_slices": {
         "contrast": {
@@ -387,7 +380,7 @@
           "total": 2
         },
         "known-limit": {
-          "correct": 2,
+          "correct": 3,
           "total": 3
         }
       },
@@ -617,13 +610,6 @@
           "predicted": {
             "Gameplay": "positive"
           }
-        },
-        {
-          "id": "challenge-047",
-          "expected": {
-            "Multiplayer": "negative"
-          },
-          "predicted": {}
         }
       ]
     }
