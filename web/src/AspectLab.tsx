@@ -5,7 +5,13 @@ type Evidence = {
   passage: string;
   polarity: string;
   reason: string;
-  cues: { passage: string; negated: boolean }[];
+  cues: {
+    passage: string;
+    negated: boolean;
+    start: number;
+    end: number;
+    polarity: string;
+  }[];
   score?: number;
 };
 type Analysis = {
@@ -67,6 +73,27 @@ function explainReason(reason: string) {
   if (reason.includes("No supported"))
     return "The classifier did not recognize useful vocabulary in this passage.";
   return "The topic and the words below appeared in the same clause—a part of a sentence. The rules check up to three preceding words for negation, such as ‘not’, and nearby wording for resolved problems, such as ‘fixed crashes’.";
+}
+
+function PassageHighlight({ evidence }: { evidence: Evidence }) {
+  const chars = Array.from(evidence.passage);
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  for (const cue of evidence.cues) {
+    const start = cue.start - evidence.start;
+    const end = cue.end - evidence.start;
+    if (start < cursor || end > chars.length || start < 0 || end <= start)
+      continue;
+    parts.push(chars.slice(cursor, start).join(""));
+    parts.push(
+      <mark key={`${start}-${end}`} data-tone={cue.polarity}>
+        {chars.slice(start, end).join("")}
+      </mark>,
+    );
+    cursor = end;
+  }
+  parts.push(chars.slice(cursor).join(""));
+  return <>{parts}</>;
 }
 
 export function AspectLab({
@@ -152,70 +179,195 @@ export function AspectLab({
           topics that are only implied can be missed.
         </span>
       </div>
-      <div className="example-picks" aria-label="Invented example reviews">
-        {EXAMPLES.map((e) => (
-          <button
-            className="secondary"
-            key={e.name}
+      <div className="feedback-workbench">
+        <div className="feedback-compose">
+          <h3>Start with a review</h3>
+          <p className="compose-hint">
+            Use an invented example or bring your own text.
+          </p>
+          <div className="example-picks" aria-label="Invented example reviews">
+            {EXAMPLES.map((e) => (
+              <button
+                className="secondary"
+                key={e.name}
+                disabled={busy}
+                onClick={() => {
+                  revision.current++;
+                  setText(e.text);
+                  setResult(null);
+                  setError("");
+                }}
+              >
+                {e.name}
+              </button>
+            ))}
+          </div>
+          <label htmlFor="feedback-method">Analysis method</label>
+          <select
+            id="feedback-method"
+            value={method}
             disabled={busy}
-            onClick={() => {
-              revision.current++;
-              setText(e.text);
+            onChange={(e) => {
+              setMethod(e.target.value);
               setResult(null);
-              setError("");
             }}
           >
-            {e.name}
-          </button>
-        ))}
-      </div>
-      <label htmlFor="feedback-method">Analysis method</label>
-      <select
-        id="feedback-method"
-        value={method}
-        disabled={busy}
-        onChange={(e) => {
-          setMethod(e.target.value);
-          setResult(null);
-        }}
-      >
-        <option value="rules">Topic and wording rules (default)</option>
-        {methods.includes("supervised") && (
-          <option value="supervised">
-            Learned text classifier ·{" "}
-            {syntheticModel
-              ? "invented training examples"
-              : "reviewed training examples"}
-          </option>
-        )}
-      </select>
-      <label htmlFor="feedback-text">Review to analyze</label>
-      <textarea
-        id="feedback-text"
-        rows={4}
-        maxLength={8000}
-        value={text}
-        disabled={busy}
-        onChange={(e) => {
-          setText(e.target.value);
-          setResult(null);
-        }}
-      />
-      <div className="lab-actions">
-        <span>{text.length} / 8,000 characters · input is not stored</span>
-        <button
-          className="primary"
-          disabled={!text.trim() || busy}
-          onClick={analyze}
+            <option value="rules">Topic and wording rules (default)</option>
+            {methods.includes("supervised") && (
+              <option value="supervised">
+                Learned text classifier ·{" "}
+                {syntheticModel
+                  ? "invented training examples"
+                  : "reviewed training examples"}
+              </option>
+            )}
+          </select>
+          <label htmlFor="feedback-text">Review to analyze</label>
+          <textarea
+            id="feedback-text"
+            rows={6}
+            maxLength={8000}
+            value={text}
+            disabled={busy}
+            onChange={(e) => {
+              setText(e.target.value);
+              setResult(null);
+            }}
+          />
+          <div className="lab-actions">
+            <span>{text.length} / 8,000 characters · input is not stored</span>
+            <button
+              className="primary"
+              disabled={!text.trim() || busy}
+              onClick={analyze}
+            >
+              {busy ? "Analyzing…" : "Analyze praise and complaints"}
+            </button>
+          </div>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+        </div>
+        <section
+          className="feedback-reading"
+          aria-label="Passage notes"
+          aria-busy={busy}
         >
-          {busy ? "Analyzing…" : "Analyze praise and complaints"}
-        </button>
+          <div className="reading-heading">
+            <h3>Passage notes</h3>
+            <span className="small-tag">Suggested interpretations</span>
+          </div>
+          {!result && (
+            <div className="reading-empty">
+              <span className="reading-symbol" aria-hidden="true">
+                “ ”
+              </span>
+              <h3>
+                {busy
+                  ? "Reading the feedback…"
+                  : "A closer look at what players mean."}
+              </h3>
+              <p>
+                {busy
+                  ? "Finding topic words and checking the surrounding language."
+                  : "Run an analysis to see suggested praise and complaints alongside the exact words behind them."}
+              </p>
+              <div className="sentiment-key">
+                <span>Praise</span>
+                <span>Complaint</span>
+                <span>Mixed</span>
+              </div>
+              <p className="reading-caption">
+                One review can contain different opinions about different
+                topics.
+              </p>
+            </div>
+          )}
+          {result && (
+            <div className="feedback-results" aria-live="polite">
+              <p className="muted">
+                {result.method.startsWith("aspect-rules-")
+                  ? "Rule-based suggestions: topic words and nearby wording guide the labels."
+                  : result.mode === "synthetic"
+                    ? "Learned from invented example passages. This does not establish accuracy on real reviews."
+                    : "Learned from reviewed training passages. Final accuracy has not been established."}
+              </p>
+              {result.aspects.length === 0 ? (
+                <div className="empty">
+                  No topic was recognized. The review may still contain a
+                  complaint; the current topic rules may have missed it.
+                </div>
+              ) : (
+                result.aspects.map((a) => (
+                  <article
+                    className={`feedback-card ${a.polarity}`}
+                    key={a.aspect}
+                  >
+                    <div className="panel-heading">
+                      <h3>{a.aspect}</h3>
+                      <span
+                        className={`pill ${a.polarity === "positive" ? "positive" : a.polarity === "negative" ? "negative" : ""}`}
+                      >
+                        {labels[a.polarity]} · suggested
+                      </span>
+                    </div>
+                    {a.evidence.map((e, i) => (
+                      <div className="feedback-evidence" key={i}>
+                        <blockquote>
+                          <PassageHighlight evidence={e} />
+                        </blockquote>
+                        {e.cues.length > 0 && (
+                          <p className="highlight-caption">
+                            {e.score !== undefined
+                              ? "Highlights show rule cues, not the learned model’s reasoning."
+                              : "Highlights show rule cues. Read them in the full passage’s context."}
+                          </p>
+                        )}
+                        <p>{labels[e.polarity]}</p>
+                        <details>
+                          <summary>Why this label?</summary>
+                          <p>{explainReason(e.reason)}</p>
+                          <p>
+                            Evidence position in the original text: [{e.start},{" "}
+                            {e.end}). These are zero-based Unicode character
+                            offsets; the end position is excluded.
+                          </p>
+                          {e.cues.length > 0 && (
+                            <p>
+                              {e.score !== undefined
+                                ? "Rule cues for comparison (not a model explanation): "
+                                : "Words used by the rules: "}
+                              {e.cues
+                                .map(
+                                  (c) =>
+                                    `${c.passage}${c.negated ? " (meaning changed by nearby wording)" : ""}`,
+                                )
+                                .join(", ")}
+                            </p>
+                          )}
+                          {e.score !== undefined && (
+                            <p>
+                              Model score: {e.score.toFixed(3)} · uncalibrated
+                              (not a verified probability of correctness)
+                            </p>
+                          )}
+                        </details>
+                      </div>
+                    ))}
+                  </article>
+                ))
+              )}
+              <p className="muted">
+                These labels help you inspect a review. They do not confirm a
+                software defect or measure how complaints changed after an
+                update.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
       <details className="feedback-checks">
         <summary>How is this detector checked?</summary>
         {checks ? (
@@ -258,74 +410,6 @@ export function AspectLab({
           </p>
         )}
       </details>
-      {result && (
-        <div className="feedback-results" aria-live="polite">
-          <p className="muted">
-            {result.method.startsWith("aspect-rules-")
-              ? "Rule-based suggestions: topic words and nearby wording guide the labels."
-              : result.mode === "synthetic"
-                ? "Learned from invented example passages. This does not establish accuracy on real reviews."
-                : "Learned from reviewed training passages. Final accuracy has not been established."}
-          </p>
-          {result.aspects.length === 0 ? (
-            <div className="empty">
-              No topic was recognized. The review may still contain a complaint;
-              the current topic rules may have missed it.
-            </div>
-          ) : (
-            result.aspects.map((a) => (
-              <article className={`feedback-card ${a.polarity}`} key={a.aspect}>
-                <div className="panel-heading">
-                  <h3>{a.aspect}</h3>
-                  <span
-                    className={`pill ${a.polarity === "positive" ? "positive" : a.polarity === "negative" ? "negative" : ""}`}
-                  >
-                    {labels[a.polarity]} · suggested
-                  </span>
-                </div>
-                {a.evidence.map((e, i) => (
-                  <div className="feedback-evidence" key={i}>
-                    <blockquote>{e.passage}</blockquote>
-                    <p>{labels[e.polarity]}</p>
-                    <details>
-                      <summary>Why this label?</summary>
-                      <p>{explainReason(e.reason)}</p>
-                      <p>
-                        Evidence position in the original text: [{e.start},{" "}
-                        {e.end}). These are zero-based Unicode character
-                        offsets; the end position is excluded.
-                      </p>
-                      {e.cues.length > 0 && (
-                        <p>
-                          {e.score !== undefined
-                            ? "Rule cues for comparison (not a model explanation): "
-                            : "Words used by the rules: "}
-                          {e.cues
-                            .map(
-                              (c) =>
-                                `${c.passage}${c.negated ? " (meaning changed by nearby wording)" : ""}`,
-                            )
-                            .join(", ")}
-                        </p>
-                      )}
-                      {e.score !== undefined && (
-                        <p>
-                          Model score: {e.score.toFixed(3)} · uncalibrated (not
-                          a verified probability of correctness)
-                        </p>
-                      )}
-                    </details>
-                  </div>
-                ))}
-              </article>
-            ))
-          )}
-          <p className="muted">
-            These labels help you inspect a review. They do not confirm a
-            software defect or measure how complaints changed after an update.
-          </p>
-        </div>
-      )}
     </section>
   );
 }

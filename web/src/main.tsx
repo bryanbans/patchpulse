@@ -219,14 +219,14 @@ function App() {
   }
   const evidencePanel = (
     <section
-      className="panel evidence"
+      className={`panel evidence ${tab === "Overview" ? "evidence-preview" : ""}`}
       aria-labelledby="evidence-title"
       aria-busy={busy}
     >
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">TRACE EVERY OBSERVATION</span>
-          <h2 id="evidence-title">The words behind the numbers</h2>
+          <span className="eyebrow">THE REVIEW LIBRARY</span>
+          <h2 id="evidence-title">Read the feedback in context</h2>
         </div>
         <span className="small-tag">
           {data?.mode === "synthetic"
@@ -425,7 +425,7 @@ function App() {
     </section>
   );
   return (
-    <div className="shell">
+    <div className="shell" data-view={tab}>
       <a className="skip-link" href="#main">
         Skip to main content
       </a>
@@ -434,7 +434,7 @@ function App() {
           <span className="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 28 28" fill="none">
               <path
-                d="M3 15h6l3-8 5 15 3-7h5"
+                d="M5 5h18v13H13l-6 5v-5H5V5Z M10 10h8 M10 14h5"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -445,7 +445,7 @@ function App() {
           PatchPulse
           <span className="brand-dot">.</span>
         </a>
-        <div className="sidebar-label">RELEASE INTELLIGENCE</div>
+        <div className="sidebar-label">Feedback research studio</div>
         <nav aria-label="Main navigation">
           {["Overview", "Reviews", "Analyze feedback", "How it works"].map(
             (item, i) => (
@@ -497,7 +497,7 @@ function App() {
       <main id="main">
         <header>
           <div className="breadcrumbs">
-            WORKSPACE <span>/</span> {tab.toUpperCase()}
+            Research workspace <span>/</span> {tab}
           </div>
           <div className="header-actions">
             <button
@@ -509,9 +509,7 @@ function App() {
             >
               Search evidence <kbd>/</kbd>
             </button>
-            <span className="build-tag">
-              PROTOTYPE <span>01</span>
-            </span>
+            <span className="build-tag">Local prototype</span>
           </div>
         </header>
         {error && (
@@ -538,21 +536,15 @@ function App() {
             </div>
             <div className="hero">
               <div>
-                <span className="eyebrow">PLAYER FEEDBACK, IN CONTEXT</span>
+                <span className="eyebrow">YOUR FEEDBACK WORKSPACE</span>
                 <h1>
-                  {tab === "Overview" ? (
-                    <>
-                      Find the signal.
-                      <br />
-                      <span className="hero-accent">Follow the evidence.</span>
-                    </>
-                  ) : tab === "Reviews" ? (
-                    "Follow the evidence."
-                  ) : tab === "Analyze feedback" ? (
-                    "Test the text, not your assumptions."
-                  ) : (
-                    "Make the method inspectable."
-                  )}
+                  {tab === "Overview"
+                    ? "Player feedback, in focus."
+                    : tab === "Reviews"
+                      ? "Every review has a story."
+                      : tab === "Analyze feedback"
+                        ? "Read between the recommendations."
+                        : "The research behind the results."}
                 </h1>
                 <p>
                   {tab === "Overview"
@@ -565,7 +557,7 @@ function App() {
                 </p>
               </div>
               <button
-                className="primary"
+                className="secondary"
                 onClick={
                   tab === "Overview"
                     ? () => {
@@ -584,10 +576,23 @@ function App() {
                 DRG
               </div>
               <div>
-                <h2>{data.game.name}</h2>
-                <p>
-                  {data.game.title} <span>· {data.game.date}</span>
-                </p>
+                <span className="update-label">
+                  Game update · 1 study available
+                </span>
+                <details className="study-picker">
+                  <summary>
+                    <strong>{data.game.name}</strong>
+                    <span>{data.game.title}</span>
+                  </summary>
+                  <div className="study-picker-note">
+                    <strong>About this study</strong>
+                    <p>
+                      Equal 14-day review windows around the {data.game.date}{" "}
+                      update. Release day is omitted. This workspace currently
+                      contains one game update.
+                    </p>
+                  </div>
+                </details>
                 <p className="case-context">
                   {(
                     data.periods.before.count + data.periods.after.count
@@ -596,7 +601,7 @@ function App() {
                   {data.mode === "synthetic"
                     ? "synthetic examples"
                     : "collected reviews"}{" "}
-                  · snapshot {data.snapshot_date}
+                  · released {data.game.date} · snapshot {data.snapshot_date}
                 </p>
               </div>
               <a href={data.game.source_url} target="_blank" rel="noreferrer">
@@ -665,50 +670,60 @@ function App() {
                   </section>
                 </div>
                 <section className="window-map" aria-label="Comparison windows">
-                  <div className="window-map-title">
-                    <span className="eyebrow">THE COMPARISON FRAME</span>
-                    <span className="map-qualification">
-                      Equal windows · release day omitted · UTC
-                    </span>
-                  </div>
-                  <div className="window-map-track">
-                    <div className="window-segment before-segment">
-                      <span>BEFORE</span>
-                      <div className="calendar-cells" aria-hidden="true">
-                        {Array.from({ length: 14 }, (_, i) => (
-                          <i key={i} />
-                        ))}
+                  <details>
+                    <summary>
+                      Comparison windows{" "}
+                      <span>
+                        14 days before & after · release day omitted · UTC
+                      </span>
+                    </summary>
+                    <div className="window-map-title">
+                      <span className="eyebrow">THE COMPARISON FRAME</span>
+                      <span className="map-qualification">
+                        Equal windows · release day omitted · UTC
+                      </span>
+                    </div>
+                    <div className="window-map-track">
+                      <div className="window-segment before-segment">
+                        <span>BEFORE</span>
+                        <div className="calendar-cells" aria-hidden="true">
+                          {Array.from({ length: 14 }, (_, i) => (
+                            <i key={i} />
+                          ))}
+                        </div>
+                        <small>
+                          {date(data.periods.before.start)} —{" "}
+                          {date(data.periods.before.end)} exclusive
+                        </small>
                       </div>
-                      <small>
-                        {date(data.periods.before.start)} —{" "}
-                        {date(data.periods.before.end)} exclusive
-                      </small>
-                    </div>
-                    <div className="release-marker">
-                      <span className="release-diamond" aria-hidden="true" />
-                      <strong>UPDATE</strong>
-                      <span>{data.game.date}</span>
-                    </div>
-                    <div className="window-segment after-segment">
-                      <span>AFTER</span>
-                      <div className="calendar-cells" aria-hidden="true">
-                        {Array.from({ length: 14 }, (_, i) => (
-                          <i key={i} />
-                        ))}
+                      <div className="release-marker">
+                        <span className="release-diamond" aria-hidden="true" />
+                        <strong>UPDATE</strong>
+                        <span>{data.game.date}</span>
                       </div>
-                      <small>
-                        {date(data.periods.after.start)} —{" "}
-                        {date(data.periods.after.end)} exclusive
-                      </small>
+                      <div className="window-segment after-segment">
+                        <span>AFTER</span>
+                        <div className="calendar-cells" aria-hidden="true">
+                          {Array.from({ length: 14 }, (_, i) => (
+                            <i key={i} />
+                          ))}
+                        </div>
+                        <small>
+                          {date(data.periods.after.start)} —{" "}
+                          {date(data.periods.after.end)} exclusive
+                        </small>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 </section>
                 <div className="analysis-grid">
                   <section className="panel">
                     <div className="panel-heading">
                       <div>
-                        <span className="eyebrow">EXPLORATORY SIGNALS</span>
-                        <h2>What gets mentioned?</h2>
+                        <span className="eyebrow">
+                          TOPICS IN THE CONVERSATION
+                        </span>
+                        <h2>What are players talking about?</h2>
                       </div>
                       <div
                         className="segmented"
@@ -776,56 +791,83 @@ function App() {
                       ))}
                   </section>
                   <section className="panel field-notes">
-                    <span className="eyebrow">READ THIS WITH THE CHARTS</span>
-                    <h2>Context is part of the result.</h2>
-                    <div className="note">
-                      <span>01</span>
-                      <div>
-                        <h3>A retrospective snapshot</h3>
-                        <p>
-                          Current text is eligible only when created in its
-                          window and last edited before the cutoff.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="note">
-                      <span>02</span>
-                      <div>
-                        <h3>Coverage stays visible</h3>
-                        <p>
-                          {Object.values(data.periods).some(
-                            (p) => p.coverage.status === "capped_incomplete",
-                          )
-                            ? "At least one collection cap was reached. Windows are incomplete and may overrepresent later dates."
-                            : data.mode === "real"
-                              ? "Pagination exhausted both windows. A one-record mismatch with the after-window source total remains unresolved."
-                              : "These invented examples demonstrate collection states; they do not represent the player population."}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="note">
-                      <span>03</span>
-                      <div>
-                        <h3>Mentions are not sentiment</h3>
-                        <p>
-                          A player can recommend a game while criticizing
-                          multiplayer. A topic word alone does not tell us
-                          whether the feedback is positive or negative.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="excluded">
-                      <strong>
-                        {Object.values(data.exclusions).reduce(
-                          (a, b) => a + b,
-                          0,
-                        )}
-                      </strong>
-                      <span>reviews excluded by eligibility rules</span>
-                    </div>
-                    <button className="text-button" onClick={exportBrief}>
-                      Export evidence-linked brief ↓
+                    <span className="eyebrow">GO A LITTLE DEEPER</span>
+                    <h2>A thumbs-up can contain a complaint.</h2>
+                    <p>
+                      A player can love the missions and still have a
+                      frustrating co-op session. Explore each topic in its own
+                      context.
+                    </p>
+                    <blockquote className="studio-quote">
+                      “Great missions, but our co-op sessions keep
+                      disconnecting.”
+                      <cite>
+                        Invented example · two topics, different opinions
+                      </cite>
+                    </blockquote>
+                    <button
+                      className="primary studio-analyze"
+                      onClick={() => {
+                        setFeedbackInput({
+                          text: "Great missions, but our co-op sessions keep disconnecting.",
+                          revision: Date.now(),
+                        });
+                        setTab("Analyze feedback");
+                      }}
+                    >
+                      Explore praise & complaints →
                     </button>
+                    <details className="collection-notes">
+                      <summary>Understand this comparison</summary>
+                      <div className="note">
+                        <span>01</span>
+                        <div>
+                          <h3>A retrospective snapshot</h3>
+                          <p>
+                            Current text is eligible only when created in its
+                            window and last edited before the cutoff.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="note">
+                        <span>02</span>
+                        <div>
+                          <h3>Coverage stays visible</h3>
+                          <p>
+                            {Object.values(data.periods).some(
+                              (p) => p.coverage.status === "capped_incomplete",
+                            )
+                              ? "At least one collection cap was reached. Windows are incomplete and may overrepresent later dates."
+                              : data.mode === "real"
+                                ? "Pagination exhausted both windows. A one-record mismatch with the after-window source total remains unresolved."
+                                : "These invented examples demonstrate collection states; they do not represent the player population."}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="note">
+                        <span>03</span>
+                        <div>
+                          <h3>Mentions are not sentiment</h3>
+                          <p>
+                            A player can recommend a game while criticizing
+                            multiplayer. A topic word alone does not tell us
+                            whether the feedback is positive or negative.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="excluded">
+                        <strong>
+                          {Object.values(data.exclusions).reduce(
+                            (a, b) => a + b,
+                            0,
+                          )}
+                        </strong>
+                        <span>reviews excluded by eligibility rules</span>
+                      </div>
+                      <button className="text-button" onClick={exportBrief}>
+                        Export evidence-linked brief ↓
+                      </button>
+                    </details>
                   </section>
                 </div>
                 {evidencePanel}
@@ -1093,7 +1135,7 @@ function App() {
               </>
             )}
             <footer>
-              <span>PATCHPULSE · EVIDENCE BEFORE CONCLUSIONS</span>
+              <span>PatchPulse · Feedback research studio</span>
               <span>
                 Local prototype ·{" "}
                 {data.mode === "synthetic"

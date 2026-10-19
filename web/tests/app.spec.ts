@@ -6,7 +6,7 @@ test("case, evidence filters, safe text, model, and brief export", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /Find the signal/ }),
+    page.getByRole("heading", { name: /Player feedback, in focus/ }),
   ).toBeVisible();
   await expect(page.getByText("SYNTHETIC DEMO", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Browse reviews" }).click();
@@ -69,7 +69,7 @@ test("capture desktop and mobile screens and keyboard focus", async ({
 }, testInfo) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /Find the signal/ }),
+    page.getByRole("heading", { name: /Player feedback, in focus/ }),
   ).toBeVisible();
   await page.screenshot({
     path: `../assets/${testInfo.project.name}-case.png`,

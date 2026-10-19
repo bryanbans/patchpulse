@@ -8,7 +8,7 @@ After a game update, an overall rating only tells part of the story. A developer
 
 PatchPulse brings recommendation trends, review topics, and supporting passages into one place. It helps you investigate feedback before and after an update, then look more closely at praise and complaints within individual reviews.
 
-![PatchPulse dashboard with clearly labeled synthetic reviews](assets/desktop-preview.png)
+![PatchPulse feedback research studio with clearly labeled synthetic reviews](assets/desktop-preview.png)
 
 ## What questions does PatchPulse help answer?
 
@@ -109,6 +109,7 @@ Built with Python, FastAPI, SQLite, scikit-learn, React, and TypeScript. Optiona
 - [Data source and reuse audit](docs/data_sources.md)
 - [Human annotation guide](docs/annotation_guide.md)
 - [Architecture decisions](docs/decisions.md)
+- [Feedback studio design system](docs/design_system.md)
 - [Verification record](docs/verification.md)
 - [Milestones and remaining release work](docs/milestones.md)
 
