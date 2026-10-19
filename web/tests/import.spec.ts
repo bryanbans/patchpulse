@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("a browser-parsed CSV produces local complaint candidates", async ({ page }) => {
+test("a browser-parsed CSV produces local complaint candidates", async ({ page }, info) => {
   await page.goto("/");
   await page.getByRole("navigation").getByRole("button", { name: "Import data" }).click();
   await page.locator('input[type="file"]').setInputFiles({
@@ -16,6 +16,7 @@ test("a browser-parsed CSV produces local complaint candidates", async ({ page }
   await expect(page.getByRole("heading", { name: "1 of 2 reviews have a complaint candidate." })).toBeVisible();
   await expect(page.locator(".candidate-list")).toContainText("matchmaking fails nightly");
   await expect(page.locator(".candidate-list")).toContainText("REVIEW keep");
+  await page.screenshot({ path: `../assets/${info.project.name}-import.png`, fullPage: true });
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export candidates" }).click();
   expect((await download).suggestedFilename()).toBe("patchpulse-complaint-candidates.txt");

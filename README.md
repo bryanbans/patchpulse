@@ -46,6 +46,8 @@ PatchPulse is usable with a local review export, not only the bundled demo. Star
 
 The output lists exact passages that matched transparent complaint rules and a topic-level candidate count. It is a review queue, not an issue count, a defect confirmation, or a validated complaint rate. Read the full review before making a product decision; no match does not prove that a review contains no complaint.
 
+![PatchPulse import workspace showing a synthetic export mapped to an evidence-backed candidate queue](assets/desktop-import.png)
+
 ## Current project status
 
 **Working local prototype with a reproducible NLP study.**
@@ -53,7 +55,7 @@ The output lists exact passages that matched transparent complaint rules and a t
 - The public demo uses 48 clearly labeled, original synthetic reviews. It runs without Steam access, a GPU, or paid AI services after dependency installation.
 - A separate private study examines Deep Rock Galactic's Season 05 update. Public reports contain aggregate results; source review text, identifiers, and trained models stay out of this repository.
 - Recommendation prediction is a separate model experiment. It never replaces a review's known recommendation in the before-and-after statistics.
-- Complaint/praise rules now handle repair negation and preserve uncertainty for questions, wishes, and ambiguous topics. A [reproducible development suite](docs/aspect_sentiment.md#version-2-development-checks-and-measured-changes) records improvements and remaining failures; these authored checks do not establish real-world accuracy.
+- Complaint/praise rules now handle repair negation and preserve uncertainty for questions, wishes, and ambiguous topics. A [reproducible development suite](docs/aspect_sentiment.md#version-3-development-checks-and-measured-changes) records improvements and remaining failures; these authored checks do not establish real-world accuracy.
 - Human-evaluated topic sentiment, final temporal evaluation, and evaluation on an unseen game remain unfinished.
 
 ## The NLP study

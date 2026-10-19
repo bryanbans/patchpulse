@@ -64,7 +64,7 @@ The original recommendation study, model selection and final-test manifest remai
 
 The new [48-case challenge suite](../data/fixtures/aspect-challenge.json) is original AI-authored synthetic material with **no independent human review**. It is separate from the 48-passage training fixture, but can share examples and wording. These public cases were used to guide the changes: they are development/regression checks, not an untouched benchmark or a real-player accuracy estimate.
 
-| Check on the same authored scenarios | Rules v1 | Rules v2 |
+| Check on the same authored scenarios | Rules v1 | Rules v3 |
 |---|---:|---:|
 | Reviews with exactly the expected topic/polarity map | 39 / 48 | 47 / 48 |
 | Repair/resolution scenarios | 7 / 8 | 8 / 8 |
@@ -72,7 +72,7 @@ The new [48-case challenge suite](../data/fixtures/aspect-challenge.json) is ori
 | Topic mentions without asserted sentiment | 3 / 5 | 5 / 5 |
 | Unchanged topic decisions under both recommendation prefixes | 48 / 48 | 48 / 48 |
 
-Version 2 scopes negation to a nearby repair verb, including contractions: `crashes aren't fixed` is a complaint, while `crashes were fixed without a restart` is praise. Plural `crash logs` and `crash reports` no longer act as failure cues. Explicit questions and conditional/wish wording abstain; the learned classifier cannot override these safeguards or ambiguous multi-topic scope. Evidence retains exact Unicode offsets.
+Version 3 retains the repair-negation safeguards introduced in v2: `crashes aren't fixed` is a complaint, while `crashes were fixed without a restart` is praise. Plural `crash logs` and `crash reports` no longer act as failure cues. Explicit questions and conditional/wish wording abstain; the learned classifier cannot override these safeguards or ambiguous multi-topic scope. Evidence retains exact Unicode offsets.
 
 The remaining mismatch is preserved in the report: a descriptive server-browser statement remains uncertain instead of neutral. Version 3 adds cautious gaming-language patterns for explicit failed matchmaking, disconnects, kick events, queue failures and failed joins. A correct sarcastic example in this small suite does **not** establish sarcasm understanding.
 

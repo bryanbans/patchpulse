@@ -68,6 +68,10 @@ Aspect rules are now v3. Explicit failed-matchmaking, failed-join, kick-event, q
 
 Validation: 89 Python tests, lint and formatting checks passed; 48 desktop/mobile browser checks passed, including CSV import, malformed JSON feedback, candidate export, exact offsets and review scopes. The public-file guard passed for 118 tracked files.
 
+## Public import presentation refresh — 2026-10-19
+
+Added synthetic desktop and mobile captures of the local import flow after a CSV is mapped and the provisional candidate queue is returned. The README now shows that concrete workflow next to the input contract, privacy boundary, batching limit, and interpretation limits. Corrected documentation references to the current aspect-rules v3 detector; this does not change detector behavior or its evaluation status.
+
 Validation: production build passed; all 40 Playwright checks passed across desktop/mobile. Visually inspected desktop overview and analysis plus mobile overview; refreshed synthetic screenshots. Focused computed text-contrast scan across five workspaces returned no failures after button/skip-link fixes (not a comprehensive accessibility audit).
 
 ## Game-developer investigation review — 2026-10-18
