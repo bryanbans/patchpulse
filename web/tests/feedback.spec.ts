@@ -69,6 +69,10 @@ test("an evidence review can be sent to the aspect lab without changing its reco
   page,
 }) => {
   await page.goto("/");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Reviews", exact: true })
+    .click();
   const reviewText = await page.locator(".review > p").first().textContent();
   await page
     .getByRole("button", { name: "Analyze this review" })
@@ -150,11 +154,9 @@ test("repair negation and learned abstentions remain visible with development pr
   await expect(page.locator(".feedback-card")).not.toContainText(
     "Model score:",
   );
-  await page
-    .locator(".feedback-lab")
-    .screenshot({
-      path: `../assets/${info.project.name}-aspect-validation.png`,
-    });
+  await page.locator(".feedback-lab").screenshot({
+    path: `../assets/${info.project.name}-aspect-validation.png`,
+  });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

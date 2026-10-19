@@ -153,6 +153,9 @@ test("detector choice is sent to API and thresholds stay visible", async ({
     .getByRole("navigation")
     .getByRole("button", { name: "Analyze feedback", exact: true })
     .click();
+  await page
+    .getByText("Explore the recommendation model", { exact: false })
+    .click();
   await page.getByLabel("Detector", { exact: true }).selectOption("sensitive");
   await page.getByRole("button", { name: "Predict recommendation" }).click();
   await expect(page.getByRole("status")).toContainText(

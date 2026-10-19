@@ -5,6 +5,12 @@ import { ResearchPanel } from "./ResearchPanel";
 import { NeuralPanel } from "./NeuralPanel";
 import { AspectLab } from "./AspectLab";
 import { AnnotationApp } from "./AnnotationApp";
+import { UpdateDesk } from "./UpdateDesk";
+import {
+  ResearchNotebook,
+  type ResearchNote,
+  type NoteDraft,
+} from "./ResearchNotebook";
 
 type Period = {
   count: number;
@@ -55,17 +61,49 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return r.json();
 }
 const date = (t: number) => new Date(t * 1000).toISOString().slice(0, 10);
-const pct = (rate: number | null) =>
-  rate === null ? "Insufficient data" : `${(rate * 100).toFixed(1)}%`;
 
 function App() {
   const [feedbackInput, setFeedbackInput] = useState<{
     text: string;
     revision: number;
+    source?: string;
   }>();
   const searchRef = useRef<HTMLInputElement>(null);
   const [focusSearch, setFocusSearch] = useState(false);
-  const [aspectView, setAspectView] = useState<"counts" | "share">("counts");
+  const [notes, setNotes] = useState<ResearchNote[]>([]);
+  const [notice, setNotice] = useState("");
+  const [activeReview, setActiveReview] = useState("");
+  const readerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(""), 3500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+  useEffect(() => {
+    if (activeReview && tab === "Reviews") readerRef.current?.focus();
+  }, [activeReview]);
+  function saveNote(draft: NoteDraft) {
+    setNotes((current) =>
+      current.some(
+        (n) =>
+          n.text === draft.text &&
+          n.topic === draft.topic &&
+          n.source === draft.source &&
+          n.method === draft.method &&
+          n.label === draft.label,
+      )
+        ? current
+        : [...current, { ...draft, id: crypto.randomUUID(), annotation: "" }],
+    );
+    setNotice("Saved to your session notebook. Refreshing clears it.");
+  }
+  function browseReviews(negative = false) {
+    clearFilters();
+    setPeriod(negative ? "after" : "all");
+    setRecommendation(negative ? "negative" : "all");
+    setTab("Reviews");
+  }
+
   const [data, setData] = useState<Case | null>(null),
     [error, setError] = useState(""),
     [tab, setTab] = useState(
@@ -101,6 +139,9 @@ function App() {
     } | null>(null),
     [predicting, setPredicting] = useState(false),
     [predictError, setPredictError] = useState("");
+  useEffect(() => {
+    if (tab === "Notebook") setNotice("");
+  }, [tab]);
   useEffect(() => {
     if (tab === "Reviews" && focusSearch) {
       searchRef.current?.focus();
@@ -320,108 +361,187 @@ function App() {
           No evidence matches these filters. Try another topic or search term.
         </div>
       )}
-      {rows.slice(0, tab === "Overview" ? 3 : rows.length).map((r) => (
-        <article key={r.version_id} className="review">
-          <div className="review-meta">
-            <span className={r.voted_up ? "pill positive" : "pill negative"}>
-              {r.voted_up ? "↗ Recommended" : "↘ Not recommended"}
-            </span>
-            <span>
-              {r.period === "before" ? "Before" : "After"} ·{" "}
-              {date(r.created_at)} UTC
-            </span>
-          </div>
-          <p>{r.text}</p>
-          <div className="review-bottom">
-            <div className="tags">
-              {r.mentions.map((m) => (
-                <button key={m.aspect} onClick={() => selectAspect(m.aspect)}>
-                  {m.aspect}
-                </button>
-              ))}
-            </div>
-            <button
-              className="text-button"
-              onClick={() => {
-                setFeedbackInput({ text: r.text, revision: Date.now() });
-                setTab("Analyze feedback");
-              }}
-            >
-              Analyze this review ↗
-            </button>
-            <button
-              className="text-button"
-              aria-expanded={expanded === r.version_id}
-              onClick={() =>
-                setExpanded(expanded === r.version_id ? "" : r.version_id)
-              }
-            >
-              {" "}
-              {expanded === r.version_id
-                ? "Hide evidence −"
-                : "Inspect evidence +"}{" "}
-            </button>
-          </div>
-          {expanded === r.version_id && (
-            <div className="detail">
-              <p>
-                <strong>Version</strong> <code>{r.version_id}</code>
-              </p>
-              <p>
-                The recommendation comes from the review record. Topic words
-                show what is mentioned, but do not establish whether the player
-                praises or criticizes it.
-              </p>
-              {r.mentions.map((m) => (
-                <blockquote key={m.aspect}>
-                  <strong>{m.aspect}</strong> · raw-text offsets [{m.start},{" "}
-                  {m.end})<br />
-                  {m.passage}
-                </blockquote>
-              ))}
-              {r.source_url ? (
-                <a href={r.source_url} target="_blank" rel="noreferrer">
-                  Steam source listing ↗
-                </a>
-              ) : (
-                <p>
-                  This is an invented example, not a published Steam review.
+      {rows.length > 0 && (
+        <div className="review-split">
+          <div className="review-list" aria-label="Matching reviews">
+            {rows.map((r, i) => (
+              <button
+                className={`review-list-item ${(rows.find((r) => r.version_id === activeReview)?.version_id || rows[0]?.version_id) === r.version_id ? "selected" : ""}`}
+                key={r.version_id}
+                aria-label={`Read review ${offset + i + 1}`}
+                aria-describedby={`review-preview-${r.version_id} review-label-${r.version_id}`}
+                aria-pressed={
+                  (rows.find((r) => r.version_id === activeReview)
+                    ?.version_id || rows[0]?.version_id) === r.version_id
+                }
+                onClick={() => {
+                  setActiveReview(r.version_id);
+                  setExpanded("");
+                }}
+              >
+                <span className="list-review-meta">
+                  <span>{String(offset + i + 1).padStart(2, "0")}</span>
+                  <span>
+                    {r.period === "after" ? "After update" : "Before update"}
+                  </span>
+                  <span
+                    className={`recommendation-dot ${r.voted_up ? "up" : "down"}`}
+                    aria-label={r.voted_up ? "Recommended" : "Not recommended"}
+                  />
+                </span>
+                <span className="sr-only" id={`review-label-${r.version_id}`}>
+                  Recorded recommendation:{" "}
+                  {r.voted_up ? "recommended" : "not recommended"}.
+                </span>
+                <p id={`review-preview-${r.version_id}`}>
+                  {r.text.slice(0, 145)}
+                  {r.text.length > 145 ? "…" : ""}
                 </p>
-              )}
-            </div>
-          )}
-        </article>
-      ))}
-      {tab === "Overview" ? (
-        <div className="evidence-preview-footer">
-          <p>
-            Start with a few examples, then explore the complete collected
-            sample.
-          </p>
-          <button className="secondary" onClick={() => setTab("Reviews")}>
-            Browse all {total.toLocaleString()} reviews →
-          </button>
-        </div>
-      ) : (
-        <div className="pagination">
-          <button
-            disabled={offset === 0 || busy}
-            onClick={() => setOffset(Math.max(0, offset - 12))}
-          >
-            ← Previous
-          </button>
-          <span>
-            {total === 0 ? "0" : offset + 1}–{Math.min(offset + 12, total)} of{" "}
-            {total}
-          </span>
-          <button
-            disabled={offset + 12 >= total || busy}
-            onClick={() => setOffset(offset + 12)}
-          >
-            Next →
-          </button>
+                <span className="list-topic">
+                  {r.mentions.map((m) => m.aspect).join(" · ") ||
+                    "No keyword topic"}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="review-reader">
+            {" "}
+            {(rows.find((r) => r.version_id === activeReview)
+              ? [rows.find((r) => r.version_id === activeReview)!]
+              : rows.slice(0, 1)
+            ).map((r) => (
+              <article
+                key={r.version_id}
+                className="review"
+                ref={readerRef}
+                tabIndex={-1}
+                aria-label="Selected review"
+              >
+                <div className="review-meta">
+                  <span
+                    className={r.voted_up ? "pill positive" : "pill negative"}
+                  >
+                    {r.voted_up ? "↗ Recommended" : "↘ Not recommended"}
+                  </span>
+                  <span>
+                    {r.period === "before" ? "Before" : "After"} ·{" "}
+                    {date(r.created_at)} UTC
+                  </span>
+                </div>
+                <p>{r.text}</p>
+                <div className="review-bottom">
+                  <button
+                    className="secondary save-review"
+                    disabled={notes.some(
+                      (n) =>
+                        n.text === r.text && n.source.endsWith(r.version_id),
+                    )}
+                    onClick={() =>
+                      saveNote({
+                        text: r.text,
+                        topic:
+                          r.mentions.map((m) => m.aspect).join(" / ") ||
+                          "Review",
+                        label: `Recorded recommendation: ${r.voted_up ? "Recommended" : "Not recommended"}`,
+                        source: `${data?.mode === "synthetic" ? "Synthetic example" : "Private source review"} · version ${r.version_id}`,
+                      })
+                    }
+                  >
+                    {notes.some(
+                      (n) =>
+                        n.text === r.text && n.source.endsWith(r.version_id),
+                    )
+                      ? "Saved to notebook ✓"
+                      : "Save review +"}
+                  </button>
+                  <div className="tags">
+                    {r.mentions.map((m) => (
+                      <button
+                        key={m.aspect}
+                        onClick={() => selectAspect(m.aspect)}
+                      >
+                        {m.aspect}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className="text-button"
+                    onClick={() => {
+                      setFeedbackInput({
+                        text: r.text,
+                        revision: Date.now(),
+                        source: `${data?.mode === "synthetic" ? "Synthetic example" : "Private source review"} · version ${r.version_id}`,
+                      });
+                      setTab("Analyze feedback");
+                    }}
+                  >
+                    Analyze this review ↗
+                  </button>
+                  <button
+                    className="text-button"
+                    aria-expanded={expanded === r.version_id}
+                    onClick={() =>
+                      setExpanded(expanded === r.version_id ? "" : r.version_id)
+                    }
+                  >
+                    {" "}
+                    {expanded === r.version_id
+                      ? "Hide evidence −"
+                      : "Inspect evidence +"}{" "}
+                  </button>
+                </div>
+                {expanded === r.version_id && (
+                  <div className="detail">
+                    <p>
+                      <strong>Version</strong> <code>{r.version_id}</code>
+                    </p>
+                    <p>
+                      The recommendation comes from the review record. Topic
+                      words show what is mentioned, but do not establish whether
+                      the player praises or criticizes it.
+                    </p>
+                    {r.mentions.map((m) => (
+                      <blockquote key={m.aspect}>
+                        <strong>{m.aspect}</strong> · raw-text offsets [
+                        {m.start}, {m.end})<br />
+                        {m.passage}
+                      </blockquote>
+                    ))}
+                    {r.source_url ? (
+                      <a href={r.source_url} target="_blank" rel="noreferrer">
+                        Steam source listing ↗
+                      </a>
+                    ) : (
+                      <p>
+                        This is an invented example, not a published Steam
+                        review.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
         </div>
       )}
+      <div className="pagination">
+        <button
+          disabled={offset === 0 || busy}
+          onClick={() => setOffset(Math.max(0, offset - 12))}
+        >
+          ← Previous
+        </button>
+        <span>
+          {total === 0 ? "0" : offset + 1}–{Math.min(offset + 12, total)} of{" "}
+          {total}
+        </span>
+        <button
+          disabled={offset + 12 >= total || busy}
+          onClick={() => setOffset(offset + 12)}
+        >
+          Next →
+        </button>
+      </div>
     </section>
   );
   return (
@@ -445,44 +565,64 @@ function App() {
           PatchPulse
           <span className="brand-dot">.</span>
         </a>
-        <div className="sidebar-label">Feedback research studio</div>
+        <div className="sidebar-label">FEEDBACK RESEARCH</div>
+        {data && (
+          <div className="project-space">
+            <span className="project-monogram">DRG</span>
+            <div>
+              <strong>{data.game.name}</strong>
+              <span>{data.game.title}</span>
+            </div>
+          </div>
+        )}
         <nav aria-label="Main navigation">
-          {["Overview", "Reviews", "Analyze feedback", "How it works"].map(
-            (item, i) => (
-              <button
-                key={item}
-                className={tab === item ? "active" : ""}
-                aria-current={tab === item ? "page" : undefined}
-                onClick={() => setTab(item)}
+          {[
+            "Overview",
+            "Reviews",
+            "Analyze feedback",
+            "Notebook",
+            "How it works",
+          ].map((item, i) => (
+            <button
+              key={item}
+              className={tab === item ? "active" : ""}
+              aria-current={tab === item ? "page" : undefined}
+              aria-label={item}
+              onClick={() => setTab(item)}
+            >
+              <svg
+                className="nav-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-                <svg
-                  className="nav-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d={
-                      [
-                        "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
-                        "M21 21l-5-5 M18 10a8 8 0 1 1-16 0a8 8 0 0 1 16 0",
-                        "M9 3h6 M10 3v7L4 20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1l-6-10V3 M7 15h10",
-                        "M3 4h7a2 2 0 0 1 2 2v15a3 3 0 0 0-3-2H3z M21 4h-7a2 2 0 0 0-2 2v15a3 3 0 0 1 3-2h6z",
-                      ][i]
-                    }
-                  />
-                </svg>
-                {item}
-                <span className="nav-index" aria-hidden="true">
-                  0{i + 1}
+                <path
+                  d={
+                    [
+                      "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+                      "M21 21l-5-5 M18 10a8 8 0 1 1-16 0a8 8 0 0 1 16 0",
+                      "M9 3h6 M10 3v7L4 20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1l-6-10V3 M7 15h10",
+                      "M3 4h7a2 2 0 0 1 2 2v15a3 3 0 0 0-3-2H3z M21 4h-7a2 2 0 0 0-2 2v15a3 3 0 0 1 3-2h6z",
+                      "M5 3h14v18H5z M9 8h6 M9 12h6 M9 16h3",
+                    ][i]
+                  }
+                />
+              </svg>
+              {item}
+              {item === "Notebook" && (
+                <span className="notebook-count" aria-hidden="true">
+                  {notes.length}
                 </span>
-              </button>
-            ),
-          )}
+              )}
+              <span className="nav-index" aria-hidden="true">
+                0{i + 1}
+              </span>
+            </button>
+          ))}
         </nav>
         <div className="sidebar-note">
           <span className="status-dot" /> Local preview
@@ -495,6 +635,12 @@ function App() {
         </div>
       </aside>
       <main id="main">
+        {notice && (
+          <div className="notebook-toast" aria-live="polite">
+            {notice}
+            <button onClick={() => setTab("Notebook")}>Open notebook →</button>
+          </div>
+        )}
         <header>
           <div className="breadcrumbs">
             Research workspace <span>/</span> {tab}
@@ -507,7 +653,7 @@ function App() {
                 setFocusSearch(true);
               }}
             >
-              Search evidence <kbd>/</kbd>
+              Search reviews <kbd>/</kbd>
             </button>
             <span className="build-tag">Local prototype</span>
           </div>
@@ -534,349 +680,76 @@ function App() {
                   : "Reviews were collected after the update for a local study. Source text and trained models stay private."}
               </span>
             </div>
-            <div className="hero">
-              <div>
-                <span className="eyebrow">YOUR FEEDBACK WORKSPACE</span>
-                <h1>
-                  {tab === "Overview"
-                    ? "Player feedback, in focus."
-                    : tab === "Reviews"
-                      ? "Every review has a story."
-                      : tab === "Analyze feedback"
-                        ? "Read between the recommendations."
-                        : "The research behind the results."}
-                </h1>
-                <p>
-                  {tab === "Overview"
-                    ? "Compare recommendations before and after an update, explore review topics, and read the comments behind the numbers."
-                    : tab === "Reviews"
-                      ? "Filter the collected reviews by time, topic, or recommendation. Open a review to inspect its supporting passages."
-                      : tab === "Analyze feedback"
-                        ? "Paste a review to explore what it praises or criticizes. You can also try a separate model that predicts the overall recommendation."
-                        : "See where the data comes from, how the models were tested, and what the results can—and cannot—tell you."}
-                </p>
-              </div>
-              <button
-                className="secondary"
-                onClick={
-                  tab === "Overview"
-                    ? () => {
-                        setTab("Reviews");
-                      }
-                    : exportBrief
-                }
-              >
-                {tab === "Overview"
-                  ? "Browse reviews ↗"
-                  : "Export release brief ↓"}
-              </button>
-            </div>
-            <div className="case-bar">
-              <div className="game-glyph" aria-hidden="true">
-                DRG
-              </div>
-              <div>
-                <span className="update-label">
-                  Game update · 1 study available
-                </span>
-                <details className="study-picker">
-                  <summary>
-                    <strong>{data.game.name}</strong>
-                    <span>{data.game.title}</span>
-                  </summary>
-                  <div className="study-picker-note">
-                    <strong>About this study</strong>
-                    <p>
-                      Equal 14-day review windows around the {data.game.date}{" "}
-                      update. Release day is omitted. This workspace currently
-                      contains one game update.
-                    </p>
-                  </div>
-                </details>
-                <p className="case-context">
-                  {(
-                    data.periods.before.count + data.periods.after.count
-                  ).toLocaleString()}{" "}
-                  eligible{" "}
-                  {data.mode === "synthetic"
-                    ? "synthetic examples"
-                    : "collected reviews"}{" "}
-                  · released {data.game.date} · snapshot {data.snapshot_date}
-                </p>
-              </div>
-              <a href={data.game.source_url} target="_blank" rel="noreferrer">
-                Official update ↗
-              </a>
-            </div>
-            {tab === "Overview" && (
-              <>
-                <div className="section-label">
-                  <h2>Recorded recommendations</h2>
-                  <span>
-                    Observed labels ·{" "}
-                    {data.mode === "synthetic"
-                      ? "invented demo data"
-                      : "eligible collected sample"}
+            {(tab === "Reviews" || tab === "How it works") && (
+              <div className="desk-title">
+                <div>
+                  <span className="eyebrow">
+                    {tab === "Reviews"
+                      ? "FOLLOW THE EVIDENCE"
+                      : "METHODS & LIMITS"}
                   </span>
+                  <h1>
+                    {tab === "Reviews"
+                      ? "The review explorer."
+                      : "How the research works."}
+                  </h1>
+                  <p>
+                    {tab === "Reviews"
+                      ? "Choose a review. Read it in context. Collect the passages that support your thinking."
+                      : "Inspect the models, data boundaries and evidence behind the application."}
+                  </p>
                 </div>
-                <div className="stats-grid">
-                  {["before", "after"].map((p) => (
-                    <section className="stat-card" key={p}>
-                      <span className="eyebrow">
-                        {p === "before"
-                          ? "01 / BEFORE UPDATE"
-                          : "02 / AFTER UPDATE"}
-                      </span>
-                      <strong>{pct(data.periods[p].rate)}</strong>
-                      <p>
-                        {data.periods[p].positive} recommended /{" "}
-                        {data.periods[p].count} eligible reviews
-                      </p>
-                      <div
-                        className="rate-track"
-                        role="img"
-                        aria-label={`${p}: ${pct(data.periods[p].rate)} recommended`}
-                      >
-                        <span
-                          style={{
-                            width: `${(data.periods[p].rate || 0) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <small>
-                        {date(data.periods[p].start)} →{" "}
-                        {date(data.periods[p].end)} exclusive · UTC
-                      </small>
-                      <span className="coverage">
-                        {data.periods[p].coverage.status.replaceAll("_", " ")}
-                      </span>
-                    </section>
-                  ))}
-                  <section className="stat-card change">
-                    <span className="eyebrow">03 / OBSERVED DIFFERENCE</span>
-                    <strong>
-                      {data.change_pp === null
-                        ? "—"
-                        : `${data.change_pp >= 0 ? "+" : ""}${data.change_pp.toFixed(1)}`}
-                      <em> pp</em>
-                    </strong>
-                    <p>Percentage points, after minus before</p>
-                    <div className="change-note">
-                      A change in the collected reviews.
-                      <br />
-                      No claim of patch causation.
-                    </div>
-                    <small>Snapshot · {data.snapshot_date}</small>
-                  </section>
-                </div>
-                <section className="window-map" aria-label="Comparison windows">
-                  <details>
-                    <summary>
-                      Comparison windows{" "}
-                      <span>
-                        14 days before & after · release day omitted · UTC
-                      </span>
-                    </summary>
-                    <div className="window-map-title">
-                      <span className="eyebrow">THE COMPARISON FRAME</span>
-                      <span className="map-qualification">
-                        Equal windows · release day omitted · UTC
-                      </span>
-                    </div>
-                    <div className="window-map-track">
-                      <div className="window-segment before-segment">
-                        <span>BEFORE</span>
-                        <div className="calendar-cells" aria-hidden="true">
-                          {Array.from({ length: 14 }, (_, i) => (
-                            <i key={i} />
-                          ))}
-                        </div>
-                        <small>
-                          {date(data.periods.before.start)} —{" "}
-                          {date(data.periods.before.end)} exclusive
-                        </small>
-                      </div>
-                      <div className="release-marker">
-                        <span className="release-diamond" aria-hidden="true" />
-                        <strong>UPDATE</strong>
-                        <span>{data.game.date}</span>
-                      </div>
-                      <div className="window-segment after-segment">
-                        <span>AFTER</span>
-                        <div className="calendar-cells" aria-hidden="true">
-                          {Array.from({ length: 14 }, (_, i) => (
-                            <i key={i} />
-                          ))}
-                        </div>
-                        <small>
-                          {date(data.periods.after.start)} —{" "}
-                          {date(data.periods.after.end)} exclusive
-                        </small>
-                      </div>
-                    </div>
-                  </details>
-                </section>
-                <div className="analysis-grid">
-                  <section className="panel">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="eyebrow">
-                          TOPICS IN THE CONVERSATION
-                        </span>
-                        <h2>What are players talking about?</h2>
-                      </div>
-                      <div
-                        className="segmented"
-                        role="group"
-                        aria-label="Aspect display"
-                      >
-                        <button
-                          aria-pressed={aspectView === "counts"}
-                          onClick={() => setAspectView("counts")}
-                        >
-                          Counts
-                        </button>
-                        <button
-                          aria-pressed={aspectView === "share"}
-                          onClick={() => setAspectView("share")}
-                        >
-                          Share
-                        </button>
-                      </div>
-                    </div>
-                    <p className="muted">
-                      Counts of reviews mentioning each topic. These are not
-                      complaint counts. A mention alone does not tell us whether
-                      the player is praising or criticizing the topic.
-                    </p>
-                    <div className="legend">
-                      <span className="before-key" /> Before{" "}
-                      <span className="after-key" /> After
-                    </div>
-                    <div className="plot-axis">
-                      {aspectView === "counts"
-                        ? "Review mentions · common count scale"
-                        : "Share of eligible reviews · 0–100% scale"}
-                      <span>BEFORE / AFTER</span>
-                    </div>
-                    {data.mentions
-                      .filter((m) => m.before + m.after > 0)
-                      .map((m) => (
-                        <button
-                          className="aspect-row"
-                          key={m.aspect}
-                          onClick={() => selectAspect(m.aspect)}
-                          aria-label={`Inspect ${m.aspect} evidence`}
-                        >
-                          <span>{m.aspect}</span>
-                          <div className="aspect-tracks">
-                            <span
-                              style={{
-                                width: `${(100 * m.before) / (aspectView === "share" ? Math.max(data.periods.before.count, 1) : Math.max(...data.mentions.flatMap((v) => [v.before, v.after]), 1))}%`,
-                              }}
-                            />
-                            <span
-                              style={{
-                                width: `${(100 * m.after) / (aspectView === "share" ? Math.max(data.periods.after.count, 1) : Math.max(...data.mentions.flatMap((v) => [v.before, v.after]), 1))}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="aspect-count">
-                            {aspectView === "counts"
-                              ? `${m.before} / ${m.after}`
-                              : `${((100 * m.before) / Math.max(data.periods.before.count, 1)).toFixed(1)}% / ${((100 * m.after) / Math.max(data.periods.after.count, 1)).toFixed(1)}%`}{" "}
-                            <span aria-hidden="true">↗</span>
-                          </span>
-                        </button>
-                      ))}
-                  </section>
-                  <section className="panel field-notes">
-                    <span className="eyebrow">GO A LITTLE DEEPER</span>
-                    <h2>A thumbs-up can contain a complaint.</h2>
-                    <p>
-                      A player can love the missions and still have a
-                      frustrating co-op session. Explore each topic in its own
-                      context.
-                    </p>
-                    <blockquote className="studio-quote">
-                      “Great missions, but our co-op sessions keep
-                      disconnecting.”
-                      <cite>
-                        Invented example · two topics, different opinions
-                      </cite>
-                    </blockquote>
-                    <button
-                      className="primary studio-analyze"
-                      onClick={() => {
-                        setFeedbackInput({
-                          text: "Great missions, but our co-op sessions keep disconnecting.",
-                          revision: Date.now(),
-                        });
-                        setTab("Analyze feedback");
-                      }}
-                    >
-                      Explore praise & complaints →
-                    </button>
-                    <details className="collection-notes">
-                      <summary>Understand this comparison</summary>
-                      <div className="note">
-                        <span>01</span>
-                        <div>
-                          <h3>A retrospective snapshot</h3>
-                          <p>
-                            Current text is eligible only when created in its
-                            window and last edited before the cutoff.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="note">
-                        <span>02</span>
-                        <div>
-                          <h3>Coverage stays visible</h3>
-                          <p>
-                            {Object.values(data.periods).some(
-                              (p) => p.coverage.status === "capped_incomplete",
-                            )
-                              ? "At least one collection cap was reached. Windows are incomplete and may overrepresent later dates."
-                              : data.mode === "real"
-                                ? "Pagination exhausted both windows. A one-record mismatch with the after-window source total remains unresolved."
-                                : "These invented examples demonstrate collection states; they do not represent the player population."}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="note">
-                        <span>03</span>
-                        <div>
-                          <h3>Mentions are not sentiment</h3>
-                          <p>
-                            A player can recommend a game while criticizing
-                            multiplayer. A topic word alone does not tell us
-                            whether the feedback is positive or negative.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="excluded">
-                        <strong>
-                          {Object.values(data.exclusions).reduce(
-                            (a, b) => a + b,
-                            0,
-                          )}
-                        </strong>
-                        <span>reviews excluded by eligibility rules</span>
-                      </div>
-                      <button className="text-button" onClick={exportBrief}>
-                        Export evidence-linked brief ↓
-                      </button>
-                    </details>
-                  </section>
-                </div>
-                {evidencePanel}
-              </>
+                <button className="secondary" onClick={exportBrief}>
+                  Export release brief ↓
+                </button>
+              </div>
+            )}
+            {tab === "Overview" && (
+              <UpdateDesk
+                study={data}
+                notesCount={notes.length}
+                onInspect={(topic) => {
+                  clearFilters();
+                  selectAspect(topic);
+                }}
+                onBrowse={browseReviews}
+                onAnalyze={() => {
+                  setFeedbackInput({
+                    text: "Great missions, but our co-op sessions keep disconnecting.",
+                    revision: Date.now(),
+                    source: "Original invented example",
+                  });
+                  setTab("Analyze feedback");
+                }}
+                onNotebook={() => setTab("Notebook")}
+                onBrief={exportBrief}
+              />
+            )}
+            {tab === "Notebook" && (
+              <ResearchNotebook
+                notes={notes}
+                onRemove={(id) =>
+                  setNotes((current) => current.filter((n) => n.id !== id))
+                }
+                onEdit={(id, text) =>
+                  setNotes((current) =>
+                    current.map((n) =>
+                      n.id === id ? { ...n, annotation: text } : n,
+                    ),
+                  )
+                }
+                onBrowse={() => browseReviews()}
+                onBrief={exportBrief}
+              />
             )}
             {tab === "Reviews" && evidencePanel}
-            {tab === "Analyze feedback" && (
-              <>
-                <AspectLab input={feedbackInput} />
+            <div className="analysis-route" hidden={tab !== "Analyze feedback"}>
+              <AspectLab input={feedbackInput} onSave={saveNote} />
+              <details className="model-experiment">
+                <summary>
+                  Explore the recommendation model{" "}
+                  <span>A separate experiment</span>
+                </summary>
                 <section className="panel lab">
                   <span className="eyebrow">
                     TEXT-ONLY RECOMMENDATION PREDICTION
@@ -981,8 +854,8 @@ function App() {
                     </div>
                   )}
                 </section>
-              </>
-            )}
+              </details>
+            </div>
             {tab === "How it works" && (
               <>
                 <section className="panel methodology">

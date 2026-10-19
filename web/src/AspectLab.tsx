@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import type { NoteDraft } from "./ResearchNotebook";
 type Evidence = {
   start: number;
   end: number;
@@ -98,8 +99,10 @@ function PassageHighlight({ evidence }: { evidence: Evidence }) {
 
 export function AspectLab({
   input,
+  onSave,
 }: {
-  input?: { text: string; revision: number };
+  input?: { text: string; revision: number; source?: string };
+  onSave?: (note: NoteDraft) => void;
 }) {
   const [text, setText] = useState(EXAMPLES[0].text),
     [method, setMethod] = useState("rules"),
@@ -108,6 +111,8 @@ export function AspectLab({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const [syntheticModel, setSyntheticModel] = useState(true);
+  const [sourceLabel, setSourceLabel] = useState("Original invented example");
+  const [saved, setSaved] = useState<string[]>([]);
   const [checks, setChecks] = useState<DevelopmentChecks | null>(null);
   const revision = useRef(0);
   useEffect(() => {
@@ -129,6 +134,8 @@ export function AspectLab({
     if (input) {
       revision.current++;
       setText(input.text);
+      setSourceLabel(input.source || "Pasted text; source not verified");
+      setSaved([]);
       setResult(null);
       setError("");
       setBusy(false);
@@ -165,7 +172,7 @@ export function AspectLab({
       aria-labelledby="feedback-title"
     >
       <span className="eyebrow">PRAISE AND COMPLAINTS · PREVIEW</span>
-      <h2 id="feedback-title">What does this review praise or criticize?</h2>
+      <h1 id="feedback-title">What does this review praise or criticize?</h1>
       <p>
         Paste a game review to explore feedback about topics such as gameplay,
         performance, or multiplayer. A player can recommend a game and still
@@ -194,6 +201,8 @@ export function AspectLab({
                 onClick={() => {
                   revision.current++;
                   setText(e.text);
+                  setSourceLabel("Original invented example");
+                  setSaved([]);
                   setResult(null);
                   setError("");
                 }}
@@ -209,6 +218,7 @@ export function AspectLab({
             disabled={busy}
             onChange={(e) => {
               setMethod(e.target.value);
+              setSaved([]);
               setResult(null);
             }}
           >
@@ -231,11 +241,15 @@ export function AspectLab({
             disabled={busy}
             onChange={(e) => {
               setText(e.target.value);
+              setSourceLabel("Pasted text; source not verified");
+              setSaved([]);
               setResult(null);
             }}
           />
           <div className="lab-actions">
-            <span>{text.length} / 8,000 characters · input is not stored</span>
+            <span>
+              {text.length} / 8,000 characters · stays local, not saved to disk
+            </span>
             <button
               className="primary"
               disabled={!text.trim() || busy}
@@ -325,7 +339,32 @@ export function AspectLab({
                               : "Highlights show rule cues. Read them in the full passage’s context."}
                           </p>
                         )}
-                        <p>{labels[e.polarity]}</p>
+                        <div className="passage-actions">
+                          <p>{labels[e.polarity]}</p>
+                          {onSave && (
+                            <button
+                              className="text-button"
+                              disabled={saved.includes(`${a.aspect}-${i}`)}
+                              onClick={() => {
+                                onSave({
+                                  text: e.passage,
+                                  topic: a.aspect,
+                                  label: `Suggested ${labels[e.polarity]}`,
+                                  source: sourceLabel,
+                                  method: result.method,
+                                });
+                                setSaved((current) => [
+                                  ...current,
+                                  `${a.aspect}-${i}`,
+                                ]);
+                              }}
+                            >
+                              {saved.includes(`${a.aspect}-${i}`)
+                                ? "Saved ✓"
+                                : "Save passage +"}
+                            </button>
+                          )}
+                        </div>
                         <details>
                           <summary>Why this label?</summary>
                           <p>{explainReason(e.reason)}</p>

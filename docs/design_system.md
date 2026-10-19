@@ -1,39 +1,44 @@
-# PatchPulse feedback research studio
+# PatchPulse: a release-feedback workspace
 
-## Product identity
+## Users and jobs
 
-A calm workspace for understanding player feedback around a game update. The design puts language, topics and the reviewer's next action ahead of a promotional hero. A warm light canvas, indigo controls, speech-note identity and readable review cards distinguish this product from a dark log-investigation console.
+PatchPulse is aimed at game developers and people researching player feedback. Design from the decision they are trying to make, then use visual identity to make that workflow clear and engaging. Similar workflows across products are fine; decorative differences are not a reason to add steps.
 
-## Visual tokens
-
-| Role | Value |
+| User's job | Workspace behavior |
 |---|---|
-| Canvas | `#f6f5f1` |
-| Surface | `#ffffff` |
-| Primary ink | `#25283c` |
-| Secondary text | `#626779` |
-| Primary action / focus family | `#5146b7` |
-| Soft indigo surface | `#eeebfa` |
-| Before-period series | `#929ab9` |
-| After-period series | `#6758cb` |
-| Praise ink | `#176a56` |
-| Complaint ink | `#a53354` |
+| Check the response around an update | Overview compares recorded recommendation rates/counts, with the exact after-minus-before difference and a visible non-causation qualification. |
+| Decide which topic to investigate | Topic tiles rank absolute changes in mention share or combined mention volume. Counts/share are selectable, and one click opens the matching reviews. These are discussion changes, not complaint changes. |
+| Understand a specific review | A persistent filtered list sits next to a full-text reader. Selecting a review keeps the list, filters, denominator and pagination available. The reader exposes source versions and can hand text to analysis. |
+| Inspect praise and complaints | The analysis workspace pairs text with passage notes. Exact rule cues are highlighted in context, uncertainty remains visible, and the learned-model explanation boundary is explicit. The separate recommendation experiment is collapsed by default. |
+| Turn evidence into a useful brief | Save a review or suggested passage to Notebook, retain its source/label/method, add a personal interpretation, and download plain-text research notes. Statistics still have their own data-brief export. |
 
-Use the system sans-serif stack, without external font requests. Heading sizes stay compact; numeric results use tabular figures. Surface radii are 10–14 pixels, with subtle borders and restrained shadows. Reserve monospaced type for technical identifiers. Before/after series colors encode time, never sentiment. Sentiment labels always include words, not color alone.
+New topic investigations clear unrelated old filters. The not-recommended shortcut explicitly selects the after window and recommendation metadata; it does not claim to filter all complaints. Analysis inputs/results survive navigation within the app, so users can visit Notebook and return without rerunning inference.
 
-## Workspace behavior
+## Visual identity
 
-- Top navigation provides Overview, Reviews, Analyze feedback and How it works. Search retains its `/` keyboard shortcut; skip navigation and visible focus remain available.
-- The one-study context control opens actual study information. It does not invent additional game choices. Full titles wrap on narrow screens. Comparison-window boundaries and collection qualifications remain available in native disclosures.
-- Overview keeps recorded recommendations separate from topic mention counts. A guided example opens the analysis workspace without claiming to have computed results in advance.
-- Reviews retain filtering, denominators, pagination, exact source-version details and the analysis handoff. The overview shows a small card-based sample; the Reviews view exposes the full collected sample.
-- Analyze feedback pairs review entry with a passage-notes pane. Empty, pending, result, no-topic and error states use explicit text. On smaller screens, the panes stack in input-to-result order.
-- Highlights mark exact rule-cue substrings using Unicode code-point offsets. They are contextual cues, not causal explanations or evidence that the learned classifier used those words. Learned-model results state this distinction explicitly.
-- Real-world validation limits, synthetic provenance, abstention explanations, artifact diagnostics and the separate recommendation experiment remain accessible. The redesign changes no classifier, dataset, split or evaluation metric.
-- Annotation retains the blind labeling workflow, explicit review attestation, keyboard selection and local export/resume. No browser persistence or automatic uploads are introduced.
+Use a professional game-development workspace, a task-focused tool for inspecting feedback. A graphite study rail anchors the project and keeps game context visible. The main canvas stays cool and light for reading review text. Release-focused blue artwork, crisp surfaces and restrained cyan accents give the product energy; topic movement, the reader and the evidence stack provide its structure.
 
-## Responsive and accessibility checks
+| Token | Value |
+|---|---|
+| Working canvas | `#f1f4f8` |
+| Study rail | `#182238` |
+| Primary ink | `#1d2538` |
+| Primary action | `#4353ce` |
+| Release panel | `#173565` |
+| Release accent | `#86e0ff` |
+| Surfaces | `#ffffff` |
+| Borders | `#dce2ed` |
+| Before series | `#7389bd` |
+| After series | `#168193` |
 
-Browser checks cover desktop and mobile, plus 320-, 768- and 1024-pixel viewports, keyboard study disclosures, guided handoff, exact emoji-containing passages, pending/error feedback and navigation bounds. Mobile form text is 16 pixels to avoid unintended input zoom. Reduced-motion preferences are respected; native details/summary controls remain keyboard operable. A local computed foreground/background contrast scan covered the Overview, Analyze feedback and How it works views. This is a focused check, not a comprehensive accessibility certification.
+Use the local system sans-serif stack, a compact typographic hierarchy and mostly 6–9-pixel component radii. Large release typography belongs beside actual comparison data and useful actions. Graphics show real sample values; they are not simulated live activity. Series colors encode time, while sentiment uses explicit praise/complaint/mixed/needs-review labels. Zero-support comparisons remain unestablished.
 
-Synthetic-only screenshots in `assets/` document the implementation. Source styles live in `web/src/style.css` and the main composition in `web/src/main.tsx` and `web/src/AspectLab.tsx`.
+## Truth, privacy and accessibility
+
+Notebook is an ephemeral research aid, not an annotation import or human ground truth. It retains data only in browser memory until refresh or leaving the app. Saving a machine suggestion does not verify it. Exports may contain private source text and identify themselves as unvalidated research notes. No automatic upload, browser-storage persistence or public publishing is added.
+
+Keep source-version provenance, coverage, UTC window boundaries, sample sizes, uncertainty, synthetic mode and model limits inspectable. Real complaint-change statistics remain gated by actual evaluation. The redesign changes no detector, dataset, split, frozen final-test state or reported accuracy.
+
+Native disclosures, visible focus, a skip link, accessible review descriptions and labeled controls support keyboard/screen-reader use. Selecting a review moves focus to its reader. Mobile places the actual update comparison before introductory copy; workspaces stack without hiding the source text or actions. Form text is at least 16 pixels on compact screens. Reduced-motion preferences remain supported. Focused text-contrast checks are useful but are not a comprehensive accessibility certification.
+
+Browser checks cover topic scope, reader selection, session-note provenance, editing/export/removal, refresh clearing, analysis-state continuity, uncertainty retention and narrow layouts, alongside the existing analysis/annotation flows. Public screenshots use synthetic data only.

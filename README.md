@@ -19,7 +19,7 @@ PatchPulse brings recommendation trends, review topics, and supporting passages 
 | **Can one review praise gameplay and criticize multiplayer?** | Open Analyze feedback to see suggested praise or complaints for individual topics, together with the passages behind each suggestion. |
 | **What did players actually say?** | Filter reviews and inspect the exact passages behind topic matches. |
 | **How much evidence supports an observation?** | See sample sizes, collection coverage, exclusions, and source-version details. |
-| **What can I share with a teammate?** | Export a brief containing the observed recommendation statistics, evidence references, and limitations. |
+| **What can I share with a teammate?** | Export the recorded-statistics brief, or collect source-linked passages and your own interpretations in a session notebook. Review private content before sharing. |
 
 These comparisons describe the collected reviews. They do not prove that an update caused a change.
 
@@ -77,7 +77,9 @@ npm run build --prefix web
 uv run python -m patchpulse serve
 ```
 
-Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Analyze feedback**, and inspect the results in **How it works**. Text entered in Analyze feedback stays local and is not stored. Open `/feedback` to try **Praise + complaint**, **No crashes**, and **Mixed feedback**, or send a review from Reviews using **Analyze this review**.
+Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Analyze feedback**, and inspect the results in **How it works**. Analysis text/results remain in browser memory while this workspace is open; the local server does not retain input. Refreshing or leaving clears that working state. Open `/feedback` to try **Praise + complaint**, **No crashes**, and **Mixed feedback**, or send a review from Reviews using **Analyze this review**.
+
+A practical workflow: choose a topic in **Overview**, select a review in **Reviews**, and use **Analyze this review** to inspect suggested praise or complaints. Save useful reviews/passages to **Notebook**, add your interpretation, and export your notes. Notebook keeps source context and marks machine labels as suggestions; it is not an annotation export. Notes are not saved automatically and are cleared on refresh or when leaving the app.
 
 The synthetic demo demonstrates the workflow; its predictions and review statistics are not real game findings. The How it works page separately labels aggregate results from the private real-data study.
 

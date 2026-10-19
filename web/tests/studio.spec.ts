@@ -11,9 +11,9 @@ test("studio study context and guided analysis remain keyboard accessible", asyn
     "one game update",
   );
   await study.press("Enter");
-  await page.locator(".window-map summary").click();
-  await expect(page.locator(".calendar-cells")).toHaveCount(2);
-  await expect(page.locator(".calendar-cells").first()).toBeVisible();
+  await expect(page.getByLabel("Comparison windows")).toContainText(
+    "release day omitted",
+  );
   await page
     .getByRole("button", { name: "Explore praise & complaints" })
     .click();
