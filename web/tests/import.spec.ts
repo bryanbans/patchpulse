@@ -28,3 +28,18 @@ test("malformed data explains the expected import shape", async ({ page }) => {
   await page.locator('input[type="file"]').setInputFiles({ name: "reviews.json", mimeType: "application/json", buffer: Buffer.from('{"not_records": true}') });
   await expect(page.getByRole("alert")).toContainText("JSON must be an array of review objects");
 });
+
+test("large imports cannot silently discard reviews", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("navigation").getByRole("button", { name: "Import data" }).click();
+  await page.locator('input[type="file"]').setInputFiles({ name: "reviews.csv", mimeType: "text/csv", buffer: Buffer.from(`review\n${"Matchmaking fails.\n".repeat(201)}`) });
+  await expect(page.getByText(/201 reviews with text/)).toContainText("Split this file");
+  await expect(page.getByRole("button", { name: "Find complaint candidates" })).toBeDisabled();
+});
+
+test("invalid CSV is rejected instead of silently changing fields", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("navigation").getByRole("button", { name: "Import data" }).click();
+  await page.locator('input[type="file"]').setInputFiles({ name: "reviews.csv", mimeType: "text/csv", buffer: Buffer.from('review,review\nfirst,second\n') });
+  await expect(page.getByRole("alert")).toContainText("column names must be unique");
+});

@@ -1,8 +1,8 @@
 {
   "suite_id": "aspect-challenge-v1",
   "suite_sha256": "787bf03215ee58ac4132cdc9650a7a1b6351067f52a8fdad6100170183b024f3",
-  "method": "aspect-rules-v3",
-  "detector_sha256": "13238277018c514c79d91f8d9c1f951b160190110807f57c430557f48da6764c",
+  "method": "aspect-rules-v4",
+  "detector_sha256": "8b6aa959a70bb8f9bb73f6e325034d63b083798fce25a37a0880f6bce47ef19c",
   "fingerprint_policy": "UTF-8 bytes with CRLF normalized to LF",
   "provenance": "Original AI-authored synthetic development cases; no independent human review",
   "status": "Public development challenge suite used to guide changes, not an untouched test or a real-player accuracy estimate",

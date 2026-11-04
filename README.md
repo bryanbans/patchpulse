@@ -39,12 +39,24 @@ Today, the application shows recorded recommendations, keyword-based topic menti
 
 PatchPulse is usable with a local review export, not only the bundled demo. Start the app, open **Import data**, select a CSV or JSON file, choose the column containing review text, then run the complaint-candidate queue.
 
+For a quick test, save the following invented reviews as `reviews.csv` and import that file:
+
+```csv
+review_id,review
+101,"The missions are fun, but matchmaking fails every night."
+102,"The soundtrack is excellent."
+```
+
+Select `review` as the text column and `review_id` as the optional ID. PatchPulse will show potential complaints, their matching passages, and the complete review; use **Export candidates** to save the queue as a text file.
+
 - CSV needs a header row. JSON may be an array of review objects or `{ "records": [...] }`.
 - The text field is required; an ID field is optional and is carried into the exported candidate queue.
 - Each run accepts up to 200 reviews and up to 1.5 MB in the browser. Split larger exports into batches.
 - The browser parses the file and sends the selected text to the loopback process for inference only. PatchPulse does not write imported data to disk, persist it in browser storage, or upload it to a remote service.
 
 The output lists exact passages that matched transparent complaint rules and a topic-level candidate count. It is a review queue, not an issue count, a defect confirmation, or a validated complaint rate. Read the full review before making a product decision; no match does not prove that a review contains no complaint.
+
+Import analyzes reviews in the **Import data** workspace. It does not replace the synthetic demo in Overview and Reviews or produce before-and-after comparisons for the imported file.
 
 ![PatchPulse import workspace showing a synthetic export mapped to an evidence-backed candidate queue](assets/desktop-import.png)
 
@@ -55,7 +67,7 @@ The output lists exact passages that matched transparent complaint rules and a t
 - The public demo uses 48 clearly labeled, original synthetic reviews. It runs without Steam access, a GPU, or paid AI services after dependency installation.
 - A separate private study examines Deep Rock Galactic's Season 05 update. Public reports contain aggregate results; source review text, identifiers, and trained models stay out of this repository.
 - Recommendation prediction is a separate model experiment. It never replaces a review's known recommendation in the before-and-after statistics.
-- Complaint/praise rules now handle repair negation and preserve uncertainty for questions, wishes, and ambiguous topics. A [reproducible development suite](docs/aspect_sentiment.md#version-3-development-checks-and-measured-changes) records improvements and remaining failures; these authored checks do not establish real-world accuracy.
+- Complaint/praise rules now handle repair negation and preserve uncertainty for questions, wishes, and ambiguous topics. A [reproducible development suite](docs/aspect_sentiment.md#version-4-development-checks-and-measured-changes) records improvements and remaining failures; these authored checks do not establish real-world accuracy.
 - Human-evaluated topic sentiment, final temporal evaluation, and evaluation on an unseen game remain unfinished.
 
 ## The NLP study
@@ -83,6 +95,8 @@ The character classifier remains the active private detector. The study records 
 Install Python 3.12, [uv](https://docs.astral.sh/uv/), and Node.js 24, then run:
 
 ```shell
+git clone https://github.com/bryanbans/patchpulse.git
+cd patchpulse
 uv sync --frozen --python 3.12
 uv run python -m patchpulse build-demo
 npm ci --prefix web

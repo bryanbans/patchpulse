@@ -507,7 +507,7 @@ def analyze_feedback_request(payload: FeedbackRequest, request: Request):
 @app.post("/api/analyze-feedback-batch")
 def analyze_feedback_batch(payload: BulkFeedbackRequest, request: Request):
     """Return bounded, local candidate retrieval for a browser-parsed import."""
-    from .aspects import analyze_feedback
+    from .aspects import VERSION, analyze_feedback
 
     enforce_inference_limit(request)
     by_aspect = defaultdict(int)
@@ -540,12 +540,12 @@ def analyze_feedback_batch(payload: BulkFeedbackRequest, request: Request):
             )
     return {
         "task": "provisional complaint candidate retrieval",
-        "method": "aspect-rules-v3",
+        "method": VERSION,
         "input_stored": False,
         "records_received": len(payload.records),
         "candidate_reviews": len(candidates),
         "candidate_reviews_by_aspect": dict(sorted(by_aspect.items())),
-        "candidates": candidates[:100],
+        "candidates": candidates,
         "limitations": [
             "Candidates use transparent rules, not human-validated complaint labels.",
             "No candidate does not prove that a review has no complaint.",

@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from .core import ASPECTS
 
-VERSION = "aspect-rules-v3"
+VERSION = "aspect-rules-v4"
 ASPECT_PATTERNS = {
     **ASPECTS,
     "Stability": ASPECTS["Stability"] + r"|\b(unstable|stable|startup)\b",
@@ -32,7 +32,7 @@ BOUNDARY = re.compile(r"[.!?;,\r\n]+\s*|\b(?:but|however|yet|although|whereas|ex
 NONASSERTION = re.compile(r"\b(?:if|unless|wish|wishes|wished|hope|hopes|hopefully)\b", re.I)
 RESOLUTION = {"fix", "fixed", "resolved", "eliminated", "removed"}
 MULTIPLAYER_COMPLAINT = re.compile(
-    r"\b(?:(?:get|gets|got|getting)\s+kicked|can(?:not|'t)\s+(?:join|connect)|"
+    r"\b(?:(?:get|gets|got|getting)\s+kicked|can(?:not|['’]t)\s+(?:join|connect)|"
     r"unable\s+to\s+(?:join|connect)|(?:voice\s+chat\s+)?never\s+connects?|"
     r"stuck\s+(?:in|on)\s+(?:a\s+)?(?:queue|loading)|"
     r"(?:queue\s+times?|queue)\s+(?:is|are|takes?)\s+(?:forever|ridiculous)|"
@@ -97,6 +97,12 @@ def cues(text, offset=0):
                 }
             )
     for match in MULTIPLAYER_COMPLAINT.finditer(text):
+        # Negation before an otherwise negative event ("never get kicked")
+        # reverses its meaning; do not inject a contradictory complaint cue.
+        # Phrases beginning with can't, cannot, unable, or never already encode
+        # their own negative meaning and must not be suppressed by that word.
+        if negated_before(text, match.start()):
+            continue
         found.append(
             {
                 "start": offset + match.start(),

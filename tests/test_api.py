@@ -119,7 +119,7 @@ def test_feedback_api_separates_praise_and_complaint_without_recommendation_inpu
         "Gameplay": "positive",
         "Multiplayer": "negative",
     }
-    assert result["method"] == "aspect-rules-v3"
+    assert result["method"] == "aspect-rules-v4"
     assert result["input_stored"] is False
     assert "provisional" in result["validation_status"]
     assert (
@@ -219,6 +219,13 @@ def test_batch_import_returns_source_linked_candidates_without_persisting_input(
     assert suggestion["aspect"] == "Multiplayer"
     assert suggestion["polarity"] == "negative"
     assert candidate["text"][suggestion["start"] : suggestion["end"]] == suggestion["passage"]
+    many = client.post(
+        "/api/analyze-feedback-batch",
+        json={"records": [{"id": str(i), "text": "Matchmaking fails nightly."} for i in range(150)]},
+    )
+    assert many.status_code == 200
+    assert many.json()["candidate_reviews"] == 150
+    assert len(many.json()["candidates"]) == 150
     assert client.post("/api/analyze-feedback-batch", json={"records": []}).status_code == 422
     assert (
         client.post(

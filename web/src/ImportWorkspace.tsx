@@ -30,10 +30,13 @@ function parseCsv(source: string): Row[] {
       row = [];
     } else value += char;
   }
+  if (quoted) throw new Error("The CSV has an unclosed quoted field. Check the file and try again.");
   row.push(value);
   if (row.some((cell) => cell.trim())) rows.push(row);
   if (rows.length < 2) throw new Error("The CSV needs a header row and at least one review.");
   const headers = rows[0].map((h, i) => h.trim() || `column_${i + 1}`);
+  if (new Set(headers).size !== headers.length) throw new Error("CSV column names must be unique. Rename duplicate headers and try again.");
+  if (rows.slice(1).some((cells) => cells.length !== headers.length)) throw new Error("A CSV row has a different number of fields than the header. Check delimiters and quotes.");
   return rows.slice(1).map((cells) => Object.fromEntries(headers.map((h, i) => [h, cells[i] || ""])));
 }
 
@@ -65,7 +68,7 @@ export function ImportWorkspace() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const headers = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row)))), [rows]);
-  const usable = rows.filter((row) => row[textField]?.trim()).slice(0, 200);
+  const usable = rows.filter((row) => row[textField]?.trim());
 
   async function importFile(file: File) {
     setError(""); setResult(null);
@@ -74,12 +77,13 @@ export function ImportWorkspace() {
       const parsed = parseFile(await file.text(), file.name);
       if (!parsed.length) throw new Error("No review rows were found.");
       const keys = Array.from(new Set(parsed.flatMap((row) => Object.keys(row))));
-      setRows(parsed); setFileName(file.name); setTextField(guess(keys, textNames)); setIdField(guess(keys, idNames));
-    } catch (e) { setRows([]); setError((e as Error).message); }
+      setRows(parsed); setFileName(file.name); setTextField(guess(keys, textNames)); setIdField(keys.find((key) => idNames.includes(key.trim().toLowerCase())) || "");
+    } catch (e) { setRows([]); setFileName(""); setError((e as Error).message); }
   }
 
   async function analyze() {
     if (!usable.length) { setError("Select a text column that contains at least one review."); return; }
+    if (usable.length > 200) { setError("This file contains more than 200 reviews with text. Split it into batches of 200 or fewer before analyzing."); return; }
     setBusy(true); setError(""); setResult(null);
     try {
       const response = await fetch("/api/analyze-feedback-batch", {
@@ -116,7 +120,7 @@ export function ImportWorkspace() {
     <div className="import-privacy"><strong>Your file stays local.</strong> The browser parses it, PatchPulse processes the selected text in memory, and neither side writes it to disk. Review exports may contain personal or private data.</div>
     <div className="import-grid">
       <section className="import-card"><h2>1. Choose a review export</h2><p>Use a CSV with a header row, or JSON as an array of objects (or <code>{'{ "records": [...] }'}</code>). A review-text column is required; an ID column is optional.</p><input ref={input} className="sr-only" type="file" accept=".csv,.json,text/csv,application/json" onChange={(event) => event.target.files?.[0] && importFile(event.target.files[0])}/><button className="primary" onClick={() => input.current?.click()}>Choose CSV or JSON</button>{fileName && <p className="import-file"><strong>{fileName}</strong> · {rows.length} rows read in this browser</p>}</section>
-      <section className="import-card"><h2>2. Confirm the columns</h2>{headers.length ? <><label>Review text<select aria-label="Review text column" value={textField} onChange={(event) => setTextField(event.target.value)}>{headers.map((header) => <option key={header}>{header}</option>)}</select></label><label>Review ID <small>(optional)</small><select aria-label="Review ID column" value={idField} onChange={(event) => setIdField(event.target.value)}><option value="">No ID column</option>{headers.map((header) => <option key={header}>{header}</option>)}</select></label><p>{usable.length} review{usable.length === 1 ? "" : "s"} ready. Each run is limited to 200 reviews.</p><button className="primary" disabled={busy || !usable.length} onClick={analyze}>{busy ? "Finding candidates…" : "Find complaint candidates →"}</button></> : <p>Choose a file to map columns and start a local run.</p>}</section>
+      <section className="import-card"><h2>2. Confirm the columns</h2>{headers.length ? <><label>Review text<select aria-label="Review text column" value={textField} onChange={(event) => { setTextField(event.target.value); setResult(null); setError(""); }}>{headers.map((header) => <option key={header}>{header}</option>)}</select></label><label>Review ID <small>(optional)</small><select aria-label="Review ID column" value={idField} onChange={(event) => { setIdField(event.target.value); setResult(null); }}>{<option value="">No ID column</option>}{headers.map((header) => <option key={header}>{header}</option>)}</select></label><p>{usable.length} review{usable.length === 1 ? "" : "s"} with text. Each run is limited to 200 reviews.{usable.length > 200 && " Split this file into smaller batches before analyzing."}</p><button className="primary" disabled={busy || !usable.length || usable.length > 200} onClick={analyze}>{busy ? "Finding candidates…" : "Find complaint candidates →"}</button></> : <p>Choose a file to map columns and start a local run.</p>}</section>
     </div>
     {error && <div className="error" role="alert">{error}</div>}
     {result && <section className="import-results" aria-live="polite"><div className="results-heading"><div><span className="eyebrow">PROVISIONAL OUTPUT</span><h2>{result.candidate_reviews} of {result.records_received} reviews have a complaint candidate.</h2></div><button className="secondary" onClick={download}>Export candidates ↓</button></div><p>Candidate reviews by topic. These are review counts, not issue counts or validated complaint rates.</p><div className="import-topic-counts">{Object.entries(result.candidate_reviews_by_aspect).map(([aspect, count]) => <span key={aspect}><strong>{count}</strong>{aspect}</span>)}</div>{result.candidates.length ? <div className="candidate-list">{result.candidates.map((candidate) => <article key={`${candidate.index}-${candidate.id || ""}`}><div><span>REVIEW {candidate.id || candidate.index + 1}</span>{candidate.suggestions.map((suggestion, index) => <p key={index}><strong>{suggestion.aspect}</strong> · {suggestion.polarity === "mixed" ? "mixed feedback" : "potential complaint"}<br />“{suggestion.passage}”</p>)}</div><blockquote>{candidate.text}</blockquote></article>)}</div> : <div className="empty">No explicit complaint candidates were found. Read a sample before concluding that there are no complaints; implicit or unusual wording can be missed.</div>}<details><summary>What this result can and cannot say</summary><ul>{result.limitations.map((item) => <li key={item}>{item}</li>)}</ul></details></section>}
