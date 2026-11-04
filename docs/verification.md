@@ -64,6 +64,10 @@ Replaced circular recommendation graphics with aligned zero-to-100-percent bars 
 
 The current batch endpoint returns all matching candidates within the 200-review limit. The import workspace blocks oversized batches rather than silently dropping reviews, validates common CSV errors, and clears stale results when the mapping changes. Rules v4 add handling for negated kick events and curly-apostrophe join failures. The authored challenge suite remains a development check; human-reviewed real-world complaint evaluation is still pending. CI checks the public example collection and does not establish model accuracy.
 
+## Dashboard analysis review — November 4, 2026
+
+The overview now links directly to review import and computes collection volume, most-mentioned after-update topic, and largest topic-share change from the active case. Signals show scope and denominators, identify ties, and link to matching reviews; the after-update shortcut selects the after window. Desktop and mobile browser checks cover the shortcuts, unequal window sizes, ties and empty data. The included collection remains invented, and topic mentions do not establish complaint rates.
+
 ## Local import and complaint-rule update — 2026-10-18
 
 Added a browser-parsed CSV/JSON import workspace. A user maps a text column, optionally carries a review ID, and submits at most 200 reviews to the loopback API for transient rule-based candidate retrieval. The API never writes imported text to disk, returns exact source spans, limits candidates to 100 returned records, and exports a clearly provisional review queue. The batch request is bounded to 2 MB; the browser limits selected files to 1.5 MB.

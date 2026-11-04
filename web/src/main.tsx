@@ -735,11 +735,13 @@ function App() {
               <UpdateDesk
                 study={data}
                 notesCount={notes.length}
-                onInspect={(topic) => {
+                onInspect={(topic, period) => {
                   clearFilters();
+                  if (period) setPeriod(period);
                   selectAspect(topic);
                 }}
                 onComplaints={() => {clearFilters(); setPeriod("after"); setSuggestion("complaint"); setTab("Reviews");}}
+                onImport={() => setTab("Import data")}
                 onBrowse={browseReviews}
                 onAnalyze={() => {
                   setReturnToReview(false);

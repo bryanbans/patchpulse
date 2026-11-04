@@ -37,15 +37,17 @@ export function UpdateDesk({
   onInspect,
   onBrowse,
   onComplaints,
+  onImport,
   onAnalyze,
   onNotebook,
   onBrief,
 }: {
   study: Study;
   notesCount: number;
-  onInspect: (topic: string) => void;
+  onInspect: (topic: string, period?: "after") => void;
   onBrowse: (negative?: boolean) => void;
   onComplaints: () => void;
+  onImport: () => void;
   onAnalyze: () => void;
   onNotebook: () => void;
   onBrief: () => void;
@@ -72,26 +74,30 @@ export function UpdateDesk({
           a.aspect.localeCompare(b.aspect),
     );
   const countMax = Math.max(1, ...topics.flatMap((t) => [t.before, t.after]));
+  const mostDiscussed = [...topics].filter((t) => t.after > 0).sort((a, b) => b.after - a.after || a.aspect.localeCompare(b.aspect))[0];
+  const biggestShift = [...topics].filter((t) => t.delta !== null).sort((a, b) => Math.abs(b.delta ?? 0) - Math.abs(a.delta ?? 0) || a.aspect.localeCompare(b.aspect))[0];
+  const tiedMost = mostDiscussed && topics.filter((t) => t.after === mostDiscussed.after).length > 1;
+  const tiedShift = biggestShift && topics.filter((t) => t.delta !== null && Math.abs(Math.abs(t.delta) - Math.abs(biggestShift.delta!)) < 1e-9).length > 1;
   return (
     <div className="update-desk">
       <section className="release-story">
         <div className="release-narrative">
           <div className="story-kicker">
             <span className="tiny-orbit" />
-            RELEASE WORKSPACE <span>01 / DEEP ROCK GALACTIC</span>
+            FEEDBACK WORKSPACE <span>{study.mode === "synthetic" ? "EXAMPLE COLLECTION" : "LOCAL STUDY"}</span>
           </div>
           <h1>
-            After the patch.
-            <br />
-            <em>Before the next one.</em>
+            Player feedback. {" "}
+            <em>Investigation desk.</em>
           </h1>
           <p>
-            Find what changed in the review sample. Follow a topic into the
-            actual comments. Keep the evidence worth coming back to.
+            Bring your own player reviews to find potential complaints, or explore
+            the example below to see how feedback changed around an update.
           </p>
           <div className="story-actions">
-            <button className="primary" onClick={onComplaints}>Find potential complaints →</button>
-            <button className="secondary" onClick={() => onBrowse()}>
+            <button className="primary" onClick={onImport}>Import your reviews →</button>
+            <button className="secondary" onClick={onComplaints}>Find potential complaints</button>
+            <button className="text-button" onClick={() => onBrowse()}>
               Browse reviews ↗
             </button>
             <button className="text-button" onClick={onAnalyze}>
@@ -107,7 +113,7 @@ export function UpdateDesk({
         </div>
         <div className="release-pulse">
           <div className="pulse-heading">
-            <span>RECORDED RECOMMENDATIONS</span>
+            <span>{study.mode === "synthetic" ? "EXAMPLE · " : "STUDY · "}RECORDED RECOMMENDATIONS</span>
             <span className="small-tag">Observed labels</span>
           </div>
           <div className="comparison-readout">
@@ -138,6 +144,12 @@ export function UpdateDesk({
             A sample comparison, not proof that the update caused a change.
           </p>
         </div>
+      </section>
+      <section className="signal-strip" aria-labelledby="signal-title">
+        <div className="signal-intro"><span className="eyebrow">{study.mode === "synthetic" ? "EXAMPLE COLLECTION" : "LOCAL STUDY"} / QUICK SIGNALS</span><h2 id="signal-title">Where to look next.</h2><p>Topic mentions are not confirmed complaints.</p></div>
+        <div className="signal-stat"><span>REVIEWS IN BOTH WINDOWS</span><strong>{(before.count + after.count).toLocaleString()}</strong><small>{before.count.toLocaleString()} before · {after.count.toLocaleString()} after</small></div>
+        {mostDiscussed && after.count > 0 && <button className="signal-stat signal-link" onClick={() => onInspect(mostDiscussed.aspect, "after")}><span>{tiedMost ? "TIED MOST MENTIONED AFTER" : "MOST MENTIONED AFTER"}</span><strong>{mostDiscussed.aspect} <i>↗</i></strong><small>{mostDiscussed.after.toLocaleString()} of {after.count.toLocaleString()} reviews · {share(mostDiscussed.after, after.count).toFixed(1)}%</small></button>}
+        {biggestShift && <button className="signal-stat signal-link" onClick={() => onInspect(biggestShift.aspect)}><span>{biggestShift.delta === 0 ? "TOPIC SHARE CHANGE" : tiedShift ? "TIED BIGGEST SHARE CHANGE" : "BIGGEST SHARE CHANGE"}</span><strong>{biggestShift.delta! >= 0 ? "+" : ""}{biggestShift.delta!.toFixed(1)} <i>pp</i></strong><small>{biggestShift.aspect}: {biggestShift.before}/{before.count} before · {biggestShift.after}/{after.count} after ↗</small></button>}
       </section>
       <section className="desk-breadcrumbs" aria-label="Comparison windows">
         <details className="study-picker">
@@ -266,7 +278,7 @@ export function UpdateDesk({
           <div className="next-card coral-card">
             <span className="eyebrow">LOOK BEYOND THE THUMBS-UP</span>
             <h2>
-              One review.
+              One review. {" "}
               <br />
               More than one opinion.
             </h2>
