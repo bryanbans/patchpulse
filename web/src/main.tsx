@@ -742,6 +742,7 @@ function App() {
                 }}
                 onComplaints={() => {clearFilters(); setPeriod("after"); setSuggestion("complaint"); setTab("Reviews");}}
                 onImport={() => setTab("Import data")}
+                onMethods={() => setTab("How it works")}
                 onBrowse={browseReviews}
                 onAnalyze={() => {
                   setReturnToReview(false);

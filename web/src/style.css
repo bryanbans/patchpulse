@@ -3333,6 +3333,25 @@ input::placeholder,textarea::placeholder { color: #96a3ba; }
 .signal-link:focus-visible { outline:2px solid #a9f0e0; outline-offset:-3px; }
 @media(max-width:1000px) { .signal-strip { grid-template-columns:repeat(2,minmax(0,1fr)); } .signal-stat:nth-child(3) { border-left:0; } .signal-stat:nth-child(n+3) { border-top:1px solid #354154; } }
 @media(max-width:520px) { .signal-intro,.signal-stat { padding:15px; } .signal-stat strong { font-size:21px; } }
+
+.nlp-snapshot { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); margin-top:14px; border:1px solid #3c4963; border-radius:6px; background:#151c28; overflow:hidden; }
+.nlp-snapshot-intro,.nlp-snapshot-evidence { padding:22px 24px; min-width:0; }
+.nlp-snapshot-intro { border-left:3px solid #9eafff; background:#20283b; }
+.nlp-snapshot .eyebrow { color:#b3c4f5; font-size:9px; }
+.nlp-snapshot h2 { margin:9px 0 8px; color:#f0f4ff; font-size:21px; line-height:1.2; }
+.nlp-snapshot h3 { margin:9px 0 15px; color:#f0f4ff; font-size:16px; }
+.nlp-snapshot p { margin:0; color:#c0cde0; font-size:12px; line-height:1.5; }
+.nlp-snapshot-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:16px; }
+.nlp-snapshot-actions button { font-size:12px; }
+.nlp-compare { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.nlp-compare div { display:flex; flex-direction:column; gap:5px; min-width:0; border-left:2px solid #4c5b79; padding-left:11px; }
+.nlp-compare div:nth-child(2) { border-color:#78d5c3; }
+.nlp-compare span { color:#b8c8dc; font-size:10px; line-height:1.35; }
+.nlp-compare strong { color:#f1f5ff; font-size:24px; line-height:1; font-variant-numeric:tabular-nums; }
+.nlp-compare strong small { color:#b8c8dc; font-size:14px; }
+.nlp-snapshot .nlp-snapshot-note { border-top:1px solid #354154; margin-top:15px; padding-top:10px; font-size:11px; color:#b5c1d3; }
+@media(max-width:760px) { .nlp-snapshot { grid-template-columns:1fr; } .nlp-snapshot-evidence { border-top:1px solid #354154; } }
+@media(max-width:420px) { .nlp-snapshot-intro,.nlp-snapshot-evidence { padding:18px; } .nlp-compare { gap:6px; } .nlp-compare div { padding-left:7px; } .nlp-compare strong { font-size:21px; } }
 .release-narrative, .release-pulse { padding:18px 22px; }
 .release-narrative h1 { font-size:clamp(23px,2.1vw,29px); line-height:1.15; letter-spacing:-.6px; margin:10px 0 8px; }
 .release-narrative > p { font-size:12px; line-height:1.45; margin-bottom:12px; }

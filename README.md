@@ -8,6 +8,8 @@ After a game update, an overall rating only tells part of the story. A developer
 
 PatchPulse is a local NLP application for exploring game feedback. Import a CSV or JSON review export to find potential complaints by topic, inspect the matching passages alongside the full reviews, and export a review queue. A separate included example explores recommendations and topics before and after an update.
 
+The NLP work explores two connected questions: how to identify praise and complaints about individual topics, and how different language models predict a review's overall recommendation. The project documents preprocessing, model comparisons, errors, and evaluation limits alongside the application. [Explore the NLP study](docs/nlp_study.md).
+
 The complaint suggestions use hand-written language rules and require human review. Their accuracy on real player reviews has not yet been established.
 
 ## What questions does PatchPulse help answer?

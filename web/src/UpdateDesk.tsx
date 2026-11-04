@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { NlpSnapshot } from "./NlpSnapshot";
 
 type Study = {
   mode: string;
@@ -38,6 +39,7 @@ export function UpdateDesk({
   onBrowse,
   onComplaints,
   onImport,
+  onMethods,
   onAnalyze,
   onNotebook,
   onBrief,
@@ -48,6 +50,7 @@ export function UpdateDesk({
   onBrowse: (negative?: boolean) => void;
   onComplaints: () => void;
   onImport: () => void;
+  onMethods: () => void;
   onAnalyze: () => void;
   onNotebook: () => void;
   onBrief: () => void;
@@ -151,6 +154,7 @@ export function UpdateDesk({
         {mostDiscussed && after.count > 0 && <button className="signal-stat signal-link" onClick={() => onInspect(mostDiscussed.aspect, "after")}><span>{tiedMost ? "TIED MOST MENTIONED AFTER" : "MOST MENTIONED AFTER"}</span><strong>{mostDiscussed.aspect} <i>↗</i></strong><small>{mostDiscussed.after.toLocaleString()} of {after.count.toLocaleString()} reviews · {share(mostDiscussed.after, after.count).toFixed(1)}%</small></button>}
         {biggestShift && <button className="signal-stat signal-link" onClick={() => onInspect(biggestShift.aspect)}><span>{biggestShift.delta === 0 ? "TOPIC SHARE CHANGE" : tiedShift ? "TIED BIGGEST SHARE CHANGE" : "BIGGEST SHARE CHANGE"}</span><strong>{biggestShift.delta! >= 0 ? "+" : ""}{biggestShift.delta!.toFixed(1)} <i>pp</i></strong><small>{biggestShift.aspect}: {biggestShift.before}/{before.count} before · {biggestShift.after}/{after.count} after ↗</small></button>}
       </section>
+      <NlpSnapshot onMethods={onMethods} onAnalyze={onAnalyze} />
       <section className="desk-breadcrumbs" aria-label="Comparison windows">
         <details className="study-picker">
           <summary>

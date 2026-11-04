@@ -68,6 +68,8 @@ The current batch endpoint returns all matching candidates within the 200-review
 
 The overview now links directly to review import and computes collection volume, most-mentioned after-update topic, and largest topic-share change from the active case. Signals show scope and denominators, identify ties, and link to matching reviews; the after-update shortcut selects the after window. Desktop and mobile browser checks cover the shortcuts, unequal window sizes, ties and empty data. The included collection remains invented, and topic mentions do not establish complaint rates.
 
+The overview also surfaces the separate recommendation-prediction development study, reading its counts from the aggregate report and linking to analysis and methods. The presentation identifies the small validation sample, false alarms, and the distinction from complaint detection. Browser checks cover the displayed metrics, navigation, and an unavailable-report state; desktop and mobile renders were inspected.
+
 ## Local import and complaint-rule update — 2026-10-18
 
 Added a browser-parsed CSV/JSON import workspace. A user maps a text column, optionally carries a review ID, and submits at most 200 reviews to the loopback API for transient rule-based candidate retrieval. The API never writes imported text to disk, returns exact source spans, limits candidates to 100 returned records, and exports a clearly provisional review queue. The batch request is bounded to 2 MB; the browser limits selected files to 1.5 MB.
