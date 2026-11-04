@@ -1,27 +1,26 @@
 # PatchPulse
 
-[![Offline demo and application checks](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml)
+[![Application checks](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml)
 
-**Understand player feedback before and after a game update.**
+**Find potential complaints in player reviews and inspect the words behind them.**
 
 After a game update, an overall rating only tells part of the story. A developer also needs to know what players enjoy, what frustrates them, and which comments support that picture.
 
-PatchPulse brings recommendation trends, review topics, and supporting passages into one place. It helps you investigate feedback before and after an update, then look more closely at praise and complaints within individual reviews.
+PatchPulse is a local NLP application for exploring game feedback. Import a CSV or JSON review export to find potential complaints by topic, inspect the matching passages alongside the full reviews, and export a review queue. A separate included example explores recommendations and topics before and after an update.
 
-![PatchPulse feedback research studio with clearly labeled synthetic reviews](assets/desktop-preview.png)
+The complaint suggestions use hand-written language rules and require human review. Their accuracy on real player reviews has not yet been established.
 
 ## What questions does PatchPulse help answer?
 
 | Question | What you can do today |
 |---|---|
-| **Did recommendations change after an update?** | Compare recommendation rates and review counts in equal windows before and after the release date. |
-| **What are players talking about?** | Explore keyword mentions of performance, crashes, multiplayer, gameplay, and other topics. |
-| **Can one review praise gameplay and criticize multiplayer?** | Open Analyze feedback to see suggested praise or complaints for individual topics, together with the passages behind each suggestion. |
-| **What did players actually say?** | Filter reviews and inspect the exact passages behind topic matches. |
-| **How much evidence supports an observation?** | See sample sizes, collection coverage, exclusions, and source-version details. |
-| **What can I share with a teammate?** | Export the recorded-statistics brief, or collect source-linked passages and your own interpretations in a session notebook. Review private content before sharing. |
+| **Which reviews may contain complaints?** | Import your own reviews to see rule-suggested complaint passages and export a candidate queue. |
+| **Can one review praise gameplay and criticize multiplayer?** | Analyze individual feedback for suggested praise and complaints by topic, with the passages behind each suggestion. |
+| **Did recommendations change after an update?** | In the bundled example, compare recommendation rates and review counts in equal windows around the release. |
+| **What are players talking about?** | In the bundled example, explore keyword mentions and inspect the full reviews behind topic matches. |
+| **What can I share with a teammate?** | Export your imported candidate queue, or use the bundled example to make a statistics brief and session notebook. Review private content before sharing. |
 
-These comparisons describe the collected reviews. They do not prove that an update caused a change.
+The comparison uses the included example reviews. Imported files do not currently populate the before-and-after views. Such comparisons describe the reviews in the collection; they do not prove that an update caused a change.
 
 ## The challenge: a thumbs-up does not tell the whole story
 
@@ -33,11 +32,11 @@ The overall recommendation is positive. The multiplayer feedback is negative. Tr
 
 PatchPulse is being built to preserve that distinction: **what players recommend, what they discuss, and what they praise or criticize are different questions.**
 
-Today, the application shows recorded recommendations, keyword-based topic mentions, and a **working prototype that separates explicit praise from complaints by topic**. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on original synthetic examples. Outputs are marked as suggestions that need checking. Reliable real-world detection still requires human-reviewed evaluation. [How the prototype works](docs/aspect_sentiment.md).
+Today, the application shows recommendations and keyword-based topic mentions in its example collection, and **suggests praise and complaints by topic** in individual reviews. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on generated examples. Outputs are suggestions that need checking. Reliable real-world detection still requires human-reviewed evaluation. [How the analysis works](docs/aspect_sentiment.md).
 
 ## Use your own review export
 
-PatchPulse is usable with a local review export, not only the bundled demo. Start the app, open **Import data**, select a CSV or JSON file, choose the column containing review text, then run the complaint-candidate queue.
+Start the app, open **Import data**, select a CSV or JSON file, choose the column containing review text, then run the complaint-candidate queue.
 
 For a quick test, save the following invented reviews as `reviews.csv` and import that file:
 
@@ -50,35 +49,33 @@ review_id,review
 Select `review` as the text column and `review_id` as the optional ID. PatchPulse will show potential complaints, their matching passages, and the complete review; use **Export candidates** to save the queue as a text file.
 
 - CSV needs a header row. JSON may be an array of review objects or `{ "records": [...] }`.
-- The text field is required; an ID field is optional and is carried into the exported candidate queue.
-- Each run accepts up to 200 reviews and up to 1.5 MB in the browser. Split larger exports into batches.
-- The browser parses the file and sends the selected text to the loopback process for inference only. PatchPulse does not write imported data to disk, persist it in browser storage, or upload it to a remote service.
+- The text field is required; an ID field is optional, limited to 200 characters, and carried into the exported candidate queue.
+- Each run accepts up to 200 nonempty reviews, each up to 8,000 characters; the selected file must be at most 1.5 MB. Split larger exports into batches.
+- The browser parses the file and sends the selected text to the local server for analysis. PatchPulse does not automatically save the imported data or send it to a remote service. An exported queue is downloaded to your computer and contains review text.
 
 The output lists exact passages that matched transparent complaint rules and a topic-level candidate count. It is a review queue, not an issue count, a defect confirmation, or a validated complaint rate. Read the full review before making a product decision; no match does not prove that a review contains no complaint.
 
-Import analyzes reviews in the **Import data** workspace. It does not replace the synthetic demo in Overview and Reviews or produce before-and-after comparisons for the imported file.
-
-![PatchPulse import workspace showing a synthetic export mapped to an evidence-backed candidate queue](assets/desktop-import.png)
+Import analyzes reviews in the **Import data** workspace. Overview and Reviews continue to show the included example collection; imported files do not yet produce before-and-after comparisons.
 
 ## Current project status
 
-**Working local prototype with a reproducible NLP study.**
+**A working local feedback analysis tool with ongoing evaluation.**
 
-- The public demo uses 48 clearly labeled, original synthetic reviews. It runs without Steam access, a GPU, or paid AI services after dependency installation.
+- The included example collection contains 48 invented reviews. The app runs without Steam access, a GPU, or paid AI services after dependency installation, and accepts your own review exports.
 - A separate private study examines Deep Rock Galactic's Season 05 update. Public reports contain aggregate results; source review text, identifiers, and trained models stay out of this repository.
 - Recommendation prediction is a separate model experiment. It never replaces a review's known recommendation in the before-and-after statistics.
 - Complaint/praise rules now handle repair negation and preserve uncertainty for questions, wishes, and ambiguous topics. A [reproducible development suite](docs/aspect_sentiment.md#version-4-development-checks-and-measured-changes) records improvements and remaining failures; these authored checks do not establish real-world accuracy.
-- Human-evaluated topic sentiment, final temporal evaluation, and evaluation on an unseen game remain unfinished.
+- Human-reviewed evaluation of complaint detection, final temporal evaluation, and evaluation on an unseen game remain unfinished. Authored example checks are development tests, not an independent benchmark.
 
 ## The NLP study
 
 The technical challenge follows from the product question: understanding a review means more than assigning one positive or negative label. PatchPulse uses natural language processing (NLP)—methods for analyzing written language—to explore mixed feedback and compare ways of predicting overall recommendations.
 
-The study asks whether a more complex model actually improves detection, especially when negative reviews are much less common than positive ones. Its methods and results are documented so the choices can be inspected and reproduced.
+In a separate private-data experiment, the study asks whether a more complex model better predicts a review's recorded recommendation, especially when not-recommended reviews are much less common. This experiment measures whole-review recommendation prediction; it does not validate the topic-level complaint detector. The app and documented protocols can be run locally. Reproducing the private study requires the separately retained source data and models.
 
 The first experiment exposed a common evaluation trap: **97% accuracy hid a model that detected none of the negative reviews.** Features based on short character sequences improved the result. A subsequent fine-tuning experiment with DistilBERT, a pretrained transformer language model, did not beat that classical model at its tested decision threshold.
 
-| Model | Validation macro F1¹ | Negative reviews detected | Recommended reviews incorrectly flagged |
+| Recommendation model | Validation macro F1¹ | Not-recommended reviews detected | Recommended reviews incorrectly flagged |
 |---|---:|---:|---:|
 | Initial word-based classifier | 0.493 | 0 of 12 | 0 |
 | Selected character-based classifier | **0.757** | **5 of 12** | **2** |
@@ -90,7 +87,7 @@ The character classifier remains the active private detector. The study records 
 
 [Read the NLP case study](docs/nlp_study.md) · [Classical comparison](docs/negative_detection.md) · [Model cards](docs/model_card.md) · [Results and data limitations](docs/evaluation.md)
 
-## Try the demo
+## Install and run
 
 Install Python 3.12, [uv](https://docs.astral.sh/uv/), and Node.js 24, then run:
 
@@ -106,9 +103,9 @@ uv run python -m patchpulse serve
 
 Open http://127.0.0.1:8000. Compare the two review windows, explore the evidence, try the text classifier in **Analyze feedback**, and inspect the results in **How it works**. Analysis text/results remain in browser memory while this workspace is open; the local server does not retain input. Refreshing or leaving clears that working state. Open `/feedback` to try **Praise + complaint**, **No crashes**, and **Mixed feedback**, or send a review from Reviews using **Analyze this review**.
 
-A practical workflow: choose a topic in **Overview**, select a review in **Reviews**, and use **Analyze this review** to inspect suggested praise or complaints. Save useful reviews/passages to **Notebook**, add your interpretation, and export your notes. Notebook keeps source context and marks machine labels as suggestions; it is not an annotation export. Notes are not saved automatically and are cleared on refresh or when leaving the app.
+To explore the included example collection, choose **Find potential complaints**, narrow by topic or text, and inspect the matching passage beside the full review. Use **Analyze this review** for a rule explanation, then return to your filters. Save useful reviews or passages to **Notebook**, add your interpretation, and export your notes. Labels remain suggestions; notes are session-only until exported and are cleared on refresh or when leaving the app.
 
-The synthetic demo demonstrates the workflow; its predictions and review statistics are not real game findings. The How it works page separately labels aggregate results from the private real-data study.
+The included example reviews are invented, so their statistics are not findings about a real game. The How it works page separately labels aggregate results from the private real-data study.
 
 ## Data and design
 
@@ -126,7 +123,7 @@ flowchart LR
   D --> G[FastAPI and React dashboard]
   F --> H[Aggregate evaluation reports]
   H --> G
-  I[Original synthetic reviews] --> J[Offline demo and tests]
+  I[Invented example reviews] --> J[Local example and tests]
 ```
 
 Built with Python, FastAPI, SQLite, scikit-learn, React, and TypeScript. Optional neural experiments use PyTorch and Hugging Face Transformers. Dependencies and model revisions are pinned.
@@ -142,12 +139,6 @@ Built with Python, FastAPI, SQLite, scikit-learn, React, and TypeScript. Optiona
 - [Verification record](docs/verification.md)
 - [Milestones and remaining release work](docs/milestones.md)
 
-The next steps are human-reviewed topic sentiment, a bounded follow-up to the neural experiment, and untouched final evaluations. Source-use questions must be resolved before broader collection or a public real-text demo. Docker configuration is included, but its build has not been verified.
+The next steps are human-reviewed topic sentiment, a bounded follow-up to the neural experiment, and untouched final evaluations. Source-use questions must be resolved before broader collection or public display of real review text. Docker configuration is included, but its build has not been verified.
 
 Original code is MIT licensed. Third-party data, models, assets, and trademarks are excluded from that grant. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security/privacy](SECURITY.md). PatchPulse is an independent project and is not affiliated with Valve or the game developers.
-
-### Investigate a possible complaint
-
-Choose **Find potential complaints** to browse rule-suggested passages after the update, including complaints inside recommended reviews. Narrow by topic, window or text; **Why this review matched** shows the exact passage next to the full source review. Analyze a review for the rule explanation, then return to the same review and filters. Save useful evidence to Notebook and record the next investigation before exporting.
-
-These filters are experimental retrieval aids, not verified complaint labels or complaint-rate measurements. Mixed passages can match both praise and complaint filters. A review with no match may still contain a complaint. Notebook interpretations and next steps are your own; they remain session-only until exported.
