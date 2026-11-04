@@ -2,43 +2,36 @@
 
 [![Application checks](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanbans/patchpulse/actions/workflows/ci.yml)
 
-**Find potential complaints in player reviews and inspect the words behind them.**
+**Find potential complaints in player reviews. Inspect the evidence. Decide what to investigate.**
 
-After a game update, an overall rating only tells part of the story. A developer also needs to know what players enjoy, what frustrates them, and which comments support that picture.
+A player can recommend a game and still report that matchmaking fails. If a team reads only the overall rating, that frustration can disappear in the aggregate.
 
-PatchPulse is a local NLP application for exploring game feedback. Import a CSV or JSON review export to find potential complaints by topic, inspect the matching passages alongside the full reviews, and export a review queue. A separate included example explores recommendations and topics before and after an update.
+PatchPulse is a local natural language processing (NLP) tool that helps a game team turn a review export into an investigation queue. It suggests topics and complaint passages, keeps those passages alongside the full reviews, and lets the team export the evidence for human review. The project also investigates how different NLP models predict overall recommendations—and documents what they miss.
 
-The NLP work explores two connected questions: how to identify praise and complaints about individual topics, and how different language models predict a review's overall recommendation. The project documents preprocessing, model comparisons, errors, and evaluation limits alongside the application. [Explore the NLP study](docs/nlp_study.md).
+[Get started](#install-and-run) · [See the workflow](#from-reviews-to-an-investigation) · [Explore the NLP study](docs/nlp_study.md)
 
-The complaint suggestions use hand-written language rules and require human review. Their accuracy on real player reviews has not yet been established.
+## From reviews to an investigation
 
-## What questions does PatchPulse help answer?
+Imagine a developer reviewing player feedback after an update. One review says:
 
-| Question | What you can do today |
-|---|---|
-| **Which reviews may contain complaints?** | Import your own reviews to see rule-suggested complaint passages and export a candidate queue. |
-| **Can one review praise gameplay and criticize multiplayer?** | Analyze individual feedback for suggested praise and complaints by topic, with the passages behind each suggestion. |
-| **Did recommendations change after an update?** | In the bundled example, compare recommendation rates and review counts in equal windows around the release. |
-| **What are players talking about?** | In the bundled example, explore keyword mentions and inspect the full reviews behind topic matches. |
-| **What can I share with a teammate?** | Export your imported candidate queue, or use the bundled example to make a statistics brief and session notebook. Review private content before sharing. |
+> “The missions are fun, but matchmaking fails every night.”
 
-The comparison uses the included example reviews. Imported files do not currently populate the before-and-after views. Such comparisons describe the reviews in the collection; they do not prove that an update caused a change.
+The developer wants to find comments like this without losing the praise or the surrounding context. With PatchPulse they can:
 
-## The challenge: a thumbs-up does not tell the whole story
+1. **Import feedback:** Open **Import data**, choose a CSV or JSON export, and map the review-text column and an optional review ID.
+2. **Find leads:** Run the analysis to see the number of reviews with potential complaints and their suggested topics.
+3. **Inspect the evidence:** Read each matching passage next to its full review. In the example above, the matchmaking passage is a multiplayer complaint candidate.
+4. **Share the queue:** Export the candidates and use the source text to decide which leads deserve further investigation.
 
-Consider this invented review:
+![Import workspace showing complaint candidates grouped by topic, matching passages, and full review text](assets/readme-desktop-import.png)
 
-> “I'd recommend the game, but our co-op sessions keep disconnecting.”
+*The import workspace analyzing four invented reviews. The counts and comments illustrate the workflow; they are not findings about a game.*
 
-The overall recommendation is positive. The multiplayer feedback is negative. Treating the entire review as either positive or negative loses information a developer could use.
+Suggestions come from transparent language rules. They can miss complaints or flag passages incorrectly, so a candidate is a lead for a person to assess—not confirmation of a defect or a validated complaint rate.
 
-PatchPulse is being built to preserve that distinction: **what players recommend, what they discuss, and what they praise or criticize are different questions.**
+## Try it with your own reviews
 
-Today, the application shows recommendations and keyword-based topic mentions in its example collection, and **suggests praise and complaints by topic** in individual reviews. Try the [feedback workspace](http://127.0.0.1:8000/feedback) after local setup. The default method uses transparent clause and negation rules; a second classifier trains on generated examples. Outputs are suggestions that need checking. Reliable real-world detection still requires human-reviewed evaluation. [How the analysis works](docs/aspect_sentiment.md).
-
-## Use your own review export
-
-Start the app, open **Import data**, select a CSV or JSON file, choose the column containing review text, then run the complaint-candidate queue.
+Install the app using the [steps below](#install-and-run), then open **Import data**.
 
 For a quick test, save the following invented reviews as `reviews.csv` and import that file:
 
@@ -76,6 +69,10 @@ The technical challenge follows from the product question: understanding a revie
 
 In a separate private-data experiment, the study asks whether a more complex model better predicts a review's recorded recommendation, especially when not-recommended reviews are much less common. This experiment measures whole-review recommendation prediction; it does not validate the topic-level complaint detector. The app and documented protocols can be run locally. Reproducing the private study requires the separately retained source data and models.
 
+![NLP research panel comparing the word baseline and selected model on not-recommended reviews](assets/readme-desktop-nlp.png)
+
+*The application displays aggregate development results from the separate recommendation-prediction study.*
+
 The first experiment exposed a common evaluation trap: **97% accuracy hid a model that detected none of the negative reviews.** Features based on short character sequences improved the result. A subsequent fine-tuning experiment with DistilBERT, a pretrained transformer language model, did not beat that classical model at its tested decision threshold.
 
 | Recommendation model | Validation macro F1¹ | Not-recommended reviews detected | Recommended reviews incorrectly flagged |
@@ -86,7 +83,7 @@ The first experiment exposed a common evaluation trap: **97% accuracy hid a mode
 
 ¹ Macro F1 gives each recommendation class equal weight. These are development results on 406 reviews, including only 12 negative examples—not final performance estimates. Classical thresholds were tuned using training-only predictions; the neural threshold stayed at 0.5. DistilBERT was fully fine-tuned across three seeds, two loss variants, and two epochs per run. Every neural checkpoint made the same class decisions at that threshold.
 
-The character classifier remains the active private detector. The study records the neural failure, uncertainty, truncation, and resource use rather than assuming a transformer must be better. Final tests remain unopened.
+The selected character model detected 5 of the 12 not-recommended reviews, missed 7, and incorrectly flagged 2 recommended reviews. Model selection used this same validation set, so the result is not a final performance estimate. The character classifier remains the active private detector. The study records the neural failure, uncertainty, truncation, and resource use rather than assuming a transformer must be better. Final tests remain unopened.
 
 [Read the NLP case study](docs/nlp_study.md) · [Classical comparison](docs/negative_detection.md) · [Model cards](docs/model_card.md) · [Results and data limitations](docs/evaluation.md)
 
